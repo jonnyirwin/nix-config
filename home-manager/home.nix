@@ -98,7 +98,6 @@
       enableSshSupport = true;
       pinentryFlavor = "curses";
     };
-    ssh-agent.enable = true;
   };
 
 }

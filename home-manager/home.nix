@@ -79,6 +79,10 @@
       enable = true;
       userEmail = "git@jbi.im";
       userName = "Jonny Irwin";
+      signing = {	
+        key = "A3DDFE095FBAB7FE";
+        signByDefault = true;
+      };
       extraConfig = {
         pull = {
           rebase = false;

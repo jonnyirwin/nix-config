@@ -20,6 +20,8 @@
   home.packages = with pkgs;[
     tmux
     kitty
+    pinentry
+    neovim
     # # Adds the 'hello' command to your environment. It prints a friendly
     # # "Hello, world!" when run.
     # pkgs.hello
@@ -100,7 +102,7 @@
     gpg-agent = {
       enable = true;
       enableSshSupport = true;
-      pinentryFlavor = "curses";
+      pinentryFlavor = "tty";
     };
   };
 

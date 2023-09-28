@@ -44,7 +44,7 @@
   #  xkbVariant = "";
   # };
 
-  nix.settings.experimental-features = [ "flakes" ];
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   programs.sway.enable = true;
   programs.fish.enable = true;

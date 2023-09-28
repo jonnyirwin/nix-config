@@ -44,6 +44,8 @@
   #  xkbVariant = "";
   # };
 
+  nix.settings.experimental-features = [ "flakes" ];
+
   programs.sway.enable = true;
   programs.fish.enable = true;
 
@@ -81,6 +83,18 @@
     initialPassword = "Password123*";
     shell = pkgs.fish;
   };
+
+  security.sudo.extraRules = [
+    {
+      users = [ "jonny" ];
+      commands = [
+        {
+          command = "ALL";	
+	  options = [ "NOPASSWD" ];
+	}
+      ];
+    }
+  ];
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;

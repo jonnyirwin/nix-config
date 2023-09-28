@@ -67,6 +67,7 @@
   # if you don't want to manage your shell through Home Manager.
   home.sessionVariables = {
     # EDITOR = "emacs";
+    GPG_TTY = "$(tty)";
   };
 
   nixpkgs.config.allowUnfree = true;
@@ -96,6 +97,7 @@
     };
     gpg.enable = true;
     home-manager.enable = true;
+    starship.enable = true;
   };
 
   services = {

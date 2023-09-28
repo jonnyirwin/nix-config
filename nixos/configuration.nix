@@ -45,6 +45,7 @@
   # };
 
   programs.sway.enable = true;
+  programs.fish.enable = true;
 
   # Configure console keymap
   console.keyMap = "uk";
@@ -78,6 +79,7 @@
     description = "Jonny";
     extraGroups = [ "networkmanager" "wheel" ];
     initialPassword = "Password123*";
+    shell = pkgs.fish;
   };
 
   # Allow unfree packages

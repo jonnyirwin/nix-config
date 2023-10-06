@@ -104,25 +104,12 @@
   environment.systemPackages = with pkgs; [
     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     wget
+    curl
     git
-    obsidian
-    syncthing
-    keepassxc
-    godot_4
-    spotify
-    vlc
-    vscode
-    microsoft-edge
-    meld
-    kicad
-    inkscape
-    gimp
-    zoom-us
-    xmind
-    krita
-    postman
-    firefox
+    vim
   ];
+
+  environment.variables.EDITOR = "vim";
 
 
   # Some programs need SUID wrappers, can be configured further or are

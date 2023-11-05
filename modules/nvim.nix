@@ -1,5 +1,4 @@
 {
-programs.nixvim = {
 	enable = true;
 	viAlias = true;
 	vimAlias = true;
@@ -77,6 +76,4 @@ programs.nixvim = {
 		};
 		lspkind.enable = true;	
 	};
-};
 }
-

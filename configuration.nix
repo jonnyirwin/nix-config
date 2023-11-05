@@ -20,6 +20,7 @@
   console.keyMap = "uk";
 
   programs.sway.enable = true;
+	programs.fish.enable = true;
 
   # Enable sound with pipewire.
   sound.enable = true;

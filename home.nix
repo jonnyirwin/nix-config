@@ -26,6 +26,8 @@
 		home.packages = [
 		pkgs.ponysay
 		(pkgs.nerdfonts.override { fonts = [ "NerdFontsSymbolsOnly" ]; })
+		pkgs.obsidian
+		pkgs.keepassxc
 # # Adds the 'hello' command to your environment. It prints a friendly
 # # "Hello, world!" when run.
 # pkgs.hello
@@ -99,6 +101,7 @@
 		pinentryFlavor = "tty";
 	};
 
-	programs.nixvim = import ./modules/nvim.nix;
+	programs.nixvim = import ./home-manager/nvim.nix;
+	programs.vscode.enable = true;
 
 }

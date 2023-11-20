@@ -27,12 +27,25 @@
       nixos = lib.nixosSystem {
         inherit system;
         modules = [
-          ./configuration.nix
+          ./nixos/hosts/nixos/configuration.nix
+        ];
+      };
+      bearnagh = lib.nixosSystem {
+        inherit system;
+        modules = [
+          ./nixos/hosts/bearnagh/configuration.nix
         ];
       };
     };
     homeConfigurations = {
       "jonny@nixos" = home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages.${system};
+        modules = [ 
+          nixvim.homeManagerModules.nixvim
+          ./home.nix
+        ];
+      };
+      "jonny@bearnagh" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.${system};
         modules = [ 
           nixvim.homeManagerModules.nixvim

@@ -79,11 +79,14 @@ in
      firefox
      tmux
      microsoft-edge
+     pavucontrol
   #  wget
   ];
   
-  programs.sway.enable = true;
-  programs.waybar.enable = true;
+  #programs.sway.enable = true;
+  #programs.waybar.enable = true;
+  security.polkit.enable = true;
+  hardware.opengl.enable = true;
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
@@ -98,21 +101,34 @@ in
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
 
-  services.greetd = {
-    enable = true;
-    settings = {
-      default_session = {
-        command = "${pkgs.sway}/bin/sway --config ${swayConfig}";
-        user = "jonny";
-      };
-    };
-  };
+  #services.greetd = {
+  #  enable = true;
+  #  settings = {
+  #    default_session = {
+  #      command = "${pkgs.sway}/bin/sway";
+  #      user = "jonny";
+  #    };
+  #  };
+  #};
 
   environment.etc."greetd/environments".text = ''
     sway
     fish
     bash
   ''; 
+
+  hardware.bluetooth.enable = true;
+  hardware.bluetooth.powerOnBoot = true;
+
+  security.rtkit.enable = true;
+  services.pipewire = {
+	  enable = true;
+	  alsa.enable = true;
+	  alsa.support32Bit = true;
+	  pulse.enable = true;
+# If you want to use JACK applications, uncomment this
+#jack.enable = true;
+  };
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];

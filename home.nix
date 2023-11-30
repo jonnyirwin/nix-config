@@ -12,6 +12,21 @@
 
 	nixpkgs.config.allowUnfree = true;
 
+	nixpkgs.overlays = [
+		(final: prev: {
+			aseprite = prev.aseprite.overrideAttrs (finalAttrs: previousAttrs: rec {
+			version = "1.3.1";
+			src = prev.fetchFromGitHub {
+				owner = "aseprite";
+				repo = "aseprite";
+				rev = "v${version}";
+				fetchSubmodules = true;
+				hash = "sha256-8eQI3eZm5YTjhwdiElERuyM/X59TbFowHP4S6X0B+d8=";
+			};
+		});
+		})
+	];
+
 # This value determines the Home Manager release that your configuration is
 # compatible with. This helps avoid breakage when a new Home Manager release
 # introduces backwards incompatible changes.
@@ -29,11 +44,13 @@
 		pkgs.obsidian
 		pkgs.keepassxc
 		pkgs.intel-one-mono
-		pkgs.font-awesome_4
+		pkgs.font-awesome_4 
 		pkgs.waybar
 		pkgs.inter
 		pkgs.gnome.gnome-font-viewer
-# # Adds the 'hello' command to your environment. It prints a friendly
+		pkgs.godot_4
+		pkgs.starship
+		pkgs.aseprite# # Adds the 'hello' command to your environment. It prints a friendly
 # # "Hello, world!" when run.
 # pkgs.hello
 
@@ -377,7 +394,7 @@ bindsym $mod+Shift+d exec "echo 'swaymsg output eDP-1 scale 1.5\nswaymsg output 
 	};
 
 home.file.".config/wofi/config".text = ''
-  width=600
+width=400
 height=200
 location=center
 show=drun

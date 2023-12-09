@@ -17,10 +17,10 @@
   let
     inherit (nixpkgs) lib;
     system = "x86_64-linux";
-    pkgs = import nixpkgs {
-      inherit system;
-      config.allowUnfree = true;
-    };
+    #pkgs = import nixpkgs {
+      #inherit system;
+      #config.allowUnfree = true;
+    #};
   in
   {
     nixosConfigurations = {
@@ -42,14 +42,14 @@
         pkgs = nixpkgs.legacyPackages.${system};
         modules = [ 
           nixvim.homeManagerModules.nixvim
-          ./home.nix
+          ./home-manager/home.nix
         ];
       };
       "jonny@bearnagh" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.${system};
         modules = [ 
           nixvim.homeManagerModules.nixvim
-          ./home.nix
+          ./home-manager/home.nix
         ];
       };
     };

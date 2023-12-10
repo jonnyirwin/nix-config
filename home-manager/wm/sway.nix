@@ -29,6 +29,10 @@
 				mode = "2560x1440@60Hz";
 				pos = "-2560 0";
 			};
+			"HDMI-A-2" = {
+				mode = "2560x1440@60Hz";
+				pos = "-2560 0";
+			};
 		};
 		terminal = "${pkgs.kitty}/bin/kitty";
 		bars = [
@@ -53,10 +57,29 @@
 			smartGaps = true;
 		};
 		keybindings = lib.mkOptionDefault {
-			"${modifier}+Return" = "exec ${pkgs.kitty}/bin/kitty";
-			"${modifier}+Shift+q" = "kill";
-			"${modifier}+d" = "exec ${pkgs.dmenu}/bin/dmenu_path | ${pkgs.dmenu}/bin/dmenu | ${pkgs.findutils}/bin/xargs swaymsg exec --";
+		};
+		menu = "${pkgs.wofi}/bin/wofi | xargs swaymsg exec --";
+		};
+		swaynag = {
+			enable = true;
+			settings = {
+				"<config>" = {
+					edge = "bottom";
+					font = "Inter 12";
+				};
+
+				green = {
+					edge = "top";
+					background = "00AA00";
+					text = "FFFFFF";
+					button-background = "00CC00";
+					message-padding = 10;
+				};
+			};
+			};
+		wrapperFeatures = {
+			gtk = true;
 		};
 		};
-	};
-}
+	}
+

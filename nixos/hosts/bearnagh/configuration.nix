@@ -34,6 +34,12 @@ in
   boot.initrd.luks.devices."luks-8315d3de-b4af-4aca-9759-abacd40233d4".keyFile = "/crypto_keyfile.bin";
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.auto-optimise-store = true;
+  nix.gc = {
+	automatic = true;
+	dates = "weekly";
+	options = "--delte-older-than 1w";
+  };
 
   networking.hostName = "bearnagh"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.

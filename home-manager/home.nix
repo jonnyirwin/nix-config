@@ -1,9 +1,10 @@
-{ config, pkgs, self, ... }:
+{ config, pkgs, self, pkgs-unstable, ... }:
 
 {
 
   imports = [
 		./wm/sway.nix
+		./wm/rofi.nix
 	];
 
 # Home Manager needs a bit of information about you and the paths it should
@@ -43,21 +44,19 @@
 # The home.packages option allows you to install Nix packages into your
 # environment.
 		home.packages = [
-		pkgs.ponysay
 		(pkgs.nerdfonts.override { fonts = [ "NerdFontsSymbolsOnly" ]; })
-		pkgs.obsidian
+		pkgs-unstable.obsidian
 		pkgs.keepassxc
 		pkgs.intel-one-mono
-		pkgs.font-awesome_4 
 		pkgs.waybar
 		pkgs.inter
-		pkgs.gnome.gnome-font-viewer
 		pkgs.godot_4
 		pkgs.starship
 		pkgs.aseprite# # Adds the 'hello' command to your environment. It prints a friendly
 # # "Hello, world!" when run.
 # pkgs.hello
 		pkgs.syncthing
+		pkgs-unstable.neovim
 
 
 # # It is sometimes useful to fine-tune packages, for example, by applying
@@ -129,7 +128,7 @@
 		pinentryFlavor = "tty";
 	};
 
-	programs.nixvim = import ./nvim/nvim.nix;
+	#programs.nixvim = import ./nvim/nvim.nix;
 	programs.vscode.enable = true;
 	#programs.waybar.enable = true;
 	programs.wofi.enable = true;

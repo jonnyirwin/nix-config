@@ -57,14 +57,15 @@
 			smartGaps = true;
 		};
 		keybindings = lib.mkOptionDefault {
+			"${modifier}+Shift+e" = "exec swaynag -t warning -m 'What do you want to do?' -B 'Power off' 'systemctl poweroff' -B 'Reboot' 'systemctl reboot' -B 'Logout' 'swaymsg exit'";
 		};
-		menu = "${pkgs.wofi}/bin/wofi | xargs swaymsg exec --";
+		menu = "${pkgs.rofi}/bin/rofi -show drun -modi drun,run -lines 1";
 		};
 		swaynag = {
 			enable = true;
 			settings = {
 				"<config>" = {
-					edge = "bottom";
+					edge = "top";
 					font = "Inter 12";
 				};
 

@@ -57,6 +57,7 @@
 # pkgs.hello
 		pkgs.syncthing
 		pkgs-unstable.neovim
+		pkgs.python3
 
 
 # # It is sometimes useful to fine-tune packages, for example, by applying
@@ -131,90 +132,6 @@
 	#programs.nixvim = import ./nvim/nvim.nix;
 	programs.vscode.enable = true;
 	#programs.waybar.enable = true;
-	programs.wofi.enable = true;
-
-home.file.".config/wofi/config".text = ''
-width=400
-height=200
-location=center
-show=drun
-prompt=Search...
-filter_rate=100
-allow_markup=true
-no_actions=true
-halign=fill
-orientation=vertical
-content_halign=fill
-insensitive=true
-allow_images=true
-image_size=24
-gtk_dark=true
-'';
-
-home.file.".config/wofi/styles.css".text = ''
-  @define-color clear rgba(0, 0, 0, 0.0);
-
-window {
-    margin: 2px;
-    border: 0px solid;
-    background-color: #111827;
-    border-radius: 8px;
-}
-
-#input {
-    padding: 4px;
-    margin: 4px;
-    border: none;
-    color: #ffffff; 
-    background-color: @clear;
-    outline: none;
-}
-
-#inner-box {
-    margin: 4px;
-    border: 0px solid;
-    background-color: @clear;
-    border-radius: 8px;
-}
-
-#outer-box {
-    margin: 2px;
-    border: none;
-    border-radius: 8px;
-    background-color: @clear;
-}
-
-#scroll {
-    margin: 0px;
-    border: none;
-}
-
-#text {
-    color: #9CA3AF;
-    margin-left: 8px;
-}
-
-#text:selected {
-    color: #ffffff;
-    margin: 0px 8px;
-    border: none;
-    border-radius: 8px;
-}
-
-#entry {
-    margin: 0px 0px;
-    border: none;
-    border-radius: 0px;
-    background-color: transparent;
-}
-
-#entry:selected {
-    margin: 0px 0px;
-    border: none;
-    border-radius: 8px;
-    background-color: #242c3a;
-}
-'';
 
 home.file.".config/kitty/kitty.conf".text = ''
 font_family								Intel One Mono 

@@ -3,17 +3,6 @@
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
 { config, pkgs, ... }:
-let
-  swayConfig = pkgs.writeText "greetd-sway-config" ''
-    # `-l` activates layer-shell mode. Notice that `swaymsg exit` will run after gtkgreet.
-    exec "${pkgs.greetd.gtkgreet}/bin/gtkgreet -l; swaymsg exit"
-    bindsym Mod4+shift+e exec swaynag \
-      -t warning \
-      -m 'What do you want to do?' \
-      -b 'Poweroff' 'systemctl poweroff' \
-      -b 'Reboot' 'systemctl reboot'
-  '';
-in
 {
   imports =
     [ # Include the results of the hardware scan.
@@ -87,13 +76,11 @@ in
      kitty
      firefox
      tmux
-     microsoft-edge
      pavucontrol
-  #  wget
+     curl
+     wget
   ];
   
-  #programs.sway.enable = true;
-  #programs.waybar.enable = true;
   security.polkit.enable = true;
   hardware.opengl.enable = true;
 
@@ -109,22 +96,6 @@ in
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
-
-  #services.greetd = {
-  #  enable = true;
-  #  settings = {
-  #    default_session = {
-  #      command = "${pkgs.sway}/bin/sway";
-  #      user = "jonny";
-  #    };
-  #  };
-  #};
-
-  environment.etc."greetd/environments".text = ''
-    sway
-    fish
-    bash
-  ''; 
 
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;

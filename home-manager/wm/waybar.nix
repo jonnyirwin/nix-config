@@ -3,7 +3,53 @@
 	programs.waybar = {
 		enable = true;
 		settings = {
-
+			bar = {
+			layer = "top";
+			position = "top";
+			modules-left = [ "sway/workspaces" "sway/mode" ];
+			modules-center = [ "clock" "idle_inhibitor" ];
+			modules-right = [ "pulseaudio" "bluetooth" "battery" "tray"];
+			"sway/window" = {
+				max-length = 50;
+			};
+			battery = {
+				bat = "BAT1";
+				format = "󰁹 {capacity}%";
+			};
+			clock = {
+				format = "󰥔 {:%a, %d. %b  %H:%M}";
+			};
+			bluetooth = {
+				format= "󰂯 {status}"; 
+				format-connected = " {num_connections} connected";
+				tooltip-format = "{controller_alias}\t{controller_address}";
+				tooltip-format-connected = "{controller_alias}\t{controller_address}\n\n{device_enumerate}";
+				tooltip-format-enumerate-connected = "{device_alias}\t{device_address}";
+    			};
+			idle_inhibitor = {
+        			format = "{icon}"; 
+				format-icons = {
+	    				activated =  "󰀠";
+	    				deactivated = "󰒲";
+				};		
+    			};
+			pulseaudio = {
+        			format = "{icon} {volume}%";
+    				format-bluetooth = "{icon} {volume}%";
+    				format-muted = "";
+    				format-icons = {
+        				headphone = "";
+        				hands-free = "";
+        				headset = "󰋎";
+        				phone = "";
+        				portable = "";
+        				car = "";
+        				default = [ "" "" ];
+    				};
+    				scroll-step = 1;
+    				on-click = "pavucontrol";
+    			};
+			};
 		};
 		style = ''
 			* {

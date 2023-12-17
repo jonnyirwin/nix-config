@@ -9,7 +9,7 @@
 		extraConfig = {
     			modi = "drun";
     			show-icons = true;
-			fixed-num-lines = false;
+			fixed-num-lines = true;
 		};
 	};
 }		

@@ -4,6 +4,7 @@
 
   imports = [
 		./wm/sway.nix
+		./wm/swaylock.nix
 		./wm/rofi.nix
 		./wm/waybar.nix
 		./wm/mako.nix

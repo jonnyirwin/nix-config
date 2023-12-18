@@ -82,6 +82,7 @@
   ];
   
   security.polkit.enable = true;
+  security.pam.services.swaylock = {};
   hardware.opengl.enable = true;
 
   # Some programs need SUID wrappers, can be configured further or are

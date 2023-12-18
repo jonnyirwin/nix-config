@@ -3,8 +3,8 @@
 ## To-do
 
 - [x] Notification service - Mako?
-- [ ] SwayIdle
-- [ ] Swaylock
+- [x] SwayIdle
+- [x] Swaylock
 - [ ] Styling Rofi
 - [ ] Configure GTK
 - [ ] Network Manager applet icon

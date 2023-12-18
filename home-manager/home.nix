@@ -60,6 +60,7 @@
 		pkgs.syncthing
 		pkgs-unstable.neovim
 		pkgs.python3
+		pkgs.qutebrowser
 
 
 # # It is sometimes useful to fine-tune packages, for example, by applying

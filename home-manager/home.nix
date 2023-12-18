@@ -6,6 +6,7 @@
 		./wm/sway.nix
 		./wm/rofi.nix
 		./wm/waybar.nix
+		./wm/mako.nix
 		./kitty.nix
 	];
 

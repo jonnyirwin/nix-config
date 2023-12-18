@@ -2,7 +2,7 @@
 
 ## To-do
 
-- [ ] Notification service - Mako?
+- [x] Notification service - Mako?
 - [ ] SwayIdle
 - [ ] Swaylock
 - [ ] Styling Rofi

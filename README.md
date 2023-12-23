@@ -7,7 +7,7 @@
 - [x] Swaylock
 - [ ] Styling Rofi
 - [ ] Configure GTK
-- [ ] Network Manager applet icon
+- [x] Network Manager applet icon
 - [ ] Setting Sans & Monospace fonts
 - [ ] Extracting setting of colours to central location
 - [ ] Configuring Neovim - NixVim?

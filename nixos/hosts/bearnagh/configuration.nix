@@ -93,6 +93,9 @@
     enableSSHSupport = true;
   };
 
+  programs.thunar.enable = true;
+  programs.dconf.enable = true;
+
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.

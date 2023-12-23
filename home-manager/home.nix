@@ -1,14 +1,15 @@
 { config, pkgs, self, pkgs-unstable, ... }:
 
 {
-
-  imports = [
+	imports = [
 		./wm/sway.nix
-		./wm/swaylock.nix
-		./wm/rofi.nix
-		./wm/waybar.nix
-		./wm/mako.nix
-		./kitty.nix
+			./wm/swaylock.nix
+			./wm/rofi.nix
+			./wm/waybar.nix
+			./wm/mako.nix
+			./kitty.nix
+			./gtk.nix
+			./nvim
 	];
 
 # Home Manager needs a bit of information about you and the paths it should
@@ -17,23 +18,24 @@
 	home.homeDirectory = "/home/jonny";
 	home.sessionVariables = {
 		GPG_TTY = "$(tty)";
+		GTK_THEME = "Catppuccin-Mocha-Blue-Compact-Dark";
 	};
 
 	nixpkgs.config.allowUnfree = true;
 
 	nixpkgs.overlays = [
 		(final: prev: {
-			aseprite = prev.aseprite.overrideAttrs (finalAttrs: previousAttrs: rec {
-			version = "1.3.1";
-			src = prev.fetchFromGitHub {
-				owner = "aseprite";
-				repo = "aseprite";
-				rev = "v${version}";
-				fetchSubmodules = true;
-				hash = "sha256-8eQI3eZm5YTjhwdiElERuyM/X59TbFowHP4S6X0B+d8=";
-			};
-		});
-		})
+		 aseprite = prev.aseprite.overrideAttrs (finalAttrs: previousAttrs: rec {
+				 version = "1.3.1";
+				 src = prev.fetchFromGitHub {
+				 owner = "aseprite";
+				 repo = "aseprite";
+				 rev = "v${version}";
+				 fetchSubmodules = true;
+				 hash = "sha256-8eQI3eZm5YTjhwdiElERuyM/X59TbFowHP4S6X0B+d8=";
+				 };
+				 });
+		 })
 	];
 
 # This value determines the Home Manager release that your configuration is
@@ -49,20 +51,20 @@
 # environment.
 		home.packages = [
 		(pkgs.nerdfonts.override { fonts = [ "NerdFontsSymbolsOnly" ]; })
-		pkgs-unstable.obsidian
-		pkgs.keepassxc
-		pkgs.intel-one-mono
-		pkgs.waybar
-		pkgs.inter
-		pkgs.godot_4
-		pkgs.starship
-		pkgs.aseprite# # Adds the 'hello' command to your environment. It prints a friendly
+			pkgs-unstable.obsidian
+			pkgs.keepassxc
+			pkgs.intel-one-mono
+			pkgs.waybar
+			pkgs.inter
+			pkgs.godot_4
+			pkgs.starship
+			pkgs.aseprite# # Adds the 'hello' command to your environment. It prints a friendly
 # # "Hello, world!" when run.
 # pkgs.hello
-		pkgs.syncthing
-		pkgs-unstable.neovim
-		pkgs.python3
-		pkgs.qutebrowser
+			pkgs.syncthing
+			pkgs.python3
+			pkgs.qutebrowser
+			pkgs.microsoft-edge
 
 
 # # It is sometimes useful to fine-tune packages, for example, by applying
@@ -77,9 +79,9 @@
 #r(pkgs.writeShellScriptBin "my-hello" ''
 #   echo "Hello, ${config.home.username}!"
 # '')
-		];
+			];
 	fonts.fontconfig.enable = true;
-	
+
 # Home Manager is pretty good at managing dotfiles. The primary way to manage
 # plain files is through 'home.file'.
 	home.file = {
@@ -127,23 +129,16 @@
 		home-manager.enable = true;
 		starship.enable = true;
 	};	
-	
+
 	services.gpg-agent = {
 		enable = true;
 		enableSshSupport = true;
 		pinentryFlavor = "tty";
 	};
 
-	#programs.nixvim = import ./nvim/nvim.nix;
 	programs.vscode.enable = true;
 
-home.file."./wallpaper.jpg".source = ./wallpaper.jpg;
+	home.file."./wallpaper.jpg".source = ./wallpaper.jpg;
 
-services.network-manager-applet.enable = true;
-
-gtk.iconTheme = {
-	package = pkgs.gnome.adwaita-icon-theme;
-	name = "adwaita-icon-theme";
-};
-
+	services.network-manager-applet.enable = true;
 }

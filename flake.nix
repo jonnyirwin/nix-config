@@ -9,7 +9,7 @@
       inputs.nixpkgs.follows = "nixpkgs";	
     };
     nixvim = {
-      url = "github:nix-community/nixvim";
+      url = "github:nix-community/nixvim/nixos-23.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -48,31 +48,11 @@
       };
     };
     homeConfigurations = {
-      "jonny@nixos" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.${system};
-				extraSpecialArgs = {
-					inherit pkgs-unstable;
-				};
-        modules = [ 
-          nixvim.homeManagerModules.nixvim
-          ./home-manager/home.nix
-        ];
-      };
       "jonny@bearnagh" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.${system};
 				extraSpecialArgs = {
 					inherit pkgs-unstable;
 				};
-        modules = [ 
-          nixvim.homeManagerModules.nixvim
-          ./home-manager/home.nix
-        ];
-      };
-      "jonny@meelbeg" = home-manager.lib.homeManagerConfiguration {
-				extraSpecialArgs = {
-					inherit pkgs-unstable;
-				};
-        pkgs = nixpkgs.legacyPackages.${system};
         modules = [ 
           nixvim.homeManagerModules.nixvim
           ./home-manager/home.nix

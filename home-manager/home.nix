@@ -137,6 +137,10 @@
 	};
 
 	programs.vscode.enable = true;
+	programs.tmux = {
+		enable = true;
+		shortcut = "a";
+	};
 
 	home.file."./wallpaper.jpg".source = ./wallpaper.jpg;
 

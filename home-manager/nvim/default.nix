@@ -47,7 +47,8 @@
 			treesitter.enable = true;
 			treesitter-textobjects.enable = true;
 			undotree.enable = true;
-			which-key.enable =true;
+			which-key.enable = true;
+			conform-nvim.enable = true;
 		};
 	};
 }

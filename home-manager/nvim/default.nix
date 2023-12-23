@@ -1,3 +1,4 @@
+{ config, lib, ... }:
 {
 	programs.nixvim = {
 		enable = true;
@@ -47,8 +48,30 @@
 			treesitter.enable = true;
 			treesitter-textobjects.enable = true;
 			undotree.enable = true;
+
 			which-key.enable = true;
 			conform-nvim.enable = true;
+			lint.enable = true;
+			nvim-tree.enable = true;
 		};
+
+		keymaps = let
+			normal =
+			lib.mapAttrsToList
+			(key: action: {
+			 mode = "n";
+			 inherit action key;
+			 })
+		{
+			"<Space>" = "<NOP>";
+			"<C-d>" = "<C-d>zz";
+			"<C-u>" = "<C-u>zz";
+			"n" = "nzzzv";
+			"N" = "Nzzzv";
+		};
+		in
+			config.nixvim.helpers.keymaps.mkKeymaps
+			{ options.silent = true; }
+		(normal);
 	};
 }

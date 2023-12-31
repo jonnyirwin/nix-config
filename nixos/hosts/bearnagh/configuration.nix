@@ -94,6 +94,7 @@
 
   programs.thunar.enable = true;
   programs.dconf.enable = true;
+	programs.steam.enable = true;
 
   # List services that you want to enable:
 

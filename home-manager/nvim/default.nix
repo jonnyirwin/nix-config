@@ -48,6 +48,16 @@
 			lspkind.enable = true;
 			lualine.enable = true;
 			luasnip.enable = true;
+			
+			none-ls = {
+				enable = true;
+				sources = {
+					code_actions.statix.enable = true;
+					diagnostics.deadnix.enable = true;
+					diagnostics.statix.enable = true;
+					formatting.alejandra.enable = true;
+				};
+			};
 
 			nvim-cmp = {
 				enable = true;
@@ -91,8 +101,6 @@
 			undotree.enable = true;
 
 			which-key.enable = true;
-			conform-nvim.enable = true;
-			lint.enable = true;
 			nvim-tree.enable = true;
 		};
 

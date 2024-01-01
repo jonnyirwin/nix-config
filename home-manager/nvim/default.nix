@@ -1,10 +1,11 @@
-{
+
+ {
   config,
   lib,
   ...
 }: {
   programs.nixvim = {
-    enable = true;
+    enable = true;		
 
     viAlias = true;
     vimAlias = true;
@@ -44,11 +45,26 @@
       lsp = {
         enable = true;
         servers = {
-          nixd.enable = true;
+          nixd = {
+						enable = true;
+						settings.options = {
+							enable = true;
+							target.args = [];
+							target.installable = ".#homeConfigurations.jonny@bearnagh.options";
+						};
+					};
         };
       };
 
-      lspkind.enable = true;
+      lspkind = {
+			enable = true;
+			 cmp.menu = {
+          buffer = "[Buffer]";
+          nvim_lsp = "[LSP]";
+          luasnip = "[LuaSnip]";
+          path =  "[Path]";
+        };
+			};
       lualine.enable = true;
       luasnip.enable = true;
 
@@ -71,7 +87,10 @@
           {name = "path";}
         ];
         formatting.fields = ["kind" "abbr" "menu"];
+				mappingPresets = ["insert"];
         mapping = {
+					"<C-j>" = "cmp.mapping.select_next_item()";
+					"<C-k>" = "cmp.mapping.select_prev_item()";
           "<C-b>" = "cmp.mapping.scroll_docs(-4)";
           "<C-f>" = "cmp.mapping.scroll_docs(4)";
           "<C-Space>" = "cmp.mapping.complete()";

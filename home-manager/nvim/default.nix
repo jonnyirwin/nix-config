@@ -7,7 +7,7 @@
 		vimAlias = true;
 
 		colorschemes.tokyonight.enable = true;
-
+	
 		globals = {
 			mapleader = " ";
 			maplocalleader = " ";
@@ -41,7 +41,7 @@
 			lsp = {
 				enable = true;
 				servers = {
-					rnix-lsp.enable = true;
+					nixd.enable = true;
 				};
 			};
 

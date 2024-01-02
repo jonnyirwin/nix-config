@@ -1,4 +1,4 @@
-{ config, pkgs, self, pkgs-unstable, ... }:
+{ config, pkgs, pkgs-unstable, ... }:
 
 {
 	imports = [
@@ -24,8 +24,8 @@
 	nixpkgs.config.allowUnfree = true;
 
 	nixpkgs.overlays = [
-		(final: prev: {
-		 aseprite = prev.aseprite.overrideAttrs (finalAttrs: previousAttrs: rec {
+		(_: prev: {
+		 aseprite = prev.aseprite.overrideAttrs (_: _: rec {
 				 version = "1.3.1";
 				 src = prev.fetchFromGitHub {
 				 owner = "aseprite";

@@ -47,6 +47,7 @@
         servers = {
           nixd = {
 						enable = true;
+						rootDir = "require('lspconfig').util.root_pattern(\".nixd.json\", \"flake.nix\", \".git\")";
 						settings.options = {
 							enable = true;
 							target.args = [];
@@ -57,9 +58,9 @@
       };
 
       lspkind = {
-			enable = true;
-			 cmp.menu = {
-          buffer = "[Buffer]";
+				enable = true;
+				cmp.menu = {
+					buffer = "[Buffer]";
           nvim_lsp = "[LSP]";
           luasnip = "[LuaSnip]";
           path =  "[Path]";

@@ -19,6 +19,7 @@
 	home.sessionVariables = {
 		GPG_TTY = "$(tty)";
 		GTK_THEME = "Catppuccin-Mocha-Blue-Compact-Dark";
+		WLR_NO_HARDWARE_CURSORS=1;
 	};
 
 	nixpkgs.config.allowUnfree = true;

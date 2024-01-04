@@ -27,11 +27,11 @@
 			};
 			"DP-1" = {
 				mode = "2560x1440@60Hz";
-				pos = "-2560 0";
+				pos = "1920 0";
 			};
 			"HDMI-A-2" = {
 				mode = "2560x1440@60Hz";
-				pos = "-2560 0";
+				pos = "1920 0";
 			};
 		};
 		terminal = "${pkgs.kitty}/bin/kitty";

@@ -54,6 +54,7 @@
 							target.installable = ".#homeConfigurations.jonny@bearnagh.options";
 						};
 					};
+					tsserver.enable = true;
         };
       };
 
@@ -73,9 +74,12 @@
         enable = true;
         sources = {
           code_actions.statix.enable = true;
+					code_actions.eslint_d.enable = true;
           diagnostics.deadnix.enable = true;
+					diagnostics.eslint_d.enable = true;
           diagnostics.statix.enable = true;
           formatting.alejandra.enable = true;
+					formatting.prettier.enable = true;
         };
       };
 

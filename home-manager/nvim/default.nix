@@ -37,28 +37,28 @@
     plugins = {
       barbar.enable = true;
       comment-nvim.enable = true;
-			copilot-vim.enable = true;
+      copilot-vim.enable = true;
       fugitive.enable = true;
       gitsigns.enable = true;
       harpoon.enable = true;
 
       lsp = {
         enable = true;
-				keymaps = {
-					diagnostic = {
-						"<leader>j" = "goto_next";
-						"<leader>k" = "goto_prev";
-					};
-					lspBuf = {
-						K = "hover";
-						gD = "references";
-						gd = "definition";
-						gi = "implementation";
-						gt = "type_definition";
-						ga = "code_action";
-						gf = "format";
-					};
-				};
+        keymaps = {
+          diagnostic = {
+            "<leader>j" = "goto_next";
+            "<leader>k" = "goto_prev";
+          };
+          lspBuf = {
+            K = "hover";
+            gD = "references";
+            gd = "definition";
+            gi = "implementation";
+            gt = "type_definition";
+            ga = "code_action";
+            gf = "format";
+          };
+        };
         servers = {
           nixd = {
             enable = true;
@@ -90,9 +90,11 @@
         sources = {
           code_actions.statix.enable = true;
           code_actions.eslint_d.enable = true;
-          diagnostics.deadnix.enable = true;
-          diagnostics.eslint_d.enable = true;
-          diagnostics.statix.enable = true;
+          diagnostics = {
+            deadnix.enable = true;
+            eslint_d.enable = true;
+            statix.enable = true;
+          };
           formatting.alejandra.enable = true;
           formatting.prettier.enable = true;
         };

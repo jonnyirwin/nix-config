@@ -32,7 +32,8 @@
       undofile = true;
       wrap = false;
       termguicolors = true;
-    };
+			signcolumn = "yes";
+		};
 
     plugins = {
       barbar.enable = true;

@@ -58,6 +58,7 @@
     pkgs.qutebrowser
     pkgs.microsoft-edge
     pkgs.nodejs
+		pkgs.spotify
   ];
   fonts.fontconfig.enable = true;
 

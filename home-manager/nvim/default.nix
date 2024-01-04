@@ -9,7 +9,10 @@
     viAlias = true;
     vimAlias = true;
 
-    colorschemes.tokyonight.enable = true;
+    colorschemes.tokyonight = {
+      enable = true;
+      transparent = true;
+    };
 
     globals = {
       mapleader = " ";
@@ -222,7 +225,7 @@
           "<C-u>" = "<C-u>zz";
           "n" = "nzzzv";
           "N" = "Nzzzv";
-					"<C-t>" = "";
+          "<C-t>" = "";
         };
     in
       config.nixvim.helpers.keymaps.mkKeymaps

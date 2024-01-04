@@ -1,11 +1,10 @@
-
- {
+{
   config,
   lib,
   ...
 }: {
   programs.nixvim = {
-    enable = true;		
+    enable = true;
 
     viAlias = true;
     vimAlias = true;
@@ -38,35 +37,51 @@
     plugins = {
       barbar.enable = true;
       comment-nvim.enable = true;
+			copilot-vim.enable = true;
       fugitive.enable = true;
       gitsigns.enable = true;
       harpoon.enable = true;
 
       lsp = {
         enable = true;
+				keymaps = {
+					diagnostic = {
+						"<leader>j" = "goto_next";
+						"<leader>k" = "goto_prev";
+					};
+					lspBuf = {
+						K = "hover";
+						gD = "references";
+						gd = "definition";
+						gi = "implementation";
+						gt = "type_definition";
+						ga = "code_action";
+						gf = "format";
+					};
+				};
         servers = {
           nixd = {
-						enable = true;
-						rootDir = "require('lspconfig').util.root_pattern(\".nixd.json\", \"flake.nix\", \".git\")";
-						settings.options = {
-							enable = true;
-							target.args = [];
-							target.installable = ".#homeConfigurations.jonny@bearnagh.options";
-						};
-					};
-					tsserver.enable = true;
+            enable = true;
+            rootDir = "require('lspconfig').util.root_pattern(\".nixd.json\", \"flake.nix\", \".git\")";
+            settings.options = {
+              enable = true;
+              target.args = [];
+              target.installable = ".#homeConfigurations.jonny@bearnagh.options";
+            };
+          };
+          tsserver.enable = true;
         };
       };
 
       lspkind = {
-				enable = true;
-				cmp.menu = {
-					buffer = "[Buffer]";
+        enable = true;
+        cmp.menu = {
+          buffer = "[Buffer]";
           nvim_lsp = "[LSP]";
           luasnip = "[LuaSnip]";
-          path =  "[Path]";
+          path = "[Path]";
         };
-			};
+      };
       lualine.enable = true;
       luasnip.enable = true;
 
@@ -74,12 +89,12 @@
         enable = true;
         sources = {
           code_actions.statix.enable = true;
-					code_actions.eslint_d.enable = true;
+          code_actions.eslint_d.enable = true;
           diagnostics.deadnix.enable = true;
-					diagnostics.eslint_d.enable = true;
+          diagnostics.eslint_d.enable = true;
           diagnostics.statix.enable = true;
           formatting.alejandra.enable = true;
-					formatting.prettier.enable = true;
+          formatting.prettier.enable = true;
         };
       };
 
@@ -92,10 +107,10 @@
           {name = "path";}
         ];
         formatting.fields = ["kind" "abbr" "menu"];
-				mappingPresets = ["insert"];
+        mappingPresets = ["insert"];
         mapping = {
-					"<C-j>" = "cmp.mapping.select_next_item()";
-					"<C-k>" = "cmp.mapping.select_prev_item()";
+          "<C-j>" = "cmp.mapping.select_next_item()";
+          "<C-k>" = "cmp.mapping.select_prev_item()";
           "<C-b>" = "cmp.mapping.scroll_docs(-4)";
           "<C-f>" = "cmp.mapping.scroll_docs(4)";
           "<C-Space>" = "cmp.mapping.complete()";

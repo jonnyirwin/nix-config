@@ -66,6 +66,7 @@
 			pkgs.python3
 			pkgs.qutebrowser
 			pkgs.microsoft-edge
+			pkgs.nodejs
 
 
 # # It is sometimes useful to fine-tune packages, for example, by applying

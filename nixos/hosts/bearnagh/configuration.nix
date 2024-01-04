@@ -1,13 +1,15 @@
 # Edit this configuration file to define what should be installed on
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
-
-{ config, pkgs, ... }:
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-    ];
+  config,
+  pkgs,
+  ...
+}: {
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+  ];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
@@ -22,12 +24,12 @@
   boot.initrd.luks.devices."luks-8315d3de-b4af-4aca-9759-abacd40233d4".device = "/dev/disk/by-uuid/8315d3de-b4af-4aca-9759-abacd40233d4";
   boot.initrd.luks.devices."luks-8315d3de-b4af-4aca-9759-abacd40233d4".keyFile = "/crypto_keyfile.bin";
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = ["nix-command" "flakes"];
   nix.settings.auto-optimise-store = true;
   nix.gc = {
-	automatic = true;
-	dates = "weekly";
-	options = "--delte-older-than 1w";
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 1w";
   };
 
   networking.hostName = "bearnagh"; # Define your hostname.
@@ -59,7 +61,7 @@
   users.users.jonny = {
     isNormalUser = true;
     description = "Jonny";
-    extraGroups = [ "networkmanager" "wheel" "input" ];
+    extraGroups = ["networkmanager" "wheel" "input"];
     packages = with pkgs; [];
     shell = pkgs.fish;
   };
@@ -72,14 +74,14 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-     kitty
-     firefox
-     pavucontrol
-     curl
-     wget
+    vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+    kitty
+    firefox
+    pavucontrol
+    curl
+    wget
   ];
-  
+
   security.polkit.enable = true;
   security.pam.services.swaylock = {};
   hardware.opengl.enable = true;
@@ -94,7 +96,7 @@
 
   programs.thunar.enable = true;
   programs.dconf.enable = true;
-	programs.steam.enable = true;
+  programs.steam.enable = true;
 
   # List services that you want to enable:
 
@@ -106,12 +108,12 @@
 
   security.rtkit.enable = true;
   services.pipewire = {
-	  enable = true;
-	  alsa.enable = true;
-	  alsa.support32Bit = true;
-	  pulse.enable = true;
-# If you want to use JACK applications, uncomment this
-#jack.enable = true;
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+    # If you want to use JACK applications, uncomment this
+    #jack.enable = true;
   };
 
   # Open ports in the firewall.
@@ -127,5 +129,4 @@
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "23.05"; # Did you read the comment?
-
 }

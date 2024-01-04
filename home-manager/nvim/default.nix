@@ -32,8 +32,8 @@
       undofile = true;
       wrap = false;
       termguicolors = true;
-			signcolumn = "yes";
-		};
+      signcolumn = "yes";
+    };
 
     plugins = {
       barbar.enable = true;
@@ -42,9 +42,15 @@
       fugitive.enable = true;
       gitsigns.enable = true;
       harpoon.enable = true;
-
       lsp = {
         enable = true;
+        postConfig = ''
+          local signs = { Error = "", Warn = "", Hint = "", Information = " " }
+          for type, icon in pairs(signs) do
+          	local hl = "DiagnosticSign" .. type
+          	vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+          end
+        '';
         keymaps = {
           diagnostic = {
             "<leader>j" = "goto_next";

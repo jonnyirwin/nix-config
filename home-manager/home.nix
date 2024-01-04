@@ -17,14 +17,15 @@
 
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
-  home.username = "jonny";
-  home.homeDirectory = "/home/jonny";
-  home.sessionVariables = {
-    GPG_TTY = "$(tty)";
-    GTK_THEME = "Catppuccin-Mocha-Blue-Compact-Dark";
-    WLR_NO_HARDWARE_CURSORS = 1;
-  };
-
+  home = {
+		username = "jonny";
+		homeDirectory = "/home/jonny";
+		sessionVariables = {
+			GPG_TTY = "$(tty)";
+			GTK_THEME = "Catppuccin-Mocha-Blue-Compact-Dark";
+			WLR_NO_HARDWARE_CURSORS = 1;
+		};
+	};
   nixpkgs.config.allowUnfree = true;
 
   nixpkgs.overlays = [

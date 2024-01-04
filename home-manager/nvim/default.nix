@@ -35,6 +35,11 @@
       signcolumn = "yes";
     };
 
+    clipboard = {
+      register = "unnamedplus";
+      providers.wl-copy.enable = true;
+    };
+
     plugins = {
       barbar.enable = true;
       comment-nvim.enable = true;
@@ -53,17 +58,44 @@
         '';
         keymaps = {
           diagnostic = {
-            "<leader>j" = "goto_next";
-            "<leader>k" = "goto_prev";
+            "<leader>j" = {
+              action = "goto_next";
+              desc = "Go to next diagnostic";
+            };
+            "<leader>k" = {
+              action = "goto_prev";
+              desc = "Go to previous diagnostic";
+            };
           };
           lspBuf = {
-            K = "hover";
-            gD = "references";
-            gd = "definition";
-            gi = "implementation";
-            gt = "type_definition";
-            ga = "code_action";
-            gf = "format";
+            K = {
+              action = "hover";
+              desc = "Show hover";
+            };
+            gD = {
+              action = "references";
+              desc = "Show references";
+            };
+            gd = {
+              action = "definition";
+              desc = "Show definition";
+            };
+            gi = {
+              action = "implementation";
+              desc = "Show implementation";
+            };
+            gt = {
+              action = "type_definition";
+              desc = "Show type definition";
+            };
+            ga = {
+              action = "code_action";
+              desc = "Show code actions";
+            };
+            gf = {
+              action = "format";
+              desc = "Format";
+            };
           };
         };
         servers = {
@@ -145,10 +177,32 @@
       cmp_luasnip.enable = true;
 
       surround.enable = true;
-      telescope.enable = true;
+      telescope = {
+        enable = true;
+        keymaps = {
+          "<leader>ff" = {
+            action = "find_files";
+            desc = "Telescope Find Files";
+          };
+          "<leader>fg" = {
+            action = "live_grep";
+            desc = "Telescope Live Grep";
+          };
+          "<leader>fb" = {
+            action = "buffers";
+            desc = "Telescope Buffers";
+          };
+          "<leader>fh" = {
+            action = "help_tags";
+            desc = "Telescope Help Tags";
+          };
+        };
+        extensions.fzf-native.enable = true;
+      };
       tmux-navigator.enable = true;
       treesitter.enable = true;
       treesitter-textobjects.enable = true;
+      trouble.enable = true;
       undotree.enable = true;
 
       which-key.enable = true;
@@ -168,6 +222,7 @@
           "<C-u>" = "<C-u>zz";
           "n" = "nzzzv";
           "N" = "Nzzzv";
+					"<C-t>" = "";
         };
     in
       config.nixvim.helpers.keymaps.mkKeymaps

@@ -1,8 +1,10 @@
 {
   config,
   lib,
+	pkgs-unstable,
   ...
 }: {
+	
   programs.nixvim = {
     enable = true;
 
@@ -102,16 +104,9 @@
           };
         };
         servers = {
-          nixd = {
-            enable = true;
-            rootDir = "require('lspconfig').util.root_pattern(\".nixd.json\", \"flake.nix\", \".git\")";
-            settings.options = {
-              enable = true;
-              target.args = [];
-              target.installable = ".#homeConfigurations.jonny@bearnagh.options";
-            };
-          };
+					nil_ls.enable = true;
           tsserver.enable = true;
+					hls.enable = true;
         };
       };
 

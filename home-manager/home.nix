@@ -59,6 +59,8 @@
     pkgs.microsoft-edge
     pkgs.nodejs
 		pkgs.spotify
+		pkgs.cabal-install
+		pkgs.ghc
   ];
   fonts.fontconfig.enable = true;
 

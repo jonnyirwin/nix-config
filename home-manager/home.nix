@@ -53,7 +53,6 @@
     pkgs.godot_4
     pkgs.starship
     pkgs.aseprite
-    pkgs.syncthing
     pkgs.python3
     pkgs.qutebrowser
     pkgs.microsoft-edge
@@ -61,8 +60,11 @@
 		pkgs.spotify
 		pkgs.cabal-install
 		pkgs.ghc
+		pkgs.meld
   ];
   fonts.fontconfig.enable = true;
+
+	services.syncthing.enable = true;
 
   programs = {
     fish.enable = true;

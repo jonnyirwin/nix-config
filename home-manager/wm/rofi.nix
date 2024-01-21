@@ -5,7 +5,7 @@
 		package = pkgs.rofi-wayland;
 		inherit (config.wayland.windowManager.sway.config) terminal;
 		font = "Inter 18";
-		#theme = "Monokai";
+		theme = "Monokai";
 		extraConfig = {
     			modi = "drun";
     			show-icons = true;

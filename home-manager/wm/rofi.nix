@@ -1,15 +1,15 @@
-{ config, lib, pkgs, ...}:
+{ config, pkgs, ...}:
 {
 	programs.rofi = {
 		enable = true;
 		package = pkgs.rofi-wayland;
-		terminal = config.wayland.windowManager.sway.config.terminal;
+		inherit (config.wayland.windowManager.sway.config) terminal;
 		font = "Inter 18";
-		theme = "Monokai";
+		#theme = "Monokai";
 		extraConfig = {
     			modi = "drun";
     			show-icons = true;
-			fixed-num-lines = true;
+					fixed-num-lines = true;
 		};
 	};
 }		

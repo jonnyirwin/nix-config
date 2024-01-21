@@ -61,10 +61,21 @@
 		pkgs.cabal-install
 		pkgs.ghc
 		pkgs.meld
+		pkgs.neofetch
   ];
   fonts.fontconfig.enable = true;
+services = {
 
-	services.syncthing.enable = true;
+	syncthing.enable = true;
+
+  gpg-agent = {
+    enable = true;
+    enableSshSupport = true;
+    pinentryFlavor = "tty";
+  };
+
+  network-manager-applet.enable = true;
+};
 
   programs = {
     fish.enable = true;
@@ -95,12 +106,6 @@
     };
   };
 
-  services.gpg-agent = {
-    enable = true;
-    enableSshSupport = true;
-    pinentryFlavor = "tty";
-  };
-
   programs.vscode.enable = true;
   programs.tmux = {
     enable = true;
@@ -108,6 +113,4 @@
   };
 
   home.file."./wallpaper.jpg".source = ./wallpaper.jpg;
-
-  services.network-manager-applet.enable = true;
 }

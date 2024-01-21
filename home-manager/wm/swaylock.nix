@@ -14,6 +14,9 @@
 
 	programs.swaylock = {
 		enable = true;
+		settings = {
+			background = "#000000";
+		};
 	};
 
 

@@ -66,7 +66,7 @@
   ];
   fonts.fontconfig.enable = true;
 
-	colorScheme = nix-colors.colorschemes.gruvbox;
+	colorScheme = nix-colors.colorScheme.gruvbox;
 
 services = {
 

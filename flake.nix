@@ -12,6 +12,7 @@
       url = "github:nix-community/nixvim/nixos-23.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+		nix-colors.url = "github:misterio77/nix-colors";
   };
 
   outputs = inputs @ {
@@ -20,6 +21,7 @@
     home-manager,
     nixvim,
     nixpkgs-unstable,
+		nix-colors,
     ...
   }: let
     inherit (nixpkgs) lib;
@@ -57,9 +59,11 @@
         pkgs = nixpkgs.legacyPackages.${system};
         extraSpecialArgs = {
           inherit pkgs-unstable;
+					inherit nix-colors;
         };
         modules = [
           nixvim.homeManagerModules.nixvim
+					nix-colors.homeManagerModules.default
           ./home-manager/home.nix
         ];
       };

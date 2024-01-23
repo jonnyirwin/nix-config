@@ -2,6 +2,7 @@
   config,
   pkgs,
   pkgs-unstable,
+	nix-colors,
   ...
 }: {
   imports = [
@@ -64,6 +65,9 @@
 		pkgs.neofetch
   ];
   fonts.fontconfig.enable = true;
+
+	colorScheme = nix-colors.colorschemes.gruvbox;
+
 services = {
 
 	syncthing.enable = true;

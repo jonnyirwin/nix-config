@@ -107,6 +107,7 @@
 					nil_ls.enable = true;
           tsserver.enable = true;
 					hls.enable = true;
+					gdscript.enable = true;
         };
       };
 
@@ -221,6 +222,7 @@
           "n" = "nzzzv";
           "N" = "Nzzzv";
           "<C-t>" = "";
+					"<leader>e" = ":NvimTreeToggle<CR>";
         };
     in
       config.nixvim.helpers.keymaps.mkKeymaps

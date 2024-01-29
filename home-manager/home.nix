@@ -63,6 +63,10 @@
 		pkgs.ghc
 		pkgs.meld
 		pkgs.neofetch
+		pkgs-unstable.discord
+		pkgs.libnotify
+		pkgs.glib
+		pkgs.unzip
   ];
   fonts.fontconfig.enable = true;
 

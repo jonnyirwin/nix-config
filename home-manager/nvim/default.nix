@@ -1,7 +1,6 @@
 {
   config,
   lib,
-	pkgs-unstable,
   ...
 }: {
 	
@@ -135,6 +134,7 @@
           };
           formatting.alejandra.enable = true;
           formatting.prettier.enable = true;
+					#formatting.gdformat.enable = true;
         };
       };
 

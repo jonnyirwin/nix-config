@@ -1,87 +1,98 @@
-{ config, pkgs, lib, ... } :
 {
-  wayland.windowManager.sway = let
-		modifier = "Mod4";
-	in
-	{
-		enable = true;
-		config = {
-		inherit modifier;
-		window = {
-		  titlebar = false;
-			hideEdgeBorders = "none";
-			border = 0;
-		};
-		input = {
-      "*" = {
-				xkb_layout = "gb";
-			};
-		};
-		output = {
-      "*" = {
-				bg = "~/wallpaper.jpg fill";
-			};
-			"eDP-1" = {
-			  mode = "1920x1080@60Hz";
-				pos = "0 0";
-			};
-			"DP-1" = {
-				mode = "2560x1440@60Hz";
-				pos = "1920 0";
-			};
-			"HDMI-A-2" = {
-				mode = "2560x1440@60Hz";
-				pos = "1920 0";
-			};
-		};
-		terminal = "${pkgs.kitty}/bin/kitty";
-		bars = [
-			{ 
-			  command = "${config.programs.waybar.package}/bin/waybar";
-				position = "bottom";
-			}
-		];
-		fonts = {
-		  names = [ "Inter" "NerdFontsSymbolsOnly" ];
-			size = 14.0;
-		};
-		gaps = {
-      bottom = 5;
-			horizontal = 5;
-			inner = 5;
-			left = 5;
-			outer = 5;
-			right = 5;
-			top = 5;
-			vertical = 5;
-			smartGaps = true;
-		};
-		keybindings = lib.mkOptionDefault {
-			"${modifier}+Shift+e" = "exec swaynag -t warning -m 'What do you want to do?' -B 'Power off' 'systemctl poweroff' -B 'Reboot' 'systemctl reboot' -B 'Logout' 'swaymsg exit'";
-			"${modifier}+Shift+l" = "exec swaylock -f -c 000000";
-		};
-		menu = "${pkgs.rofi}/bin/rofi -show drun -modi drun,run -lines 1";
-		};
-		swaynag = {
-			enable = true;
-			settings = {
-				"<config>" = {
-					edge = "top";
-					font = "Inter 12";
-				};
+  config,
+  pkgs,
+  lib,
+  ...
+}: {
+  imports = [
+    ./swaylock.nix
+    ./waybar.nix
+    ./rofi.nix
+    ./mako.nix
+  ];
 
-				green = {
-					edge = "top";
-					background = "00AA00";
-					text = "FFFFFF";
-					button-background = "00CC00";
-					message-padding = 10;
-				};
-			};
-			};
-		wrapperFeatures = {
-			gtk = true;
-		};
-		};
-	}
+  config = lib.mkIf (config.environment.desktop == "sway") {
+    wayland.windowManager.sway = let
+      modifier = "Mod4";
+    in {
+      enable = true;
+      config = {
+        inherit modifier;
+        window = {
+          titlebar = false;
+          hideEdgeBorders = "none";
+          border = 0;
+        };
+        input = {
+          "*" = {
+            xkb_layout = "gb";
+          };
+        };
+        output = {
+          "*" = {
+            bg = "~/wallpaper.jpg fill";
+          };
+          "eDP-1" = {
+            mode = "1920x1080@60Hz";
+            pos = "0 0";
+          };
+          "DP-1" = {
+            mode = "2560x1440@60Hz";
+            pos = "1920 0";
+          };
+          "HDMI-A-2" = {
+            mode = "2560x1440@60Hz";
+            pos = "1920 0";
+          };
+        };
+        terminal = "${pkgs.kitty}/bin/kitty";
+        bars = [
+          {
+            command = "${config.programs.waybar.package}/bin/waybar";
+            position = "bottom";
+          }
+        ];
+        fonts = {
+          names = ["Inter" "NerdFontsSymbolsOnly"];
+          size = 14.0;
+        };
+        gaps = {
+          bottom = 5;
+          horizontal = 5;
+          inner = 5;
+          left = 5;
+          outer = 5;
+          right = 5;
+          top = 5;
+          vertical = 5;
+          smartGaps = true;
+        };
+        keybindings = lib.mkOptionDefault {
+          "${modifier}+Shift+e" = "exec swaynag -t warning -m 'What do you want to do?' -B 'Power off' 'systemctl poweroff' -B 'Reboot' 'systemctl reboot' -B 'Logout' 'swaymsg exit'";
+          "${modifier}+Shift+l" = "exec swaylock -f -c 000000";
+        };
+        menu = "${pkgs.rofi}/bin/rofi -show drun -modi drun,run -lines 1";
+      };
+      swaynag = {
+        enable = true;
+        settings = {
+          "<config>" = {
+            edge = "top";
+            font = "Inter 12";
+          };
 
+          green = {
+            edge = "top";
+            background = "00AA00";
+            text = "FFFFFF";
+            button-background = "00CC00";
+            message-padding = 10;
+          };
+        };
+      };
+      wrapperFeatures = {
+        gtk = true;
+      };
+    };
+  };
+}

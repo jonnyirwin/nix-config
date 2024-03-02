@@ -46,7 +46,10 @@
 
     plugins = {
       barbar.enable = true;
-      comment-nvim.enable = true;
+      comment-nvim = {
+				enable = true;
+				mappings.basic = true;
+			};
       copilot-vim.enable = true;
       fugitive.enable = true;
       gitsigns.enable = true;

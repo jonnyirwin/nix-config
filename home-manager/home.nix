@@ -6,11 +6,7 @@
   ...
 }: {
   imports = [
-    ./wm/sway.nix
-    ./wm/swaylock.nix
-    ./wm/rofi.nix
-    ./wm/waybar.nix
-    ./wm/mako.nix
+		./desktop.nix
     ./kitty.nix
     ./gtk.nix
     ./nvim
@@ -27,20 +23,20 @@
 	};
   nixpkgs.config.allowUnfree = true;
 
-  nixpkgs.overlays = [
-    (_: prev: {
-      aseprite = prev.aseprite.overrideAttrs (_: _: rec {
-        version = "1.3.1";
-        src = prev.fetchFromGitHub {
-          owner = "aseprite";
-          repo = "aseprite";
-          rev = "v${version}";
-          fetchSubmodules = true;
-          hash = "sha256-8eQI3eZm5YTjhwdiElERuyM/X59TbFowHP4S6X0B+d8=";
-        };
-      });
-    })
-  ];
+  #nixpkgs.overlays = [
+    #(_: prev: {
+      #aseprite = prev.aseprite.overrideAttrs (_: _: rec {
+        #version = "1.3.5";
+        #src = prev.fetchFromGitHub {
+          #owner = "aseprite";
+          #repo = "aseprite";
+          #rev = "v${version}";
+          #fetchSubmodules = true;
+          #hash = "sha256-QXhoSfVyMLLTKFUDeX7WaNcX2IvDK729LxV0u0q1AoA=";
+        #};
+      #});
+    #})
+  #];
 
   home.stateVersion = "23.05"; # Please read the comment before changing.
 
@@ -51,9 +47,9 @@
     pkgs.intel-one-mono
     pkgs.waybar
     pkgs.inter
-    pkgs.godot_4
+    pkgs-unstable.godot_4
     pkgs.starship
-    pkgs.aseprite
+    pkgs-unstable.aseprite
     pkgs.python3
     pkgs.qutebrowser
     pkgs.microsoft-edge
@@ -121,4 +117,5 @@ services = {
   };
 
   home.file."./wallpaper.jpg".source = ./wallpaper.jpg;
+	environment.desktop = "sway";
 }

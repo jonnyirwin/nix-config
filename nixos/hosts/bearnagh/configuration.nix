@@ -52,6 +52,9 @@
   services.xserver = {
     layout = "gb";
     xkbVariant = "";
+    #enable = true;
+    #libinput.enable = true;
+    #windowManager.i3.enable = true;
   };
 
   # Configure console keymap
@@ -84,7 +87,7 @@
 
   security.polkit.enable = true;
   security.pam.services.swaylock = {};
-	services.tailscale.enable = true;
+  services.tailscale.enable = true;
   hardware.opengl.enable = true;
 
   # Some programs need SUID wrappers, can be configured further or are

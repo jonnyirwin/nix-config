@@ -44,9 +44,11 @@
     (pkgs.nerdfonts.override {fonts = ["NerdFontsSymbolsOnly"];})
     pkgs-unstable.obsidian
     pkgs.keepassxc
+		pkgs.cowsay
     pkgs.intel-one-mono
     pkgs.waybar
     pkgs.inter
+		pkgs.lolcat
     pkgs-unstable.godot_4
     pkgs.starship
     pkgs-unstable.aseprite
@@ -63,6 +65,7 @@
 		pkgs.libnotify
 		pkgs.glib
 		pkgs.unzip
+		pkgs.elixir
   ];
   fonts.fontconfig.enable = true;
 

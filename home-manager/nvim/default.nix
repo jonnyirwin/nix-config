@@ -13,6 +13,14 @@
     colorschemes.tokyonight = {
       enable = true;
       transparent = true;
+			styles = {
+				comments = {
+					italic = true;
+				};
+				keywords = {
+					italic = true;
+				};
+			};
     };
 
     globals = {
@@ -110,6 +118,7 @@
           tsserver.enable = true;
 					hls.enable = true;
 					gdscript.enable = true;
+					elixirls.enable = true;
         };
       };
 
@@ -135,9 +144,10 @@
             eslint_d.enable = true;
             statix.enable = true;
           };
-          formatting.alejandra.enable = true;
-          formatting.prettier.enable = true;
-					#formatting.gdformat.enable = true;
+					formatting = {
+						alejandra.enable = true;
+						prettier.enable = true;
+					};
         };
       };
 

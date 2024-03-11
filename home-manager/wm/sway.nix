@@ -71,7 +71,7 @@
           "${modifier}+Shift+e" = "exec swaynag -t warning -m 'What do you want to do?' -B 'Power off' 'systemctl poweroff' -B 'Reboot' 'systemctl reboot' -B 'Logout' 'swaymsg exit'";
           "${modifier}+Shift+l" = "exec swaylock -f -c 000000";
         };
-        menu = "${pkgs.rofi}/bin/rofi -show drun -modi drun,run -lines 1";
+        menu = "${pkgs.rofi}/bin/rofi -show drun -monitor -1";
       };
       swaynag = {
         enable = true;

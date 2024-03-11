@@ -69,7 +69,7 @@
   ];
   fonts.fontconfig.enable = true;
 
-	colorScheme = nix-colors.colorSchemes.dracula;
+	colorScheme = nix-colors.colorSchemes.mocha;
 
 services = {
 

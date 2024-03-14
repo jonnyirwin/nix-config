@@ -69,7 +69,7 @@
   ];
   fonts.fontconfig.enable = true;
 
-	colorScheme = nix-colors.colorSchemes.mocha;
+	colorScheme = nix-colors.colorSchemes.catppuccin-frappe;
 
 services = {
 

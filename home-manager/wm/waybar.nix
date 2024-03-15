@@ -64,7 +64,7 @@ in {
                }
 
             window#waybar {
-      					background: ${colorHelpers.hexToRGBA config.colorScheme.palette.base07 0.2};
+      					background: ${colorHelpers.hexToRGBA config.colorScheme.palette.base07 0.1};
             }
 
             .modules-left, .modules-center, .modules-right {

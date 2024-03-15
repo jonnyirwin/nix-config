@@ -120,5 +120,6 @@ services = {
   };
 
   home.file."./wallpaper.jpg".source = ./wallpaper.jpg;
+
 	environment.desktop = "sway";
 }

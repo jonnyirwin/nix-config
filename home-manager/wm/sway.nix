@@ -2,6 +2,7 @@
   config,
   pkgs,
   lib,
+	nix-colors,
   ...
 }: {
   imports = [
@@ -14,6 +15,13 @@
   config = lib.mkIf (config.environment.desktop == "sway") {
     wayland.windowManager.sway = let
       modifier = "Mod4";
+			inherit (nix-colors.lib-contrib { inherit pkgs; }) nixWallpaperFromScheme;
+			bg = nixWallpaperFromScheme {
+				scheme = config.colorScheme;
+				width = 1920;
+				height = 1080;
+				logoScale = 5.0;
+			};
     in {
       enable = true;
       config = {
@@ -30,7 +38,7 @@
         };
         output = {
           "*" = {
-            bg = "~/wallpaper.jpg fill";
+            bg = "${bg} fill";
           };
           "eDP-1" = {
             mode = "1920x1080@60Hz";

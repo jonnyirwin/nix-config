@@ -85,7 +85,12 @@ services = {
 };
 
   programs = {
-    fish.enable = true;
+    fish = {
+			enable = true;
+			interactiveShellInit = ''
+				set fish_greeting
+			'';	
+		};
     git = {
       enable = true;
       userEmail = "git@jbi.im";
@@ -118,8 +123,6 @@ services = {
     enable = true;
     shortcut = "a";
   };
-
-  home.file."./wallpaper.jpg".source = ./wallpaper.jpg;
 
 	environment.desktop = "sway";
 }

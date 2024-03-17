@@ -99,45 +99,38 @@
     in {
       enable = true;
       enableFishIntegration = true;
-      #enableTransience = true;
+      enableTransience = true;
       settings = {
         add_newline = true;
         #palette = "base16";
 
         format = lib.concatStrings [
-          "[](fg:#${base0A})"
+          "[](fg:#${base01})"
+					"[λ ](fg:#${base0B} bg:#${base01})"
           "$username"
-          "[ ](fg:#${base0A} bg:#${base0D})"
+          "[ ](fg:#${base01} bg:#${base03})"
 					"$directory"
-          "[](fg:#${base0D})"
-          "[](fg:#${base02})"
-          "[](fg:#${base03})"
-          "[](fg:#${base04})"
-          "[](fg:#${base05})"
-          "[](fg:#${base06})"
-          "[](fg:#${base07})"
-          "[](fg:#${base08})"
-          "[](fg:#${base09})"
-          "[](fg:#${base0A})"
-          "[](fg:#${base0B})"
-          "[](fg:#${base0C})"
-          "[](fg:#${base0D})"
-          "[](fg:#${base0E})"
-          "[](fg:#${base0F})"
+          "[](fg:#${base03} bg:#${base0B})"
+					"[ ](bg:#${base0B})"
+          "[](fg:#${base0B} bg:#${base0D})"
+					"[ ](bg:#${base0D})"
+          "[](fg:#${base0D} bg:#${base01})"
+					"[ ](bg:#${base01})"
+          "[](fg:#${base01})"
           "$line_break"
           "$character"
         ];
 
         username = {
-          style_user = "bold fg:#${base00} bg:#${base0A}";
+          style_user = "fg:#${base07} bg:#${base01}";
           style_root = "";
           show_always = true;
-          format = "[$user]($style)";
+          format = "[$user ]($style)";
         };
 
 				directory = {
-					style = "fg:#${base02} bg:#${base0D}";
-					format = "[$path]($style)";
+					style = "fg:#${base0B} bg:#${base03}";
+					format = "[$path ]($style)";
 				};
 
         #palettes.base16 = {

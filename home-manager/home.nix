@@ -52,6 +52,7 @@
     pkgs.unzip
     pkgs.elixir
   ];
+
   fonts.fontconfig.enable = true;
 
   colorScheme = nix-colors.colorSchemes.catppuccin-frappe;
@@ -96,6 +97,9 @@
     home-manager.enable = true;
     starship = let
       inherit (config.colorScheme.palette) base00 base01 base02 base03 base04 base05 base06 base07 base08 base09 base0A base0B base0C base0D base0E base0F;
+			disabled = false;
+			format = "[ $symbol($version)]($style)";
+			style = "fg:#${base00} bg:#${base0D}";
     in {
       enable = true;
       enableFishIntegration = true;
@@ -105,32 +109,125 @@
         #palette = "base16";
 
         format = lib.concatStrings [
-          "[](fg:#${base01})"
-					"[λ ](fg:#${base0B} bg:#${base01})"
+          "[](fg:#${base04})"
+					"[λ ](fg:#${base0B} bg:#${base04})"
           "$username"
-          "[ ](fg:#${base01} bg:#${base03})"
+          "[ ](fg:#${base04} bg:#${base0A})"
 					"$directory"
-          "[](fg:#${base03} bg:#${base0B})"
-					"[ ](bg:#${base0B})"
+          "[](fg:#${base0A} bg:#${base0B})"
+					"[$git_branch$git_status](bg:#${base0B})"
           "[](fg:#${base0B} bg:#${base0D})"
-					"[ ](bg:#${base0D})"
-          "[](fg:#${base0D} bg:#${base01})"
-					"[ ](bg:#${base01})"
-          "[](fg:#${base01})"
+					"$dotnet"
+					"$elixir"
+					"$elm"
+					"$haskell"
+					"$lua"
+					"$nix_shell"
+					"$nodejs"
+					"$ocaml"
+					"$python"
+					"$rust"
+					"$scala"
+					"$shell"
+					"$vagrant"
+          "[](fg:#${base0D})"
           "$line_break"
           "$character"
         ];
 
         username = {
-          style_user = "fg:#${base07} bg:#${base01}";
+          style_user = "fg:#${base07} bg:#${base04}";
           style_root = "";
           show_always = true;
           format = "[$user ]($style)";
         };
 
 				directory = {
-					style = "fg:#${base0B} bg:#${base03}";
+					style = "fg:#${base00} bg:#${base0A}";
 					format = "[$path ]($style)";
+				};
+
+				time = {
+					disabled = false;
+					format = "[  $time]($style)";
+					style = "fg:#${base00} bg:#${base0A}";
+				};
+
+				git_branch = {
+					format = "([ $symbol$branch]($style))";
+					style = "fg:#${base00} bg:#${base0B}";
+					symbol = " ";
+				};
+
+				git_status = {
+					disabled = false;
+					style = "bold	fg:#${base00} bg:#${base0B}";
+					format = "([ $all_status$ahead_behind]($style))";	
+				};
+
+				nodejs = {
+					inherit disabled format style;
+					symbol = " ";
+				};
+
+				haskell = {
+					inherit disabled format style;
+					symbol = " ";
+				};
+
+				ocaml = {	
+					inherit disabled format style;
+					symbol = " ";
+				};
+
+				elm = {
+					inherit disabled format style;
+					symbol = " ";
+				};
+
+				lua = {
+					inherit disabled format style;
+					symbol = " ";
+				};
+
+				python = {
+					inherit disabled format style;
+					symbol = " ";
+				};
+
+				rust = {
+					inherit disabled format style;
+					symbol = " ";
+				};
+
+				elixir = {
+					inherit disabled format style;
+					symbol = " ";
+				};
+
+				vagrant = {
+					inherit disabled format style;
+					symbol = " ";
+				};
+
+				dotnet = {
+					inherit disabled format style;
+					symbol = " ";
+				};
+
+				scala = {
+					inherit disabled format style;
+					symbol = " ";
+				};
+
+				nix_shell = {
+					inherit disabled format style;
+					symbol = " ";
+				};
+
+				character = {
+					success_symbol = "[ ](fg:#${base0B})";
+					error_symbol = "[ ](fg:#${base08})";
 				};
 
         #palettes.base16 = {

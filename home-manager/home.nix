@@ -55,7 +55,7 @@
 
   fonts.fontconfig.enable = true;
 
-  colorScheme = nix-colors.colorSchemes.catppuccin-mocha;
+  colorScheme = nix-colors.colorSchemes.oceanicnext;#catppuccin-mocha;
 
   services = {
     syncthing.enable = true;

@@ -141,7 +141,62 @@
           path = "[Path]";
         };
       };
-      lualine.enable = true;
+      lualine = {
+				enable = true;
+				theme = let
+						b = {
+							fg = "#${config.colorScheme.palette.base05}";
+							bg = "#${config.colorScheme.palette.base02}";
+						};
+						c = {
+							fg = "#${config.colorScheme.palette.base05}";
+							bg = "#${config.colorScheme.palette.base01}";
+						};
+				in {
+					normal = {
+						a = { 
+							fg = "#${config.colorScheme.palette.base00}";
+							bg = "#${config.colorScheme.palette.base0D}";
+						};
+						inherit b c;
+					};
+					insert = {
+						a = { 
+							fg = "#${config.colorScheme.palette.base00}";
+							bg = "#${config.colorScheme.palette.base09}";
+						};
+						inherit b c;
+					};
+					visual = {
+						a = { 
+							fg = "#${config.colorScheme.palette.base00}";
+							bg = "#${config.colorScheme.palette.base0B}";
+						};
+						inherit b c;
+					};
+					replace = {
+						a = { 
+							fg = "#${config.colorScheme.palette.base00}";
+							bg = "#${config.colorScheme.palette.base0E}";
+						};
+						inherit b c;
+					};
+					command = {
+						a = { 
+							fg = "#${config.colorScheme.palette.base00}";
+							bg = "#${config.colorScheme.palette.base0D}";
+						};
+						inherit b c;
+					};
+					inactive = {
+						a = { 
+							fg = "#${config.colorScheme.palette.base05}";
+							bg = "#${config.colorScheme.palette.base00}";
+						};
+						inherit b c;
+					};
+				};
+			};
       luasnip.enable = true;
 
       none-ls = {

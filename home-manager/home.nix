@@ -55,7 +55,7 @@
 
   fonts.fontconfig.enable = true;
 
-  colorScheme = nix-colors.colorSchemes.oceanicnext;#catppuccin-mocha;
+  colorScheme = nix-colors.colorSchemes.catppuccin-mocha;
 
   services = {
     syncthing.enable = true;
@@ -105,7 +105,7 @@
       enableFishIntegration = true;
       enableTransience = true;
       settings = {
-        add_newline = true;
+        add_newline = false;
         #palette = "base16";
 
         format = lib.concatStrings [

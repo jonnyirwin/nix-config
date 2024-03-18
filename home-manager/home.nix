@@ -263,6 +263,14 @@
   programs.tmux = {
     enable = true;
     shortcut = "a";
+		baseIndex = 1;
+		customPaneNavigationAndResize = true;
+		mouse = true;
+		topIndex = 1;
+		escapeTime = 100;
+		extraConfig = ''
+			set-option -g status-position top
+		'';
   };
 
   environment.desktop = "sway";

@@ -55,7 +55,7 @@
 
   fonts.fontconfig.enable = true;
 
-  colorScheme = nix-colors.colorSchemes.catppuccin-frappe;
+  colorScheme = nix-colors.colorSchemes.catppuccin-mocha;
 
   services = {
     syncthing.enable = true;
@@ -109,12 +109,12 @@
         #palette = "base16";
 
         format = lib.concatStrings [
-          "[](fg:#${base04})"
-					"[λ ](fg:#${base0B} bg:#${base04})"
+          "[](fg:#${base02})"
+					"[λ ](fg:#${base0B} bg:#${base02})"
           "$username"
-          "[ ](fg:#${base04} bg:#${base0A})"
+          "[ ](fg:#${base02} bg:#${base09})"
 					"$directory"
-          "[](fg:#${base0A} bg:#${base0B})"
+          "[](fg:#${base09} bg:#${base0B})"
 					"[$git_branch$git_status](bg:#${base0B})"
           "[](fg:#${base0B} bg:#${base0D})"
 					"$dotnet"
@@ -130,27 +130,29 @@
 					"$scala"
 					"$shell"
 					"$vagrant"
-          "[](fg:#${base0D})"
+          "[](fg:#${base0D} bg:#${base0E})"
+					"$time"
+          "[](fg:#${base0E})"
           "$line_break"
           "$character"
         ];
 
         username = {
-          style_user = "fg:#${base07} bg:#${base04}";
+          style_user = "fg:#${base07} bg:#${base02}";
           style_root = "";
           show_always = true;
           format = "[$user ]($style)";
         };
 
 				directory = {
-					style = "fg:#${base00} bg:#${base0A}";
+					style = "fg:#${base00} bg:#${base09}";
 					format = "[$path ]($style)";
 				};
 
 				time = {
 					disabled = false;
-					format = "[  $time]($style)";
-					style = "fg:#${base00} bg:#${base0A}";
+					format = "[   $time]($style)";
+					style = "fg:#${base00} bg:#${base0E}";
 				};
 
 				git_branch = {
@@ -162,7 +164,7 @@
 				git_status = {
 					disabled = false;
 					style = "bold	fg:#${base00} bg:#${base0B}";
-					format = "([ $all_status$ahead_behind]($style))";	
+					format = "([ ❲$all_status$ahead_behind❳]($style))";	
 				};
 
 				nodejs = {
@@ -226,8 +228,8 @@
 				};
 
 				character = {
-					success_symbol = "[ ](fg:#${base0B})";
-					error_symbol = "[ ](fg:#${base08})";
+					success_symbol = "[ ↳ ](fg:#${base0B})";
+					error_symbol = "[ ↳ ](fg:#${base08})";
 				};
 
         #palettes.base16 = {

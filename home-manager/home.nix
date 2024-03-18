@@ -105,7 +105,7 @@
       enableFishIntegration = true;
       enableTransience = true;
       settings = {
-        add_newline = false;
+        add_newline = true;
         #palette = "base16";
 
         format = lib.concatStrings [

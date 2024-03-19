@@ -51,10 +51,12 @@
     pkgs.glib
     pkgs.unzip
     pkgs.elixir
+		pkgs.noto-fonts-emoji
   ];
 
-  fonts.fontconfig.enable = true;
-
+  fonts.fontconfig = {
+		enable = true;
+	};
   colorScheme = nix-colors.colorSchemes.catppuccin-mocha;
 
   services = {
@@ -97,9 +99,9 @@
     home-manager.enable = true;
     starship = let
       inherit (config.colorScheme.palette) base00 base01 base02 base03 base04 base05 base06 base07 base08 base09 base0A base0B base0C base0D base0E base0F;
-			disabled = false;
-			format = "[ $symbol($version)]($style)";
-			style = "fg:#${base00} bg:#${base0D}";
+      disabled = false;
+      format = "[ $symbol($version)]($style)";
+      style = "fg:#${base00} bg:#${base0D}";
     in {
       enable = true;
       enableFishIntegration = true;
@@ -110,28 +112,28 @@
 
         format = lib.concatStrings [
           "[](fg:#${base02})"
-					"[λ ](fg:#${base0B} bg:#${base02})"
+          "[λ ](fg:#${base0B} bg:#${base02})"
           "$username"
           "[ ](fg:#${base02} bg:#${base09})"
-					"$directory"
+          "$directory"
           "[](fg:#${base09} bg:#${base0B})"
-					"[$git_branch$git_status](bg:#${base0B})"
+          "[$git_branch$git_status](bg:#${base0B})"
           "[](fg:#${base0B} bg:#${base0D})"
-					"$dotnet"
-					"$elixir"
-					"$elm"
-					"$haskell"
-					"$lua"
-					"$nix_shell"
-					"$nodejs"
-					"$ocaml"
-					"$python"
-					"$rust"
-					"$scala"
-					"$shell"
-					"$vagrant"
+          "$dotnet"
+          "$elixir"
+          "$elm"
+          "$haskell"
+          "$lua"
+          "$nix_shell"
+          "$nodejs"
+          "$ocaml"
+          "$python"
+          "$rust"
+          "$scala"
+          "$shell"
+          "$vagrant"
           "[](fg:#${base0D} bg:#${base0E})"
-					"$time"
+          "$time"
           "[](fg:#${base0E})"
           "$line_break"
           "$character"
@@ -144,93 +146,93 @@
           format = "[$user ]($style)";
         };
 
-				directory = {
-					style = "fg:#${base00} bg:#${base09}";
-					format = "[$path ]($style)";
-				};
+        directory = {
+          style = "fg:#${base00} bg:#${base09}";
+          format = "[$path ]($style)";
+        };
 
-				time = {
-					disabled = false;
-					format = "[   $time]($style)";
-					style = "fg:#${base00} bg:#${base0E}";
-				};
+        time = {
+          disabled = false;
+          format = "[   $time]($style)";
+          style = "fg:#${base00} bg:#${base0E}";
+        };
 
-				git_branch = {
-					format = "([ $symbol$branch]($style))";
-					style = "fg:#${base00} bg:#${base0B}";
-					symbol = " ";
-				};
+        git_branch = {
+          format = "([ $symbol$branch]($style))";
+          style = "fg:#${base00} bg:#${base0B}";
+          symbol = " ";
+        };
 
-				git_status = {
-					disabled = false;
-					style = "bold	fg:#${base00} bg:#${base0B}";
-					format = "([ ❲$all_status$ahead_behind❳]($style))";	
-				};
+        git_status = {
+          disabled = false;
+          style = "bold	fg:#${base00} bg:#${base0B}";
+          format = "([ ❲$all_status$ahead_behind❳]($style))";
+        };
 
-				nodejs = {
-					inherit disabled format style;
-					symbol = " ";
-				};
+        nodejs = {
+          inherit disabled format style;
+          symbol = " ";
+        };
 
-				haskell = {
-					inherit disabled format style;
-					symbol = " ";
-				};
+        haskell = {
+          inherit disabled format style;
+          symbol = " ";
+        };
 
-				ocaml = {	
-					inherit disabled format style;
-					symbol = " ";
-				};
+        ocaml = {
+          inherit disabled format style;
+          symbol = " ";
+        };
 
-				elm = {
-					inherit disabled format style;
-					symbol = " ";
-				};
+        elm = {
+          inherit disabled format style;
+          symbol = " ";
+        };
 
-				lua = {
-					inherit disabled format style;
-					symbol = " ";
-				};
+        lua = {
+          inherit disabled format style;
+          symbol = " ";
+        };
 
-				python = {
-					inherit disabled format style;
-					symbol = " ";
-				};
+        python = {
+          inherit disabled format style;
+          symbol = " ";
+        };
 
-				rust = {
-					inherit disabled format style;
-					symbol = " ";
-				};
+        rust = {
+          inherit disabled format style;
+          symbol = " ";
+        };
 
-				elixir = {
-					inherit disabled format style;
-					symbol = " ";
-				};
+        elixir = {
+          inherit disabled format style;
+          symbol = " ";
+        };
 
-				vagrant = {
-					inherit disabled format style;
-					symbol = " ";
-				};
+        vagrant = {
+          inherit disabled format style;
+          symbol = " ";
+        };
 
-				dotnet = {
-					inherit disabled format style;
-					symbol = " ";
-				};
+        dotnet = {
+          inherit disabled format style;
+          symbol = " ";
+        };
 
-				scala = {
-					inherit disabled format style;
-					symbol = " ";
-				};
+        scala = {
+          inherit disabled format style;
+          symbol = " ";
+        };
 
-				nix_shell = {
-					inherit disabled format style;
-					symbol = " ";
-				};
+        nix_shell = {
+          inherit disabled format style;
+          symbol = " ";
+        };
 
-				character = {
-					success_symbol = "[ ↳ ](fg:#${base0B})";
-					error_symbol = "[ ↳ ](fg:#${base08})";
-				};
+        character = {
+          success_symbol = "[ ↳ ](fg:#${base0B})";
+          error_symbol = "[ ↳ ](fg:#${base08})";
+        };
 
         #palettes.base16 = {
         #base00 = "#${config.colorScheme.palette.base00}";
@@ -263,14 +265,33 @@
   programs.tmux = {
     enable = true;
     shortcut = "a";
-		baseIndex = 1;
-		customPaneNavigationAndResize = true;
-		mouse = true;
-		topIndex = 1;
-		escapeTime = 100;
-		extraConfig = ''
-			set-option -g status-position top
-		'';
+    baseIndex = 1;
+    customPaneNavigationAndResize = true;
+    mouse = true;
+		keyMode = "vi";
+    escapeTime = 1000;
+    extraConfig = let
+      inherit (config.colorScheme.palette) base00 base01 base02 base03 base04 base05 base06 base07 base08 base09 base0A base0B base0C base0D base0E base0F;
+		in ''
+     	set-option -g status-position top
+     	set -g status-left "#[fg=#${base02},bg=#${base00}]#[fg=#${base0C},bg=#${base02},bold]#S#[fg=#${base02},bg=#${base00}] "
+			set -g status-left-length 40
+      set -g status-right "#[fg=#${base0E},bg=#${base00}]#[fg=#${base00},bg=#${base0E}]󰥔 #[fg=#${base0E},bg=#${base02}] %Y-%m-%d %I:%M %p#[fg=#${base02},bg=#${base00}] #[fg=#${base0F},bg=#${base00}]#[fg=#${base00},bg=#${base0F}]  #[fg=#${base0F},bg=#${base02}] #h#[fg=#${base02},bg=#${base00}]";
+			set -g status-justify left
+
+      setw -g window-status-activity-style "underscore,fg=#a9b1d6,bg=#1f2335"
+      setw -g window-status-separator "#[bg=#${base00}] "
+      setw -g window-status-format "#[fg=#${base02}]#[fg=#${base04},bg=#${base02}]#W #[fg=#${base00},bg=#${base0D}] #I#[fg=#${base0D},bg=#${base00}]"
+      setw -g window-status-current-format "#[fg=#${base02}]#[fg=#${base0A},bg=#${base02}]#W #[fg=#${base00},bg=#${base0A}] #I#[fg=#${base0A},bg=#${base00}]"
+			setw -g message-style "fg=#${base00},bg=#${base0F}"
+			bind r source-file ~/.config/tmux/tmux.conf \; display "Reloaded tmux config."
+				
+			set -g pane-border-style "fg=#${base04}"
+			set -g pane-active-border-style "fg=#${base0A}"
+
+			bind | split-window -h
+			bind - split-window -v
+    '';
   };
 
   environment.desktop = "sway";

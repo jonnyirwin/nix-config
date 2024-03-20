@@ -56,7 +56,9 @@
     #libinput.enable = true;
     #windowManager.i3.enable = true;
   };
-	
+
+	services.gvfs.enable = true;
+	services.tumbler.enable = true;
 	
  # xdg-desktop-portal works by exposing a series of D-Bus interfaces
   # known as portals under a well-known name

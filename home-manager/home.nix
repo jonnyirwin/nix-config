@@ -52,7 +52,6 @@
     pkgs.unzip
     pkgs.elixir
 		pkgs.noto-fonts-emoji
-		pkgs.gnome.nautilus
   ];
 
   fonts.fontconfig = {

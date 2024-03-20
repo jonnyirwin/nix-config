@@ -52,9 +52,6 @@
   services.xserver = {
     layout = "gb";
     xkbVariant = "";
-    #enable = true;
-    #libinput.enable = true;
-    #windowManager.i3.enable = true;
   };
 
 	services.gvfs.enable = true;

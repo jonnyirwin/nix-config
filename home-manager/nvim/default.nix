@@ -69,6 +69,9 @@
     };
 
     plugins = {
+			alpha = {
+				enable = true;
+			};
       barbar.enable = true;
       comment-nvim = {
 				enable = true;

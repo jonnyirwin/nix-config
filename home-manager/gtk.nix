@@ -1,5 +1,7 @@
-{ config, pkgs, ... }:
-{
+{ config, pkgs, nix-colors, ... }:
+let
+	inherit (nix-colors.lib-contrib { inherit pkgs; }) gtkThemeFromScheme;
+in{
 	gtk = {
 		enable = true;
 		font = {
@@ -7,16 +9,10 @@
 			size = 12;
 		};
 		theme = {
-			name = "Catppuccin-Mocha-Blue-Compact-Dark";
-			package = pkgs.catppuccin-gtk.override {
-				size = "compact";
-				tweaks = [ "rimless" "black" ];
-				variant = "mocha";
+			name = "${config.colorScheme.slug}";
+			package = gtkThemeFromScheme {
+				scheme = config.colorScheme;
 			};
-		};
-		iconTheme = {
-			name = "Papirus";
-			package = pkgs.papirus-icon-theme;
 		};
 	};
 }

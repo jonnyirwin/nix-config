@@ -56,6 +56,26 @@
     #libinput.enable = true;
     #windowManager.i3.enable = true;
   };
+	
+	
+ # xdg-desktop-portal works by exposing a series of D-Bus interfaces
+  # known as portals under a well-known name
+  # (org.freedesktop.portal.Desktop) and object path
+  # (/org/freedesktop/portal/desktop).
+  # The portal interfaces include APIs for file access, opening URIs,
+  # printing and others.
+	services.dbus.enable = true;
+  xdg.portal = {
+    enable = true;
+		config.common.default = "*";
+    wlr.enable = true;
+    # gtk portal needed to make gtk apps happy
+    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+  };
+
+  # Enable the gnome-keyrig secrets vault. 
+  # Will be exposed through DBus to programs willing to store secrets.
+  services.gnome.gnome-keyring.enable = true;
 
   # Configure console keymap
   console.keyMap = "uk";

@@ -14,5 +14,9 @@ in{
 				scheme = config.colorScheme;
 			};
 		};
+		iconTheme = {
+			name = "Papirus";
+			package = pkgs.papirus-icon-theme;
+		};
 	};
 }

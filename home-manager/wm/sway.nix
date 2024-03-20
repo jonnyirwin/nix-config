@@ -2,7 +2,7 @@
   config,
   pkgs,
   lib,
-	nix-colors,
+  nix-colors,
   ...
 }: {
   imports = [
@@ -15,15 +15,24 @@
   config = lib.mkIf (config.environment.desktop == "sway") {
     wayland.windowManager.sway = let
       modifier = "Mod4";
-			inherit (nix-colors.lib-contrib { inherit pkgs; }) nixWallpaperFromScheme;
-			bg = nixWallpaperFromScheme {
-				scheme = config.colorScheme;
-				width = 1920;
-				height = 1080;
-				logoScale = 5.0;
-			};
+      inherit (nix-colors.lib-contrib {inherit pkgs;}) nixWallpaperFromScheme;
+      bg = nixWallpaperFromScheme {
+        scheme = config.colorScheme;
+        width = 1920;
+        height = 1080;
+        logoScale = 5.0;
+      };
     in {
       enable = true;
+      extraConfig = ''
+        set $gnome-schema org.gnome.desktop.interface
+
+        exec_always {
+            gsettings set $gnome-schema gtk-theme '${config.gtk.theme.name}'
+            gsettings set $gnome-schema icon-theme '${config.gtk.iconTheme.name}'
+            gsettings set $gnome-schema font-name 'Inter 12'
+        }
+      '';
       config = {
         inherit modifier;
         window = {

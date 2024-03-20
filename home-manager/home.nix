@@ -18,7 +18,7 @@
     homeDirectory = "/home/jonny";
     sessionVariables = {
       GPG_TTY = "$(tty)";
-      GTK_THEME = "Catppuccin-Mocha-Blue-Compact-Dark";
+      GTK_THEME = "${config.colorScheme.slug}";
       WLR_NO_HARDWARE_CURSORS = 1;
     };
   };
@@ -52,13 +52,18 @@
     pkgs.unzip
     pkgs.elixir
 		pkgs.noto-fonts-emoji
+		pkgs.gnome.nautilus
   ];
 
   fonts.fontconfig = {
 		enable = true;
 	};
   colorScheme = nix-colors.colorSchemes.catppuccin-mocha;
-
+  dconf.settings."org/gnome/desktop/interface".color-scheme =
+    if config.colorscheme.variant == "dark" then "prefer-dark"
+    else if config.colorscheme.variant == "light" then "prefer-light"
+    else "default";
+ 
   services = {
     syncthing.enable = true;
 

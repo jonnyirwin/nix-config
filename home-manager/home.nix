@@ -274,15 +274,15 @@
       inherit (config.colorScheme.palette) base00 base01 base02 base03 base04 base05 base06 base07 base08 base09 base0A base0B base0C base0D base0E base0F;
 		in ''
      	set-option -g status-position top
+			set -g status-style "bg=#${base00},fg=#${base07}"
      	set -g status-left "#[fg=#${base02},bg=#${base00}]#[fg=#${base0C},bg=#${base02},bold]#S#[fg=#${base02},bg=#${base00}] "
 			set -g status-left-length 40
       set -g status-right "#[fg=#${base0E},bg=#${base00}]#[fg=#${base00},bg=#${base0E}]󰥔 #[fg=#${base0E},bg=#${base02}] %Y-%m-%d %I:%M %p#[fg=#${base02},bg=#${base00}] #[fg=#${base0F},bg=#${base00}]#[fg=#${base00},bg=#${base0F}]  #[fg=#${base0F},bg=#${base02}] #h#[fg=#${base02},bg=#${base00}]";
 			set -g status-justify left
 
-      setw -g window-status-activity-style "underscore,fg=#a9b1d6,bg=#1f2335"
-      setw -g window-status-separator "#[bg=#${base00}] "
-      setw -g window-status-format "#[fg=#${base02}]#[fg=#${base04},bg=#${base02}]#W #[fg=#${base00},bg=#${base0D}] #I#[fg=#${base0D},bg=#${base00}]"
-      setw -g window-status-current-format "#[fg=#${base02}]#[fg=#${base0A},bg=#${base02}]#W #[fg=#${base00},bg=#${base0A}] #I#[fg=#${base0A},bg=#${base00}]"
+      setw -g window-status-separator "#[fg=#${base00},bg=#${base00}] "
+      setw -g window-status-format "#[fg=#${base02},bg=#${base00}]#[fg=#${base04},bg=#${base02}]#W #[fg=#${base00},bg=#${base0D}] #I#[fg=#${base0D},bg=#${base00}]"
+      setw -g window-status-current-format "#[fg=#${base02},bg=#${base00}]#[fg=#${base0A},bg=#${base02}]#W #[fg=#${base00},bg=#${base0A}] #I#[fg=#${base0A},bg=#${base00}]"
 			setw -g message-style "fg=#${base00},bg=#${base0F}"
 			bind r source-file ~/.config/tmux/tmux.conf \; display "Reloaded tmux config."
 				

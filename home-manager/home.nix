@@ -274,6 +274,19 @@
     mouse = true;
 		keyMode = "vi";
     escapeTime = 1000;
+		plugins = with pkgs; [
+			{
+				plugin = tmuxPlugins.resurrect;
+				extraConfig = "set -g @resurrect-strategy-nvim 'session'";
+			}
+			{
+				plugin = tmuxPlugins.continuum;
+				extraConfig = ''
+					set -g @continuum-restore 'on'
+					set -g @continuum-save-interval '10' # minutes
+				'';
+			}
+		];
     extraConfig = let
       inherit (config.colorScheme.palette) base00 base01 base02 base03 base04 base05 base06 base07 base08 base09 base0A base0B base0C base0D base0E base0F;
 		in ''

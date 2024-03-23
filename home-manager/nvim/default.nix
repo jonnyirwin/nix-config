@@ -70,7 +70,7 @@
 
     plugins = {
 			alpha = {
-				enable = true;
+				enable = false;
 			};
       barbar.enable = true;
       comment-nvim = {

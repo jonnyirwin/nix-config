@@ -20,7 +20,13 @@ in {
         };
         battery = {
           bat = "BAT1";
-          format = "󰁹 {capacity}%";
+          interval = 60;
+          states = {
+            warning = 30;
+            critical = 15;
+          };
+          format-icons = [" " " " " " " " " "];
+          format = "{icon} {capacity}%";
         };
         clock = {
           format = "󰥔 {:%a, %d. %b  %H:%M}";
@@ -107,13 +113,13 @@ in {
       				padding: 2px 6px;
       			}
 
-						#workspaces button:hover {
-								background: #${config.colorScheme.palette.base01};
-								color: #${config.colorScheme.palette.base05};
-								padding: 2px 6px;
-								box-shadow: inherit;
-								text-shadow: inherit;
-						}
+      #workspaces button:hover {
+      		background: #${config.colorScheme.palette.base01};
+      		color: #${config.colorScheme.palette.base05};
+      		padding: 2px 6px;
+      		box-shadow: inherit;
+      		text-shadow: inherit;
+      }
 
       			#workspaces button.focused {
       				color: #${config.colorScheme.palette.base0A};

@@ -52,6 +52,7 @@
     pkgs.unzip
     pkgs.elixir
 		pkgs.noto-fonts-emoji
+		pkgs.gnome.nautilus
   ];
 
   fonts.fontconfig = {
@@ -102,7 +103,7 @@
     gpg.enable = true;
     home-manager.enable = true;
     starship = let
-      inherit (config.colorScheme.palette) base00 base01 base02 base03 base04 base05 base06 base07 base08 base09 base0A base0B base0C base0D base0E base0F;
+      inherit (config.colorScheme.palette) base00 base02 base07 base08 base09 base0B base0D base0E ;
       disabled = false;
       format = "[ $symbol($version)]($style)";
       style = "fg:#${base00} bg:#${base0D}";
@@ -265,47 +266,55 @@
     };
   };
 
-  programs.vscode.enable = true;
-  programs.tmux = {
-    enable = true;
-    shortcut = "a";
-    baseIndex = 1;
-    customPaneNavigationAndResize = true;
-    mouse = true;
+	programs.vscode.enable = true;
+	programs.tmux = {
+		enable = true;
+		shortcut = "a";
+		baseIndex = 1;
+		customPaneNavigationAndResize = true;
+		mouse = true;
 		keyMode = "vi";
-    escapeTime = 1000;
+		escapeTime = 1000;
 		plugins = with pkgs; [
-			{
-				plugin = tmuxPlugins.resurrect;
-				extraConfig = "set -g @resurrect-strategy-nvim 'session'";
+		{
+			plugin = tmuxPlugins.resurrect;
+# had to put styling in extraConfig here as it has to happen before continuum is declared for continuum to work
+			extraConfig = let
+				inherit (config.colorScheme.palette) base00 base02 base04 base07 base0A base0C base0D base0E base0F;
+			in ''
+				set-option -g status-position top
+				set -g status-style "bg=#${base00},fg=#${base07}"
+				set -g status-left "#[fg=#${base02},bg=#${base00}]#[fg=#${base0C},bg=#${base02},bold]#S#[fg=#${base02},bg=#${base00}] "
+				set -g status-left-length 40
+				set -g status-right "#[fg=#${base0E},bg=#${base00}]#[fg=#${base00},bg=#${base0E}]󰥔 #[fg=#${base0E},bg=#${base02}] %Y-%m-%d %I:%M %p#[fg=#${base02},bg=#${base00}] #[fg=#${base0F},bg=#${base00}]#[fg=#${base00},bg=#${base0F}]  #[fg=#${base0F},bg=#${base02}] #h#[fg=#${base02},bg=#${base00}]";
+				set -g status-justify left
+
+					setw -g window-status-separator "#[fg=#${base00},bg=#${base00}] "
+					setw -g window-status-format "#[fg=#${base02},bg=#${base00}]#[fg=#${base04},bg=#${base02}]#W #[fg=#${base00},bg=#${base0D}] #I#[fg=#${base0D},bg=#${base00}]"
+					setw -g window-status-current-format "#[fg=#${base02},bg=#${base00}]#[fg=#${base0A},bg=#${base02}]#W #[fg=#${base00},bg=#${base0A}] #I#[fg=#${base0A},bg=#${base00}]"
+					setw -g message-style "fg=#${base00},bg=#${base0F}"
+					bind r source-file ~/.config/tmux/tmux.conf \; display "Reloaded tmux config."
+
+					set -g pane-border-style "fg=#${base04}"
+					set -g pane-active-border-style "fg=#${base0A}"
+
+					set -g @resurrect-strategy-nvim 'session'
+				'';
 			}
 			{
 				plugin = tmuxPlugins.continuum;
 				extraConfig = ''
-					set -g @continuum-restore 'on'
-					set -g @continuum-save-interval '10' # minutes
+						set -g @continuum-restore 'on'
+						set -g @continuum-save-interval '10' # minutes
+    '';
+			}
+			{
+				plugin = tmuxPlugins.vim-tmux-navigator;
+				extraConfig = ''
 				'';
 			}
-		];
-    extraConfig = let
-      inherit (config.colorScheme.palette) base00 base01 base02 base03 base04 base05 base06 base07 base08 base09 base0A base0B base0C base0D base0E base0F;
-		in ''
-     	set-option -g status-position top
-			set -g status-style "bg=#${base00},fg=#${base07}"
-     	set -g status-left "#[fg=#${base02},bg=#${base00}]#[fg=#${base0C},bg=#${base02},bold]#S#[fg=#${base02},bg=#${base00}] "
-			set -g status-left-length 40
-      set -g status-right "#[fg=#${base0E},bg=#${base00}]#[fg=#${base00},bg=#${base0E}]󰥔 #[fg=#${base0E},bg=#${base02}] %Y-%m-%d %I:%M %p#[fg=#${base02},bg=#${base00}] #[fg=#${base0F},bg=#${base00}]#[fg=#${base00},bg=#${base0F}]  #[fg=#${base0F},bg=#${base02}] #h#[fg=#${base02},bg=#${base00}]";
-			set -g status-justify left
-
-      setw -g window-status-separator "#[fg=#${base00},bg=#${base00}] "
-      setw -g window-status-format "#[fg=#${base02},bg=#${base00}]#[fg=#${base04},bg=#${base02}]#W #[fg=#${base00},bg=#${base0D}] #I#[fg=#${base0D},bg=#${base00}]"
-      setw -g window-status-current-format "#[fg=#${base02},bg=#${base00}]#[fg=#${base0A},bg=#${base02}]#W #[fg=#${base00},bg=#${base0A}] #I#[fg=#${base0A},bg=#${base00}]"
-			setw -g message-style "fg=#${base00},bg=#${base0F}"
-			bind r source-file ~/.config/tmux/tmux.conf \; display "Reloaded tmux config."
-				
-			set -g pane-border-style "fg=#${base04}"
-			set -g pane-active-border-style "fg=#${base0A}"
-
+];
+    extraConfig = ''
 			bind | split-window -h
 			bind - split-window -v
     '';

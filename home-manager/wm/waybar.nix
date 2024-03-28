@@ -138,6 +138,11 @@ in {
       				color: #${config.colorScheme.palette.base0D};
       			}
 
+						#battery.charging {
+							background-color: #${config.colorScheme.palette.base0B};
+							color: #${config.colorScheme.palette.base00};
+						}
+
       			#tray {
       				color: #${config.colorScheme.palette.base0E};
       			}

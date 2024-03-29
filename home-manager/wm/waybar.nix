@@ -141,6 +141,8 @@ in {
 						#battery.charging {
 							background-color: #${config.colorScheme.palette.base0B};
 							color: #${config.colorScheme.palette.base00};
+               	border-radius: 1000px;
+      					padding: 0;
 						}
 
       			#tray {

@@ -1,6 +1,7 @@
 {
   config,
   lib,
+	pkgs,
   ...
 }: 
 {
@@ -294,6 +295,8 @@
       which-key.enable = true;
       nvim-tree.enable = true;
     };
+		
+		extraPlugins = [pkgs.vimPlugins.vim-obsession];
 
     keymaps = let
       normal =

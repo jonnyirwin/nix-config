@@ -82,6 +82,9 @@
       fugitive.enable = true;
       gitsigns.enable = true;
       harpoon.enable = true;
+			undotree = {
+				enable = true;
+			};
       lsp = {
         enable = true;
         postConfig = ''
@@ -290,7 +293,6 @@
       treesitter.enable = true;
       treesitter-textobjects.enable = true;
       trouble.enable = true;
-      undotree.enable = true;
 
       which-key.enable = true;
       nvim-tree.enable = true;
@@ -314,6 +316,7 @@
           "<C-t>" = "";
 					"<leader>e" = ":NvimTreeToggle<CR>";
 					"<leader>t" = ":TroubleToggle<CR>";
+					"<leader>u" = ":UndotreeToggle<CR>";
         };
     in
       config.nixvim.helpers.keymaps.mkKeymaps

@@ -1,5 +1,4 @@
-{
-  config,
+{ config,
   pkgs,
   lib,
   pkgs-unstable,
@@ -53,6 +52,7 @@
     pkgs.elixir
 		pkgs.noto-fonts-emoji
 		pkgs.gnome.nautilus
+		pkgs.minecraft
   ];
 
   fonts.fontconfig = {
@@ -103,7 +103,7 @@
     gpg.enable = true;
     home-manager.enable = true;
     starship = let
-      inherit (config.colorScheme.palette) base00 base02 base07 base08 base09 base0B base0D base0E ;
+      inherit (config.colorScheme.palette) base00 base02 base07 base08 base09 base0B base0D base0E;
       disabled = false;
       format = "[ $symbol($version)]($style)";
       style = "fg:#${base00} bg:#${base0D}";
@@ -289,17 +289,17 @@
 				set -g status-right "#[fg=#${base0E},bg=#${base00}]#[fg=#${base00},bg=#${base0E}]󰥔 #[fg=#${base0E},bg=#${base02}] %Y-%m-%d %I:%M %p#[fg=#${base02},bg=#${base00}] #[fg=#${base0F},bg=#${base00}]#[fg=#${base00},bg=#${base0F}]  #[fg=#${base0F},bg=#${base02}] #h#[fg=#${base02},bg=#${base00}]";
 				set -g status-justify left
 
-					setw -g window-status-separator "#[fg=#${base00},bg=#${base00}] "
-					setw -g window-status-format "#[fg=#${base02},bg=#${base00}]#[fg=#${base04},bg=#${base02}]#W #[fg=#${base00},bg=#${base0D}] #I#[fg=#${base0D},bg=#${base00}]"
-					setw -g window-status-current-format "#[fg=#${base02},bg=#${base00}]#[fg=#${base0A},bg=#${base02}]#W #[fg=#${base00},bg=#${base0A}] #I#[fg=#${base0A},bg=#${base00}]"
-					setw -g message-style "fg=#${base00},bg=#${base0F}"
-					bind r source-file ~/.config/tmux/tmux.conf \; display "Reloaded tmux config."
+				setw -g window-status-separator "#[fg=#${base00},bg=#${base00}] "
+				setw -g window-status-format "#[fg=#${base02},bg=#${base00}]#[fg=#${base04},bg=#${base02}]#W #[fg=#${base00},bg=#${base0D}] #I#[fg=#${base0D},bg=#${base00}]"
+				setw -g window-status-current-format "#[fg=#${base02},bg=#${base00}]#[fg=#${base0A},bg=#${base02}]#W #[fg=#${base00},bg=#${base0A}] #I#[fg=#${base0A},bg=#${base00}]"
+				setw -g message-style "fg=#${base00},bg=#${base0F}"
+				bind r source-file ~/.config/tmux/tmux.conf \; display "Reloaded tmux config."
 
-					set -g pane-border-style "fg=#${base04}"
-					set -g pane-active-border-style "fg=#${base0A}"
+				set -g pane-border-style "fg=#${base04}"
+				set -g pane-active-border-style "fg=#${base0A}"
 
-					set -g @resurrect-strategy-nvim 'session'
-				'';
+				set -g @resurrect-strategy-nvim 'session'
+			'';
 			}
 			{
 				plugin = tmuxPlugins.continuum;

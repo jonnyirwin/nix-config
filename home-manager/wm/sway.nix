@@ -87,6 +87,8 @@
         keybindings = lib.mkOptionDefault {
           "${modifier}+Shift+e" = "exec swaynag -t warning -m 'What do you want to do?' -B 'Power off' 'systemctl poweroff' -B 'Reboot' 'systemctl reboot' -B 'Logout' 'swaymsg exit'";
           "${modifier}+Shift+l" = "exec swaylock -f -c 000000";
+					"XF86MonBrightnessDown" = "exec brightnessctl set 5%-";
+					"XF86MonBrightnessUp" = "exec brightnessctl set 5%+";
         };
         menu = "${pkgs.rofi}/bin/rofi -show drun -monitor -1";
       };

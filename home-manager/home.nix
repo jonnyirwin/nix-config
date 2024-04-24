@@ -53,6 +53,9 @@
 		pkgs.noto-fonts-emoji
 		pkgs.gnome.nautilus
 		pkgs.minecraft
+		pkgs.qmk
+		pkgs.kicad
+		pkgs.brightnessctl
   ];
 
   fonts.fontconfig = {

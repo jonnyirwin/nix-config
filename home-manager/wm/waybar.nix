@@ -14,10 +14,15 @@ in {
         position = "top";
         modules-left = ["sway/workspaces" "sway/mode"];
         modules-center = ["clock" "idle_inhibitor"];
-        modules-right = ["pulseaudio" "bluetooth" "battery" "tray"];
+        modules-right = ["backlight" "pulseaudio" "bluetooth" "battery" "tray"];
         "sway/window" = {
           max-length = 50;
         };
+				backlight = {
+					device = "intel_backlight";
+					format = "{percent}% {icon}";
+					format-icons = [" " " "];
+				};
         battery = {
           bat = "BAT1";
           interval = 60;

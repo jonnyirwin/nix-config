@@ -142,6 +142,7 @@
 					hls.enable = true;
 					gdscript.enable = true;
 					elixirls.enable = true;
+					csharp-ls.enable = true;
         };
       };
 

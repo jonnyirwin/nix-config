@@ -45,7 +45,7 @@
     pkgs.ghc
     pkgs.meld
     pkgs.neofetch
-    pkgs-unstable.discord
+    pkgs.discord
     pkgs.libnotify
     pkgs.glib
     pkgs.unzip
@@ -54,8 +54,9 @@
 		pkgs.gnome.nautilus
 		pkgs.minecraft
 		pkgs.qmk
-		pkgs.kicad
+		pkgs-unstable.kicad
 		pkgs.brightnessctl
+		pkgs-unstable.dotnet-sdk
   ];
 
   fonts.fontconfig = {
@@ -267,6 +268,9 @@
       enable = true;
       enableFishIntegration = true;
     };
+		zathura = {
+			enable = true;
+		};
   };
 
 	programs.vscode.enable = true;

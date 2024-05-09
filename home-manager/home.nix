@@ -1,62 +1,62 @@
 { config,
-  pkgs,
-  lib,
-  pkgs-unstable,
-  nix-colors,
-  ...
-}: {
-  imports = [
-    ./desktop.nix
-    ./kitty.nix
-    ./gtk.nix
-    ./nvim
-  ];
+		pkgs,
+		lib,
+		pkgs-unstable,
+		nix-colors,
+		...
+	}: {
+		imports = [
+			./desktop.nix
+			./kitty.nix
+			./gtk.nix
+			./nvim
+		];
 
-  home = {
-    username = "jonny";
-    homeDirectory = "/home/jonny";
-    sessionVariables = {
-      GPG_TTY = "$(tty)";
-      GTK_THEME = "${config.colorScheme.slug}";
-      WLR_NO_HARDWARE_CURSORS = 1;
-    };
-  };
-  nixpkgs.config.allowUnfree = true;
+		home = {
+			username = "jonny";
+			homeDirectory = "/home/jonny";
+			sessionVariables = {
+				GPG_TTY = "$(tty)";
+				GTK_THEME = "${config.colorScheme.slug}";
+				WLR_NO_HARDWARE_CURSORS = 1;
+			};
+		};
+		nixpkgs.config.allowUnfree = true;
 
-  home.stateVersion = "23.05"; # Please read the comment before changing.
+		home.stateVersion = "23.05"; # Please read the comment before changing.
 
-  home.packages = [
-    (pkgs.nerdfonts.override {fonts = ["NerdFontsSymbolsOnly"];})
-    pkgs-unstable.obsidian
-    pkgs.keepassxc
-    pkgs.cowsay
-    pkgs.intel-one-mono
-    pkgs.waybar
-    pkgs.inter
-    pkgs.lolcat
-    pkgs-unstable.godot_4
-    pkgs-unstable.aseprite
-    pkgs.python3
-    pkgs.qutebrowser
-    pkgs.microsoft-edge
-    pkgs.nodejs
-    pkgs.spotify
-    pkgs.cabal-install
-    pkgs.ghc
-    pkgs.meld
-    pkgs.neofetch
-    pkgs.discord
-    pkgs.libnotify
-    pkgs.glib
-    pkgs.unzip
-    pkgs.elixir
-		pkgs.noto-fonts-emoji
-		pkgs.gnome.nautilus
-		pkgs.minecraft
-		pkgs.qmk
-		pkgs-unstable.kicad
-		pkgs.brightnessctl
-		pkgs-unstable.dotnet-sdk
+		home.packages = [
+			(pkgs.nerdfonts.override {fonts = ["NerdFontsSymbolsOnly"];})
+			pkgs-unstable.obsidian
+			pkgs.keepassxc
+			pkgs.cowsay
+			pkgs.intel-one-mono
+			pkgs.waybar
+			pkgs.inter
+			pkgs.lolcat
+			pkgs-unstable.godot_4
+			pkgs-unstable.aseprite
+			pkgs.python3
+			pkgs.qutebrowser
+			pkgs.microsoft-edge
+			pkgs.nodejs
+			pkgs.spotify
+			pkgs.cabal-install
+			pkgs.ghc
+			pkgs.meld
+			pkgs.neofetch
+			pkgs.discord
+			pkgs.libnotify
+			pkgs.glib
+			pkgs.unzip
+			pkgs.elixir
+			pkgs.noto-fonts-emoji
+			pkgs.gnome.nautilus
+			pkgs.minecraft
+			pkgs.qmk
+			pkgs-unstable.kicad
+			pkgs.brightnessctl
+			pkgs-unstable.dotnet-sdk_8
   ];
 
   fonts.fontconfig = {

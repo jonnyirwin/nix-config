@@ -28,6 +28,7 @@
 		home.packages = [
 			(pkgs.nerdfonts.override {fonts = ["NerdFontsSymbolsOnly"];})
 			pkgs-unstable.obsidian
+			pkgs.inkscape
 			pkgs.keepassxc
 			pkgs.cowsay
 			pkgs.intel-one-mono
@@ -54,9 +55,9 @@
 			pkgs.gnome.nautilus
 			pkgs.minecraft
 			pkgs.qmk
-			pkgs-unstable.kicad
 			pkgs.brightnessctl
 			pkgs-unstable.dotnet-sdk_8
+			pkgs.stow
   ];
 
   fonts.fontconfig = {

@@ -56,6 +56,14 @@
 
 	services.gvfs.enable = true;
 	services.tumbler.enable = true;
+	services.flatpak.enable = true;
+	services.printing.enable = true;
+
+	services.avahi = {
+		enable = true;
+		nssmdns = true;
+		openFirewall = true;
+	};
 	
  # xdg-desktop-portal works by exposing a series of D-Bus interfaces
   # known as portals under a well-known name

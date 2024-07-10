@@ -51,6 +51,9 @@
     #helix.packages."${pkgs.system}".helix
     kitty
 		tmux
+		grim
+		slurp
+		wl-clipboard
   ];
 
    programs.gnupg.agent = {

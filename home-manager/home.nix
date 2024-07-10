@@ -19,6 +19,7 @@
 				GPG_TTY = "$(tty)";
 				GTK_THEME = "${config.colorScheme.slug}";
 				WLR_NO_HARDWARE_CURSORS = 1;
+				XDG_SCREENSHOTS_DIR = "${config.home.homeDirectory}/Pictures/Screenshots";
 			};
 		};
 		nixpkgs.config.allowUnfree = true;
@@ -28,6 +29,7 @@
 		home.packages = [
 			(pkgs.nerdfonts.override {fonts = ["NerdFontsSymbolsOnly"];})
 			pkgs-unstable.obsidian
+			pkgs-unstable.logseq
 			pkgs.inkscape
 			pkgs.keepassxc
 			pkgs.cowsay
@@ -58,6 +60,7 @@
 			pkgs.brightnessctl
 			pkgs-unstable.dotnet-sdk_8
 			pkgs.stow
+			pkgs.sway-contrib.grimshot
   ];
 
   fonts.fontconfig = {

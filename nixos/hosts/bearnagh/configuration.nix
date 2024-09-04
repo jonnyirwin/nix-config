@@ -49,9 +49,9 @@
   i18n.defaultLocale = "en_GB.UTF-8";
 
   # Configure keymap in X11
-  services.xserver = {
+  services.xserver.xkb = {
     layout = "gb";
-    xkbVariant = "";
+    variant = "";
   };
 
 	services.gvfs.enable = true;
@@ -61,7 +61,7 @@
 
 	services.avahi = {
 		enable = true;
-		nssmdns = true;
+		nssmdns4 = true;
 		openFirewall = true;
 	};
 	

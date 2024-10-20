@@ -13,8 +13,10 @@
 
 		colorschemes.catppuccin = {
 			enable = true;
-			flavour = "mocha";
-			transparentBackground = true;
+			settings = {
+				flavour = "mocha";
+				transparentBackground = true;
+			};
 		};
 
 		#colorschemes.base16 = {
@@ -45,7 +47,7 @@
       maplocalleader = " ";
     };
 
-    options = {
+    globalOpts = {
       background = "dark";
       title = true;
       cursorline = true;
@@ -74,9 +76,9 @@
 				enable = false;
 			};
       barbar.enable = true;
-      comment-nvim = {
+      comment = {
 				enable = true;
-				mappings.basic = true;
+				settings.mappings.basic = true;
 			};
       copilot-vim.enable = true;
       fugitive.enable = true;
@@ -137,12 +139,13 @@
           };
         };
         servers = {
-					nil_ls.enable = true;
+					nil-ls.enable = true;
           tsserver.enable = true;
 					hls.enable = true;
 					gdscript.enable = true;
 					elixirls.enable = true;
 					csharp-ls.enable = true;
+					eslint.enable = true;
         };
       };
 
@@ -217,49 +220,52 @@
         enable = true;
         sources = {
           code_actions.statix.enable = true;
-          code_actions.eslint_d.enable = true;
           diagnostics = {
             deadnix.enable = true;
-            eslint_d.enable = true;
             statix.enable = true;
           };
 					formatting = {
 						alejandra.enable = true;
-						prettier.enable = true;
+						prettier = {
+							enable = true;
+							disableTsServerFormatter = true;
+						};
 					};
         };
       };
 
-      nvim-cmp = {
+      cmp = {
         enable = true;
-        sources = [
-          {name = "nvim_lsp";}
-          {name = "luasnip";}
-          {name = "buffer";}
-          {name = "path";}
-        ];
-        formatting.fields = ["kind" "abbr" "menu"];
-        mappingPresets = ["insert"];
-        mapping = {
-          "<C-j>" = "cmp.mapping.select_next_item()";
-          "<C-k>" = "cmp.mapping.select_prev_item()";
-          "<C-b>" = "cmp.mapping.scroll_docs(-4)";
-          "<C-f>" = "cmp.mapping.scroll_docs(4)";
-          "<C-Space>" = "cmp.mapping.complete()";
-          "<C-e>" = "cmp.mapping.abort()";
-          "<CR>" = "cmp.mapping.confirm({ select = true })";
-        };
-        window.completion = {
-          winhighlight = "Normal:Pmenu,FloatBorder:Pmenu,Search:None";
-          colOffset = -4;
-          sidePadding = 0;
-          border = "single";
-        };
-        window.documentation = {
-          winhighlight = "Normal:Pmenu,FloatBorder:Pmenu,Search:None";
-          border = "single";
-        };
-        snippet.expand = "luasnip";
+        settings = {
+					sources = [
+						{name = "nvim_lsp";}
+						{name = "luasnip";}
+						{name = "buffer";}
+						{name = "path";}
+					];
+					formatting.fields = ["kind" "abbr" "menu"];
+					mappingPresets = ["insert"];
+					mapping = {
+						"<C-j>" = "cmp.mapping.select_next_item()";
+						"<C-k>" = "cmp.mapping.select_prev_item()";
+						"<C-b>" = "cmp.mapping.scroll_docs(-4)";
+						"<C-f>" = "cmp.mapping.scroll_docs(4)";
+						"<C-Space>" = "cmp.mapping.complete()";
+						"<C-e>" = "cmp.mapping.abort()";
+						"<CR>" = "cmp.mapping.confirm({ select = true })";
+					};
+					window.completion = {
+						winhighlight = "Normal:Pmenu,FloatBorder:Pmenu,Search:None";
+						colOffset = -4;
+						sidePadding = 0;
+						border = "single";
+					};
+					window.documentation = {
+						winhighlight = "Normal:Pmenu,FloatBorder:Pmenu,Search:None";
+						border = "single";
+					};
+					snippet.expand = "luasnip";
+				};
       };
 
       cmp-buffer.enable = true;
@@ -273,19 +279,27 @@
         keymaps = {
           "<leader>ff" = {
             action = "find_files";
-            desc = "Telescope Find Files";
-          };
+						options = {
+							desc = "Telescope Find Files";
+						};
+					};
           "<leader>fg" = {
             action = "live_grep";
-            desc = "Telescope Live Grep";
+						options = {
+							desc = "Telescope Live Grep";
+						};
           };
           "<leader>fb" = {
             action = "buffers";
-            desc = "Telescope Buffers";
+						options = {
+							desc = "Telescope Buffers";
+						};
           };
           "<leader>fh" = {
             action = "help_tags";
-            desc = "Telescope Help Tags";
+						options = {
+							desc = "Telescope Help Tags";
+						};
           };
         };
         extensions.fzf-native.enable = true;

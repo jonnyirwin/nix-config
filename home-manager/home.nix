@@ -21,6 +21,9 @@
 				WLR_NO_HARDWARE_CURSORS = 1;
 				XDG_SCREENSHOTS_DIR = "${config.home.homeDirectory}/Pictures/Screenshots";
 			};
+			sessionPath = [
+				"/home/jonny/.npm-global/bin"
+			];
 		};
 		nixpkgs.config.allowUnfree = true;
 
@@ -55,12 +58,12 @@
 			pkgs.elixir
 			pkgs.noto-fonts-emoji
 			pkgs.gnome.nautilus
-			pkgs.minecraft
 			pkgs.qmk
 			pkgs.brightnessctl
 			pkgs-unstable.dotnet-sdk_8
 			pkgs.stow
 			pkgs.sway-contrib.grimshot
+			pkgs-unstable.vscode
   ];
 
   fonts.fontconfig = {
@@ -78,7 +81,7 @@
     gpg-agent = {
       enable = true;
       enableSshSupport = true;
-      pinentryFlavor = "tty";
+      pinentryPackage = pkgs.pinentry-tty;
     };
 
     network-manager-applet.enable = true;
@@ -277,7 +280,6 @@
 		};
   };
 
-	programs.vscode.enable = true;
 	programs.tmux = {
 		enable = true;
 		shortcut = "a";

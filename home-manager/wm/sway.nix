@@ -40,6 +40,7 @@
           hideEdgeBorders = "none";
           border = 0;
         };
+				defaultWorkspace = "1";
         input = {
           "*" = {
             xkb_layout = "gb";
@@ -87,11 +88,11 @@
         keybindings = lib.mkOptionDefault {
           "${modifier}+Shift+e" = "exec swaynag -t warning -m 'What do you want to do?' -B 'Power off' 'systemctl poweroff' -B 'Reboot' 'systemctl reboot' -B 'Logout' 'swaymsg exit'";
           "${modifier}+Shift+l" = "exec swaylock -f -c 000000";
+					"XF86MonBrightnessUp" = "exec brightnessctl set 5%+";
 					"XF86MonBrightnessDown" = "exec brightnessctl set 5%-";
 					"${modifier}+p" = "exec grimshot save active";
 					"${modifier}+Shift+p" = "exec grimshot save area";
-					"${modifier}+Ctrl+p" = "exec grimshot save window";				"XF86MonBrightnessUp" = "exec brightnessctl set 5%+";
-        };
+					"${modifier}+Ctrl+p" = "exec grimshot save window";				        };
         menu = "${pkgs.rofi}/bin/rofi -show drun -monitor -1";
       };
       swaynag = {

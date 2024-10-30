@@ -40,7 +40,7 @@
           hideEdgeBorders = "none";
           border = 0;
         };
-				defaultWorkspace = "1";
+				defaultWorkspace = "workspace number 1";
         input = {
           "*" = {
             xkb_layout = "gb";

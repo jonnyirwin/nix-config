@@ -58,12 +58,21 @@
   };
 
   # Symlink ~/.config/nvim → your dotfiles neovim config.
-  # mkOutOfStoreSymlink creates a live symlink (not a nix store copy), so:
-  #   - You can edit Lua files in ~/.dotfiles/neovim/ and see changes immediately
-  #   - lazy.nvim reads/writes its lock file and plugin cache as normal
-  #   - No `home-manager switch` needed to pick up Lua config changes
-  xdg.configFile."nvim".source = config.lib.file.mkOutOfStoreSymlink
-    "${config.home.homeDirectory}/.dotfiles/neovim/.config/nvim";
+  # We use home.activation (not xdg.configFile) because:
+  #   - xdg.configFile with a directory source is built in the Nix sandbox, which
+  #     cannot access paths outside /nix/store, so mkOutOfStoreSymlink on a directory
+  #     fails with "Error installing file outside $HOME".
+  #   - home.activation runs after the sandbox build, as the real user, with access
+  #     to the actual home directory.
+  # The symlink is only created if the dotfiles are present, so the build succeeds
+  # even on a fresh machine that hasn't cloned dotfiles yet.
+  home.activation.nvimConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    nvim_dotfiles="${config.home.homeDirectory}/.dotfiles/neovim/.config/nvim"
+    nvim_config="${config.xdg.configHome}/nvim"
+    if [ -d "$nvim_dotfiles" ] && [ ! -e "$nvim_config" ]; then
+      ln -s "$nvim_dotfiles" "$nvim_config"
+    fi
+  '';
 
   # ----------------------------------------------------------
   # LSP servers, formatters, and linters

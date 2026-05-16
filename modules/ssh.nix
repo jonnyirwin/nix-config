@@ -18,6 +18,7 @@
 {
   programs.ssh = {
     enable = true;
+    enableDefaultConfig = false;
 
     # ----------------------------------------------------------
     # Host blocks (matchBlocks)

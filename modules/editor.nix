@@ -34,7 +34,7 @@
 #                    separately (likely a custom build or a pre-release tool).
 #                    See modules/dev/elixir.nix for alternatives and notes.
 #
-#   ts_ls           → pkgs.nodePackages.typescript-language-server
+#   ts_ls           → pkgs.typescript-language-server
 #   eslint          → pkgs.vscode-langservers-extracted
 #   hls (Haskell)   → via ghcup (see modules/dev/haskell.nix for why)
 #   lua_ls          → pkgs.lua-language-server
@@ -114,17 +114,17 @@
 
     # ---- TypeScript / JavaScript ----
     # typescript-language-server provides ts_ls (your lsp.lua: vim.lsp.enable('ts_ls'))
-    nodePackages.typescript-language-server
+    typescript-language-server
     # vscode-langservers-extracted bundles the eslint language server,
     # html, css, and json LSPs from VSCode. Your lsp.lua enables 'eslint'.
     vscode-langservers-extracted
     # prettier used by none-ls.lua for formatting JS/TS/CSS/HTML/YAML/etc.
-    nodePackages.prettier
+    prettier
 
     # ---- CSS / SCSS ----
     # stylelint is referenced in none-ls.lua for CSS diagnostics.
     # Install globally so it's available for projects that don't bundle it.
-    nodePackages.stylelint
+    stylelint
 
     # ---- Markdown ----
     # markdownlint-cli: both diagnostics and formatting in none-ls.lua.

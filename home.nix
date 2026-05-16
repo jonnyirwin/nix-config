@@ -50,10 +50,8 @@
   catppuccin.flavor = "mocha";
   catppuccin.accent = "mauve";
 
-  # ----------------------------------------------------------
-  # Allow unfree packages
-  # ----------------------------------------------------------
-  nixpkgs.config.allowUnfree = true;
+  # nixpkgs.config.allowUnfree is set in flake.nix (system level).
+  # It cannot be set here when home-manager.useGlobalPkgs = true.
 
   # ----------------------------------------------------------
   # Shell-agnostic aliases

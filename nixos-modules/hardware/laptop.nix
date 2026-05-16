@@ -23,9 +23,9 @@
 
   # ── Lid / power button behaviour ───────────────────────────
   services.logind = {
-    lidSwitch            = "suspend";
+    lidSwitch              = "suspend";
     lidSwitchExternalPower = "lock";
-    extraConfig          = "HandlePowerKey=suspend";
+    settings.Login.HandlePowerKey = "suspend";
   };
 
   # ── Battery info ───────────────────────────────────────────

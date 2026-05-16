@@ -121,10 +121,11 @@
 # ============================================================
 
 {
-  # When using overlays in a standalone HM setup (Debian), we configure
-  # them via nixpkgs.overlays. This option applies to the pkgs instance
-  # that Home Manager uses internally.
-  nixpkgs.overlays = [
+  # nixpkgs.overlays cannot be set in HM when home-manager.useGlobalPkgs = true
+  # (NixOS mode). Overlays for NixOS go in flake.nix via nixpkgs.overlays at
+  # the system level. Examples below are preserved for reference only.
+  #
+  # nixpkgs.overlays = [
 
     # ---- fenix Rust toolchain overlay ----
     # Adds `pkgs.fenix.*` to the package set.
@@ -157,5 +158,5 @@
     #     ];
     #   };
     # })
-  ];
+  # ];
 }

@@ -16,7 +16,7 @@
   services.greetd = {
     enable = true;
     settings.default_session = {
-      command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --cmd sway";
+      command = "${pkgs.tuigreet}/bin/tuigreet --time --cmd sway";
       user    = "greeter";
     };
   };
@@ -25,8 +25,10 @@
   # Required for screen sharing, file picker, and app sandboxing under Wayland.
   xdg.portal = {
     enable       = true;
-    wlr.enable   = true;           # wlroots portal (sway/river/etc.)
-    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+    extraPortals = [
+      pkgs.xdg-desktop-portal-wlr  # wlroots portal (sway/river/etc.)
+      pkgs.xdg-desktop-portal-gtk
+    ];
   };
 
   # ── Audio (Pipewire) ───────────────────────────────────────

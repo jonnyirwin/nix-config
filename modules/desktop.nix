@@ -191,6 +191,7 @@
       # Install the package:
       # package = pkgs.catppuccin-gtk.override { accents = ["mauve"]; variant = "mocha"; };
     };
+    gtk4.theme = null; # adopt new default (was config.gtk.theme pre-26.05)
     iconTheme = {
       name    = "Papirus-Dark";
       package = pkgs.papirus-icon-theme;

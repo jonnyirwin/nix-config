@@ -63,8 +63,9 @@
     # wlsunset is a lighter alternative if gammastep is too heavy
 
     # ---- OCR (your ocr.sh script uses this) ----
-    tesseract      # OCR engine
-    tesseract-languages # language data for tesseract
+    # Language data is bundled via override; add languages as needed:
+    # (tesseract5.override { enableLanguages = [ "eng" "deu" ]; })
+    tesseract
 
     # ---- Fonts ----
     # These complement nerd-fonts.symbols-only in packages.nix.

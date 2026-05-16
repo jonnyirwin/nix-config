@@ -35,7 +35,7 @@
     # ----------------------------------------------------------
     # Git ecosystem
     # ----------------------------------------------------------
-    git-delta    # diff pager (configured in git.nix via programs.git.extraConfig)
+    delta        # diff pager (configured in git.nix via programs.git.extraConfig)
     # lazygit is in programs.nix (needs catppuccin theming via HM module)
 
     # ----------------------------------------------------------

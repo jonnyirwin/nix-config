@@ -191,6 +191,7 @@
       # Install the package:
       # package = pkgs.catppuccin-gtk.override { accents = ["mauve"]; variant = "mocha"; };
     };
+    gtk4.theme = config.gtk.theme; # silence HM 26.05 migration warning; keeps legacy mirroring behaviour
     iconTheme = {
       name    = "Papirus-Dark";
       package = pkgs.papirus-icon-theme;

@@ -24,6 +24,13 @@
   # The BCM4331 needs the proprietary broadcom_sta driver (wl module).
   # b43/bcma/ssb are open-source drivers that probe the same hardware
   # and must be blacklisted so wl can claim the device.
+  #
+  # broadcom-sta is marked insecure (CVE-2019-9501/9502 — unmaintained
+  # upstream). It is the only driver that works for BCM4331 on Linux.
+  nixpkgs.config.permittedInsecurePackages = [
+    "broadcom-sta-6.30.223.271-59-6.18.31"
+  ];
+
   boot.kernelModules       = [ "wl" ];
   boot.extraModulePackages = [ config.boot.kernelPackages.broadcom_sta ];
   boot.blacklistedKernelModules = [ "b43" "bcma" "ssb" "brcmsmac" ];

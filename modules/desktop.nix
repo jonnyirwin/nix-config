@@ -45,8 +45,8 @@
 
     # ---- Workspace icons ----
     # sworkstyle renames workspace labels based on the apps in them.
-    # Configured via ~/.config/sworkstyle/config.toml (add if you have one).
-    sworkstyle
+    # Not currently in nixpkgs — install manually if needed.
+    # sworkstyle
 
     # ---- Screenshot / screen recording ----
     grim           # grab regions of the Wayland screen

@@ -138,7 +138,7 @@
 
           # catppuccin/nix: adds `programs.<name>.catppuccin.enable` options
           # and the global `catppuccin.flavor` / `catppuccin.accent` options.
-          catppuccin.homeManagerModules.catppuccin
+          catppuccin.homeModules.catppuccin
 
           # Shared base config (identity, universal tools, shell, editor).
           ./home.nix
@@ -211,7 +211,7 @@
             home-manager.extraSpecialArgs = { inherit fenix nix-colors inputs; };
             home-manager.users.jonny.imports = [
               nix-colors.homeManagerModules.default
-              catppuccin.homeManagerModules.catppuccin
+              catppuccin.homeModules.catppuccin
               ./home.nix
               ./hosts/mac/home.nix
             ];

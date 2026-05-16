@@ -27,6 +27,8 @@
   # ----------------------------------------------------------
   # Fish shell
   # ----------------------------------------------------------
+  catppuccin.fish.enable = true;
+
   programs.fish = {
     enable = true;
 
@@ -109,17 +111,15 @@
   # ----------------------------------------------------------
   # fzf — fuzzy finder
   # ----------------------------------------------------------
-  # catppuccin.enable writes the colour options via the catppuccin/nix module,
-  # so we no longer need the manual --color= flags in defaultOptions.
+  catppuccin.fzf.enable = true;
+
   programs.fzf = {
     enable                = true;
     enableFishIntegration = true;
-    catppuccin.enable     = true;   # injects Catppuccin Mocha --color= flags automatically
     defaultOptions = [
       "--height 40%"
       "--layout=reverse"
       "--border"
-      # colours are now handled by catppuccin.enable above
     ];
     defaultCommand    = "fd --type f --hidden --follow --exclude .git";
     fileWidgetCommand = "fd --type f --hidden --follow --exclude .git";

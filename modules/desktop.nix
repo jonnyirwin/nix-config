@@ -70,8 +70,9 @@
     # ---- Fonts ----
     # These complement nerd-fonts.symbols-only in packages.nix.
     # Add font packages here; run `fc-cache -fv` after first switch.
-    font-awesome   # icon font used by waybar
-    (nerdfonts.override { fonts = [ "JetBrainsMono" "FiraCode" ]; })
+    font-awesome              # icon font used by waybar
+    nerd-fonts.jetbrains-mono # nerdfonts was split into individual packages
+    nerd-fonts.fira-code
     # Note: Dank Mono (your kitty font) is proprietary — install manually:
     #   mkdir -p ~/.local/share/fonts && cp DankMono*.otf ~/.local/share/fonts/
     #   fc-cache -fv

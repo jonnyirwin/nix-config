@@ -22,10 +22,10 @@
   powerManagement.enable = true;
 
   # ── Lid / power button behaviour ───────────────────────────
-  services.logind = {
-    lidSwitch              = "suspend";
-    lidSwitchExternalPower = "lock";
-    settings.Login.HandlePowerKey = "suspend";
+  services.logind.settings.Login = {
+    HandleLidSwitch              = "suspend";
+    HandleLidSwitchExternalPower = "lock";
+    HandlePowerKey               = "suspend";
   };
 
   # ── Battery info ───────────────────────────────────────────

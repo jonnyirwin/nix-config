@@ -50,7 +50,7 @@
     # pinentry-tty: terminal-based (always works, even without GUI)
     # pinentry-gnome3: GTK dialog (nicer on Sway/Wayland)
     # pinentry-qt: Qt dialog
-    pinentryPackage = pkgs.pinentry-gnome3;
+    pinentry.package = pkgs.pinentry-gnome3;
 
     # Enable the extra socket for forwarding gpg-agent over SSH.
     # Useful when you want to sign commits on remote servers.

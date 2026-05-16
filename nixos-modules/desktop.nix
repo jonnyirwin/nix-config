@@ -39,7 +39,7 @@
     pulse.enable      = true;
   };
   # Pipewire replaces PulseAudio; disable the latter explicitly.
-  hardware.pulseaudio.enable = false;
+  services.pulseaudio.enable = false;
   security.rtkit.enable     = true;   # lets Pipewire request realtime priority
 
   # ── GPU ────────────────────────────────────────────────────
@@ -58,7 +58,7 @@
   fonts.packages = with pkgs; [
     nerd-fonts.jetbrains-mono
     noto-fonts
-    noto-fonts-emoji
+    noto-fonts-color-emoji
   ];
 
   # ── Polkit ─────────────────────────────────────────────────

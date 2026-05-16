@@ -25,9 +25,6 @@
   programs.git = {
     enable = true;
 
-    userName  = "Jonny Irwin";
-    userEmail = "git@jbi.im";
-
     # GPG commit signing — matches your .gitconfig.
     # Ensure gpg-agent is running (Debian: install gnupg2 and add
     # `use-agent` to ~/.gnupg/gpg.conf).
@@ -36,7 +33,9 @@
       signByDefault = true;
     };
 
-    extraConfig = {
+    settings = {
+      user.name  = "Jonny Irwin";
+      user.email = "git@jbi.im";
       init.defaultBranch = "main";
       core.editor = "nvim";    # Use your Neovim, not the old vim alias in dotfiles
 

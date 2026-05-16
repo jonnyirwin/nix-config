@@ -19,22 +19,21 @@
   programs.ssh = {
     enable = true;
 
-    # addKeysToAgent: automatically add keys to the running SSH agent
-    # (which is gpg-agent in our case, configured in services.nix).
-    # This means you only unlock your key once per session.
-    addKeysToAgent = "yes";
-
-    # serverAliveInterval: send a keepalive every N seconds to prevent
-    # the connection dropping due to firewall idle timeouts.
-    serverAliveInterval = 60;
-    serverAliveCountMax = 3;
-
     # ----------------------------------------------------------
     # Host blocks (matchBlocks)
     # ----------------------------------------------------------
     # Each entry generates a `Host` block in ~/.ssh/config.
     # The key is the alias used in `ssh <alias>`.
     matchBlocks = {
+
+      # Global defaults (applies to all hosts unless overridden).
+      # addKeysToAgent: automatically add keys to the running SSH agent.
+      # serverAliveInterval: keepalive every N seconds (prevents idle drops).
+      "*" = {
+        addKeysToAgent      = "yes";
+        serverAliveInterval = 60;
+        serverAliveCountMax = 3;
+      };
 
       # GitHub — use SSH key for git operations.
       # After setting this, `git clone git@github.com:user/repo` works

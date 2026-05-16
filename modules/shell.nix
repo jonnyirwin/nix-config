@@ -63,9 +63,10 @@
     LESS   = "-R";   # interpret ANSI colour codes (needed by delta)
   };
 
-  # Symlink config.fish from dotfiles — live symlink, edits take effect immediately.
-  xdg.configFile."fish/config.fish".source = config.lib.file.mkOutOfStoreSymlink
-    "${config.home.homeDirectory}/.dotfiles/fish/.config/fish/config.fish";
+  # NOTE: fish/config.fish is NOT symlinked here. HM's programs.fish module
+  # generates it from shellInit/interactiveShellInit. Symlinking it conflicts
+  # with HM's generated file and with the catppuccin fish module. Migrate any
+  # remaining dotfiles config.fish content into programs.fish.shellInit above.
 
   xdg.configFile."fish/fish_variables".source = config.lib.file.mkOutOfStoreSymlink
     "${config.home.homeDirectory}/.dotfiles/fish/.config/fish/fish_variables";

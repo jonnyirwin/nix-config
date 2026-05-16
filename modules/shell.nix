@@ -27,7 +27,10 @@
   # ----------------------------------------------------------
   # Fish shell
   # ----------------------------------------------------------
-  catppuccin.fish.enable = true;
+  # catppuccin.fish.enable conflicts with the xdg.configFile."fish/config.fish"
+  # symlink below — both try to write the same file. Keep the live dotfiles
+  # symlink (editable without a rebuild) and skip catppuccin fish theming.
+  # To use catppuccin in fish, source the theme from your dotfiles config.fish.
 
   programs.fish = {
     enable = true;

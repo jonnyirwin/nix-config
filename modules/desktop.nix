@@ -35,7 +35,7 @@
     waybar         # highly customisable Wayland bar
 
     # ---- Application launcher ----
-    rofi-wayland   # rofi with Wayland backend (your config uses rofi's combi mode)
+    rofi           # rofi-wayland merged into rofi; Wayland support now built-in
 
     # ---- Notifications ----
     mako           # Wayland notification daemon — lightweight, scriptable

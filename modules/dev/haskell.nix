@@ -80,7 +80,7 @@
     # queries hoogle. With a local database it works offline.
     #
     # Build the database once: hoogle generate --local
-    hoogle
+    haskellPackages.hoogle
 
     # ---- GHCi helpers ----
     # ghcid watches your project and reruns GHCi on every save.

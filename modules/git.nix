@@ -103,6 +103,6 @@
   # delta — the diff pager referenced in extraConfig above.
   # It reads the [delta] section from gitconfig automatically.
   home.packages = with pkgs; [
-    git-delta
+    delta
   ];
 }

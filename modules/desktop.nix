@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 # ============================================================
 # Desktop environment: Sway, Waybar, Rofi, Mako, and friends

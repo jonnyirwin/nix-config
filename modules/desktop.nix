@@ -25,6 +25,9 @@
 {
   home.packages = with pkgs; [
 
+    # ---- Terminal ----
+    kitty          # GPU-accelerated terminal emulator
+
     # ---- Wayland compositor ----
     sway           # tiling Wayland compositor
     swaybg         # sets the wallpaper (used in your random-wallpaper.sh script)
@@ -97,45 +100,28 @@
   ];
 
   # ----------------------------------------------------------
-  # Sway configuration
+  # Dotfiles config symlinks
   # ----------------------------------------------------------
-  # Sway is configured entirely through the config files in your dotfiles.
-  # The main config and config.d/ snippets are symlinked here.
-  xdg.configFile."sway/config".source = config.lib.file.mkOutOfStoreSymlink
-    "${config.home.homeDirectory}/.dotfiles/sway/.config/sway/config";
+  # Each entry symlinks the ENTIRE app config directory from dotfiles.
+  # This means any file you add to dotfiles is automatically live —
+  # no need to add individual symlinks here when you add new scripts
+  # or config fragments.
 
-  xdg.configFile."sway/config.d".source = config.lib.file.mkOutOfStoreSymlink
-    "${config.home.homeDirectory}/.dotfiles/sway/.config/sway/config.d";
+  # Sway — whole config dir (includes config, config.d/, scripts/, hosts/, etc.)
+  xdg.configFile."sway".source = config.lib.file.mkOutOfStoreSymlink
+    "${config.home.homeDirectory}/.dotfiles/sway/.config/sway";
 
-  xdg.configFile."sway/scripts".source = config.lib.file.mkOutOfStoreSymlink
-    "${config.home.homeDirectory}/.dotfiles/sway/.config/sway/scripts";
+  # Waybar — whole config dir (includes config/config.jsonc, style.css, scripts/, etc.)
+  xdg.configFile."waybar".source = config.lib.file.mkOutOfStoreSymlink
+    "${config.home.homeDirectory}/.dotfiles/waybar/.config/waybar";
 
-  xdg.configFile."sway/hosts".source = config.lib.file.mkOutOfStoreSymlink
-    "${config.home.homeDirectory}/.dotfiles/sway/.config/sway/hosts";
+  # Rofi — whole config dir (includes config.rasi, themes/, scripts/, etc.)
+  xdg.configFile."rofi".source = config.lib.file.mkOutOfStoreSymlink
+    "${config.home.homeDirectory}/.dotfiles/rofi/.config/rofi";
 
-  # ----------------------------------------------------------
-  # Waybar
-  # ----------------------------------------------------------
-  xdg.configFile."waybar/style.css".source = config.lib.file.mkOutOfStoreSymlink
-    "${config.home.homeDirectory}/.dotfiles/waybar/.config/waybar/style.css";
-
-  xdg.configFile."waybar/mocha.css".source = config.lib.file.mkOutOfStoreSymlink
-    "${config.home.homeDirectory}/.dotfiles/waybar/.config/waybar/mocha.css";
-
-  xdg.configFile."waybar/restart.sh".source = config.lib.file.mkOutOfStoreSymlink
-    "${config.home.homeDirectory}/.dotfiles/waybar/.config/waybar/restart.sh";
-
-  # ----------------------------------------------------------
-  # Rofi launcher
-  # ----------------------------------------------------------
-  xdg.configFile."rofi/config.rasi".source = config.lib.file.mkOutOfStoreSymlink
-    "${config.home.homeDirectory}/.dotfiles/rofi/.config/rofi/config.rasi";
-
-  xdg.configFile."rofi/catppuccin-mocha.rasi".source = config.lib.file.mkOutOfStoreSymlink
-    "${config.home.homeDirectory}/.dotfiles/rofi/.config/rofi/catppuccin-mocha.rasi";
-
-  xdg.configFile."rofi/catppuccin-default.rasi".source = config.lib.file.mkOutOfStoreSymlink
-    "${config.home.homeDirectory}/.dotfiles/rofi/.config/rofi/catppuccin-default.rasi";
+  # Kitty terminal — whole config dir
+  xdg.configFile."kitty".source = config.lib.file.mkOutOfStoreSymlink
+    "${config.home.homeDirectory}/.dotfiles/kitty/.config/kitty";
 
   # ----------------------------------------------------------
   # Mako (Wayland notification daemon)

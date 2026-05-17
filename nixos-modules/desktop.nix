@@ -9,6 +9,8 @@
   programs.sway = {
     enable         = true;
     wrapperFeatures.gtk = true;   # fixes GTK apps not picking up theme
+    # Default extraPackages includes foot and dmenu — use kitty instead.
+    extraPackages  = with pkgs; [ swaylock swayidle kitty ];
   };
 
   # ── Display manager ────────────────────────────────────────

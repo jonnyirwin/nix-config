@@ -98,59 +98,34 @@
   ];
 
   # ----------------------------------------------------------
-  # Dotfiles config symlinks
+  # Dotfiles config symlinks (via home.activation)
   # ----------------------------------------------------------
-  # Each entry symlinks the ENTIRE app config directory from dotfiles.
-  # This means any file you add to dotfiles is automatically live —
-  # no need to add individual symlinks here when you add new scripts
-  # or config fragments.
+  # xdg.configFile with a directory source fails in the NixOS HM module
+  # sandbox — the builder can't access paths outside the nix store.
+  # home.activation runs after the sandbox build, as the real user,
+  # so it can safely create symlinks to dotfiles directories.
+  # Each link is a no-op if the dotfiles aren't cloned yet, or if the
+  # symlink already exists.
+  home.activation.dotfilesSymlinks = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    _dot="${config.home.homeDirectory}/.dotfiles"
+    _cfg="${config.xdg.configHome}"
 
-  # Sway — whole config dir (includes config, config.d/, scripts/, hosts/, etc.)
-  xdg.configFile."sway".source = config.lib.file.mkOutOfStoreSymlink
-    "${config.home.homeDirectory}/.dotfiles/sway/.config/sway";
+    _link() {
+      local src="$1" dst="$2"
+      [ -d "$src" ] && [ ! -e "$dst" ] && ln -s "$src" "$dst"
+    }
 
-  # Waybar — whole config dir (includes config/config.jsonc, style.css, scripts/, etc.)
-  xdg.configFile."waybar".source = config.lib.file.mkOutOfStoreSymlink
-    "${config.home.homeDirectory}/.dotfiles/waybar/.config/waybar";
+    _link "$_dot/sway/.config/sway"             "$_cfg/sway"
+    _link "$_dot/waybar/.config/waybar"         "$_cfg/waybar"
+    _link "$_dot/rofi/.config/rofi"             "$_cfg/rofi"
+    _link "$_dot/kitty/.config/kitty"           "$_cfg/kitty"
+    _link "$_dot/mako/.config/mako"             "$_cfg/mako"
+    _link "$_dot/yazi/.config/yazi"             "$_cfg/yazi"
+    _link "$_dot/fontconfig/.config/fontconfig" "$_cfg/fontconfig"
+  '';
 
-  # Rofi — whole config dir (includes config.rasi, themes/, scripts/, etc.)
-  xdg.configFile."rofi".source = config.lib.file.mkOutOfStoreSymlink
-    "${config.home.homeDirectory}/.dotfiles/rofi/.config/rofi";
-
-  # Kitty terminal — whole config dir
-  xdg.configFile."kitty".source = config.lib.file.mkOutOfStoreSymlink
-    "${config.home.homeDirectory}/.dotfiles/kitty/.config/kitty";
-
-  # ----------------------------------------------------------
-  # Mako (Wayland notification daemon)
-  # ----------------------------------------------------------
-  xdg.configFile."mako/config".source = config.lib.file.mkOutOfStoreSymlink
-    "${config.home.homeDirectory}/.dotfiles/mako/.config/mako/config";
-
-  # ----------------------------------------------------------
-  # Fontconfig
-  # ----------------------------------------------------------
-  xdg.configFile."fontconfig/fonts.conf".source = config.lib.file.mkOutOfStoreSymlink
-    "${config.home.homeDirectory}/.dotfiles/fontconfig/.config/fontconfig/fonts.conf";
-
-  # ----------------------------------------------------------
-  # Swaylock
-  # ----------------------------------------------------------
-  # swaylock config (if you have one in your dotfiles swaylock/ directory)
-  # xdg.configFile."swaylock/config".source = config.lib.file.mkOutOfStoreSymlink
-  #   "${config.home.homeDirectory}/.dotfiles/swaylock/.config/swaylock/config";
-
-  # ----------------------------------------------------------
-  # Yazi file manager
-  # ----------------------------------------------------------
-  xdg.configFile."yazi/yazi.toml".source = config.lib.file.mkOutOfStoreSymlink
-    "${config.home.homeDirectory}/.dotfiles/yazi/.config/yazi/yazi.toml";
-
-  xdg.configFile."yazi/keymap.toml".source = config.lib.file.mkOutOfStoreSymlink
-    "${config.home.homeDirectory}/.dotfiles/yazi/.config/yazi/keymap.toml";
-
-  xdg.configFile."yazi/theme.toml".source = config.lib.file.mkOutOfStoreSymlink
-    "${config.home.homeDirectory}/.dotfiles/yazi/.config/yazi/theme.toml";
+  # (mako, fontconfig, yazi, kitty, rofi, sway, waybar symlinks are all
+  #  handled by home.activation.dotfilesSymlinks above)
 
   # ----------------------------------------------------------
   # Pulsemixer

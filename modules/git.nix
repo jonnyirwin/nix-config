@@ -25,12 +25,16 @@
   programs.git = {
     enable = true;
 
-    # GPG commit signing — matches your .gitconfig.
-    # Ensure gpg-agent is running (Debian: install gnupg2 and add
-    # `use-agent` to ~/.gnupg/gpg.conf).
+    # Commit signing via SSH, backed by the 1Password agent.
+    # `key` is the public half of our 1Password "Bearnagh SSH Key"; the private
+    # key never touches disk — `op-ssh-sign` asks 1Password to produce the
+    # signature (with a desktop approval prompt). The same key authenticates
+    # to GitHub via the agent (see modules/ssh.nix IdentityAgent).
     signing = {
-      key    = "B02BA0E451EA374E";
+      format        = "ssh";
+      key           = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIP6XbyUKquA4YBu3pKfFlOrDOIIbrj7o4tYpWFZ+3NOV";
       signByDefault = true;
+      signer        = "/run/current-system/sw/bin/op-ssh-sign";
     };
 
     settings = {

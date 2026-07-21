@@ -113,7 +113,7 @@
   # Gradually shifts screen colour temperature from neutral (daytime)
   # to warm (night). Like f.lux or redshift but for Wayland.
   services.gammastep = {
-    enable    = true;
+    enable    = false;   # disabled — prefer accurate/neutral colours over blue-light warming
     provider  = "manual";
     latitude   = 51.5;   # your latitude (London-ish; adjust for your city)
     longitude  = -0.1;   # your longitude

@@ -39,6 +39,7 @@
 
     # ---- Application launcher ----
     rofi           # rofi-wayland merged into rofi; Wayland support now built-in
+    rofimoji       # emoji/char picker for rofi (emoji-picker.sh prefers it)
 
     # ---- Notifications ----
     mako           # Wayland notification daemon — lightweight, scriptable
@@ -92,6 +93,9 @@
     pulsemixer     # TUI PulseAudio mixer — your dotfiles have its config
     playerctl      # MPRIS media player controller (waybar integration)
     pamixer        # PulseAudio CLI volume control
+    pulseaudio     # provides `pactl` (audio-output.sh / audio-switch.sh); client
+                   # tools work fine against PipeWire's pulse shim
+
 
     # ---- Idle and power ----
     wlopm          # wlr-output-power-management — turn displays off/on
@@ -112,7 +116,13 @@
 
     _link() {
       local src="$1" dst="$2"
-      [ -d "$src" ] && [ ! -e "$dst" ] && ln -s "$src" "$dst"
+      # Use `if` (not `a && b && c`): when the symlink already exists the guard
+      # is false, and a bare `&&` chain would make the function return 1 —
+      # aborting activation under `set -e` on every rebuild after the first.
+      if [ -d "$src" ] && [ ! -e "$dst" ]; then
+        ln -s "$src" "$dst"
+      fi
+      return 0
     }
 
     _link "$_dot/sway/.config/sway"             "$_cfg/sway"
@@ -159,6 +169,30 @@
       name    = "Catppuccin-Mocha-Mauve-Cursors";
       size    = 24;
       # package = pkgs.catppuccin-cursors.mochaMauve;
+    };
+  };
+
+  # ----------------------------------------------------------
+  # Firefox + 1Password extension
+  # ----------------------------------------------------------
+  # Firefox is managed here (rather than a bare package in packages.nix)
+  # so enterprise policies apply. ExtensionSettings force-installs the
+  # 1Password extension from AMO onto every profile — no manual install.
+  # It pairs with the 1Password desktop app enabled at the system level
+  # (programs._1password-gui in nixos-modules/desktop.nix) which provides
+  # the native-messaging bridge the extension uses to unlock.
+  programs.firefox = {
+    enable = true;
+    # Adopt the new XDG default explicitly (the HM default only flips to this at
+    # stateVersion 26.05). Your actual profile already lives here
+    # (~/.config/mozilla/firefox), so this aligns HM with reality — no data move.
+    configPath = "${config.xdg.configHome}/mozilla/firefox";
+    policies.ExtensionSettings = {
+      # 1Password – Password Manager
+      "{d634138d-c276-4fc8-924b-40a0ea21d284}" = {
+        install_url = "https://addons.mozilla.org/firefox/downloads/latest/1password-x-password-manager/latest.xpi";
+        installation_mode = "force_installed";
+      };
     };
   };
 }

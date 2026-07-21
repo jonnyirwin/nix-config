@@ -50,6 +50,14 @@
   catppuccin.flavor = "mocha";
   catppuccin.accent = "mauve";
 
+  # catppuccin/nix is moving to a split model: `autoEnable` controls whether all
+  # supported programs are themed automatically, while `enable` becomes a global
+  # master toggle. We opt in per-program (see modules/programs.nix, shell.nix), so
+  # keep auto-enrolment OFF and the master toggle ON — this preserves current
+  # behaviour and silences the migration warning by setting both explicitly.
+  catppuccin.enable     = true;
+  catppuccin.autoEnable = false;
+
   # nixpkgs.config.allowUnfree is set in flake.nix (system level).
   # It cannot be set here when home-manager.useGlobalPkgs = true.
 

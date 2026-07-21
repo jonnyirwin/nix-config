@@ -103,8 +103,8 @@
   # atuin — searchable, syncable shell history
   # ----------------------------------------------------------
   programs.atuin = {
-    enable                = true;
-    enableFishIntegration = true;
+    enable                = false;  # disabled — fzf owns Ctrl-R history search instead
+    enableFishIntegration = false;
     settings = {
       search_mode                      = "fuzzy";
       filter_mode_shell_up_key_binding = "session";
@@ -126,7 +126,7 @@
       "--border"
     ];
     defaultCommand    = "fd --type f --hidden --follow --exclude .git";
-    fileWidgetCommand = "fd --type f --hidden --follow --exclude .git";
+    fileWidget.command = "fd --type f --hidden --follow --exclude .git";
   };
 
   # ----------------------------------------------------------

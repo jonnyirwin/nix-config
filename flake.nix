@@ -219,6 +219,30 @@
         ];
       };
 
+      # ---- optiplex: Dell OptiPlex desktop (Sway) ----
+      nixosConfigurations."optiplex" = nixpkgs.lib.nixosSystem {
+        inherit system;
+        specialArgs = { inherit inputs; };
+        modules = [
+          ./nixos-modules/common.nix
+          ./nixos-modules/desktop.nix
+          ./hosts/optiplex/default.nix
+
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs    = true;
+            home-manager.useUserPackages  = true;
+            home-manager.extraSpecialArgs = { inherit fenix nix-colors inputs; };
+            home-manager.users.jonny.imports = [
+              nix-colors.homeManagerModules.default
+              catppuccin.homeModules.catppuccin
+              ./home.nix
+              ./hosts/optiplex/home.nix
+            ];
+          }
+        ];
+      };
+
       # Template for adding further machines — copy and adjust:
       # nixosConfigurations."myhostname" = nixpkgs.lib.nixosSystem {
       #   inherit system;

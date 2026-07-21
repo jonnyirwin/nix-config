@@ -21,58 +21,66 @@
     enableDefaultConfig = false;
 
     # ----------------------------------------------------------
-    # Host blocks (matchBlocks)
+    # Host blocks (settings)
     # ----------------------------------------------------------
-    # Each entry generates a `Host` block in ~/.ssh/config.
-    # The key is the alias used in `ssh <alias>`.
-    matchBlocks = {
+    # `programs.ssh.matchBlocks` is deprecated; `settings` is the successor.
+    # Each entry generates a `Host` block in ~/.ssh/config (the key is the
+    # alias used in `ssh <alias>`). Options use the upstream OpenSSH directive
+    # names (PascalCase), e.g. HostName/User instead of hostname/user.
+    settings = {
 
       # Global defaults (applies to all hosts unless overridden).
-      # addKeysToAgent: automatically add keys to the running SSH agent.
-      # serverAliveInterval: keepalive every N seconds (prevents idle drops).
+      # AddKeysToAgent: automatically add keys to the running SSH agent.
+      # ServerAliveInterval: keepalive every N seconds (prevents idle drops).
       "*" = {
-        addKeysToAgent      = "yes";
-        serverAliveInterval = 60;
-        serverAliveCountMax = 3;
+        # Use the 1Password SSH agent for authentication (keys live in 1Password,
+        # not on disk). Requires "Use the SSH agent" enabled in the 1Password app.
+        IdentityAgent       = "~/.1password/agent.sock";
+        AddKeysToAgent      = "yes";
+        ServerAliveInterval = 60;
+        ServerAliveCountMax = 3;
       };
 
       # GitHub — use SSH key for git operations.
       # After setting this, `git clone git@github.com:user/repo` works
       # without specifying the key explicitly.
       "github.com" = {
-        hostname        = "github.com";
-        user            = "git";
-        # Point at your actual SSH private key.
-        # If you use a GPG auth subkey as SSH key, gpg-agent handles this
-        # automatically — you don't need an identityFile here.
-        # identityFile  = "${config.home.homeDirectory}/.ssh/id_ed25519";
-        identitiesOnly = true;   # don't try other keys if the specified one fails
+        HostName       = "github.com";
+        User           = "git";
+        # Keys live in 1Password (IdentityAgent under "*" above), not on disk.
+        # IdentitiesOnly must stay false here: with `true` and no IdentityFile,
+        # SSH refuses to offer the agent's keys at all, causing
+        # "Permission denied (publickey)". Since the 1Password agent serves a
+        # single key, there's no risk of trying the "wrong" one.
+        # (If you ever add many keys and hit "too many auth failures", set this
+        #  back to true AND add IdentityFile pointing to the *public* key file.)
+        IdentitiesOnly = false;
       };
 
       # ---- Template: remote development server ----
       # Uncomment and fill in when you have a remote machine.
       # "dev-server" = {
-      #   hostname     = "192.168.1.100";      # or a domain name
-      #   user         = "jonny";
-      #   identityFile = "${config.home.homeDirectory}/.ssh/id_ed25519";
+      #   HostName     = "192.168.1.100";      # or a domain name
+      #   User         = "jonny";
+      #   IdentityFile = "${config.home.homeDirectory}/.ssh/id_ed25519";
       #   # Forward your local gpg-agent so you can sign commits remotely
       #   # without copying your private key to the server:
-      #   # extraOptions.RemoteForward = "/run/user/1000/gnupg/S.gpg-agent.extra /run/user/1000/gnupg/S.gpg-agent";
+      #   # RemoteForward = "/run/user/1000/gnupg/S.gpg-agent.extra /run/user/1000/gnupg/S.gpg-agent";
       # };
 
       # ---- Template: work VPN / bastion host ----
       # "bastion" = {
-      #   hostname      = "bastion.company.com";
-      #   user          = "jonny";
-      #   identityFile  = "${config.home.homeDirectory}/.ssh/id_ed25519_work";
+      #   HostName      = "bastion.company.com";
+      #   User          = "jonny";
+      #   IdentityFile  = "${config.home.homeDirectory}/.ssh/id_ed25519_work";
       #   # ProxyJump: connect to "internal-server" via this bastion
       #   # (SSH tunnels through bastion automatically)
       # };
       #
       # "internal-server" = {
-      #   hostname      = "10.0.0.50";
-      #   user          = "jonny";
-      #   proxyJump     = "bastion";
+      #   HostName      = "10.0.0.50";
+      #   User          = "jonny";
+      #   ProxyJump     = "bastion";
       # };
     };
 

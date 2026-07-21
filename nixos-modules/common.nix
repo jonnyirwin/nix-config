@@ -48,7 +48,10 @@
   };
 
   # ── Security ───────────────────────────────────────────────
-  security.sudo.wheelNeedsPassword = true;
+  # Passwordless sudo for the wheel group (jonny is a member). Convenient on a
+  # single-user machine; note it means any process running as your user can gain
+  # root without a prompt, so keep it off on shared/untrusted systems.
+  security.sudo.wheelNeedsPassword = false;
 
   system.stateVersion = "24.11";
 }

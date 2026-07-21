@@ -66,4 +66,16 @@
   # ── Polkit ─────────────────────────────────────────────────
   # Required for GUI apps that need privilege escalation (e.g. gparted).
   security.polkit.enable = true;
+
+  # ── 1Password (desktop app + CLI) ──────────────────────────
+  # Installed at the system level because the GUI needs a polkit policy
+  # and a setuid helper, and this module installs the browser
+  # native-messaging manifests that let the Firefox extension unlock via
+  # the desktop app (the extension itself is force-installed in the HM
+  # modules/desktop.nix Firefox policy).
+  programs._1password.enable = true;      # the `op` CLI
+  programs._1password-gui = {
+    enable = true;
+    polkitPolicyOwners = [ "jonny" ];     # allow jonny to unlock via system auth
+  };
 }

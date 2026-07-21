@@ -84,6 +84,12 @@
     pstree       # show process parent/child tree
     # btop is in programs.nix (HM module for catppuccin theming)
 
+    # ---- Hardware inspection ----
+    dmidecode    # read DMI/SMBIOS: RAM sticks, max capacity, board, BIOS
+    pciutils     # lspci — enumerate PCI devices (GPU, NVMe, Wi-Fi card)
+    usbutils     # lsusb — enumerate USB devices
+    nvme-cli     # nvme — inspect/manage NVMe SSDs (health, temp, namespaces)
+
     # ----------------------------------------------------------
     # Archive tools
     # ----------------------------------------------------------
@@ -102,7 +108,9 @@
     # ----------------------------------------------------------
     # Applications
     # ----------------------------------------------------------
-    firefox
+    # firefox → now managed via programs.firefox in modules/desktop.nix
+    #           so the 1Password extension can be force-installed by policy.
+    claude-code  # Anthropic's agentic CLI — installed declaratively (not `nix run`)
 
     # ----------------------------------------------------------
     # Misc utilities

@@ -31,6 +31,13 @@
   # which is required for it to be a valid login shell.
   programs.fish.enable = true;
 
+  # ── Unpatched dynamic binaries ─────────────────────────────
+  # Installs a real loader at /lib64/ld-linux-x86-64.so.2 (which is otherwise
+  # a stub that only prints an error) so prebuilt generic-Linux executables
+  # run without patchelf. Needed by Claude Code's native installer, which
+  # self-updates into ~/.local/share/claude/versions/ and so can't be wrapped.
+  programs.nix-ld.enable = true;
+
   # ── Base system packages ────────────────────────────────────
   # Keep this minimal — user packages belong in Home Manager.
   environment.systemPackages = with pkgs; [

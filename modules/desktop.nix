@@ -131,11 +131,45 @@
     _link "$_dot/kitty/.config/kitty"           "$_cfg/kitty"
     _link "$_dot/mako/.config/mako"             "$_cfg/mako"
     _link "$_dot/yazi/.config/yazi"             "$_cfg/yazi"
-    _link "$_dot/fontconfig/.config/fontconfig" "$_cfg/fontconfig"
+    # NOTE: fontconfig is deliberately *not* linked here. home-manager's own
+    # fonts.fontconfig module writes into ~/.config/fontconfig/conf.d, so the
+    # directory always exists by activation time and `_link`'s `! -e` guard
+    # never fires. Our rules live in the nix-managed conf.d drop-in below.
   '';
 
-  # (mako, fontconfig, yazi, kitty, rofi, sway, waybar symlinks are all
+  # (mako, yazi, kitty, rofi, sway, waybar symlinks are all
   #  handled by home.activation.dotfilesSymlinks above)
+
+  # ----------------------------------------------------------
+  # Fontconfig — Dank Mono with an Intel One Mono fallback
+  # ----------------------------------------------------------
+  # Dank Mono is proprietary and installed by hand (see modules/packages.nix),
+  # so it is absent on a fresh machine. The alias lets kitty.conf say
+  # `font_family Dank Mono` unconditionally: fontconfig returns Dank Mono when
+  # it is present and falls through to Intel One Mono when it is not.
+  #
+  # Numbered 09- so the target="scan" rule is registered before fontconfig
+  # scans the font directories; the alias would work at any number.
+  xdg.configFile."fontconfig/conf.d/09-dank-mono.conf".text = ''
+    <?xml version="1.0"?>
+    <!DOCTYPE fontconfig SYSTEM "fonts.dtd">
+    <fontconfig>
+      <!-- Dank Mono Italic ships without a spacing property, which makes kitty
+           reject it as non-monospace. Force it. -->
+      <match target="scan">
+        <test name="family"><string>Dank Mono</string></test>
+        <test name="style"><string>Italic</string></test>
+        <edit name="spacing"><int>100</int></edit>
+      </match>
+
+      <!-- binding="same" appends rather than replaces: Dank Mono still wins
+           outright when installed. -->
+      <alias binding="same">
+        <family>Dank Mono</family>
+        <prefer><family>Intel One Mono</family></prefer>
+      </alias>
+    </fontconfig>
+  '';
 
   # ----------------------------------------------------------
   # Pulsemixer

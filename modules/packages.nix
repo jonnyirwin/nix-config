@@ -102,6 +102,8 @@
     # Symbols Nerd Font: provides the icon ranges mapped in kitty.conf.
     # Your main font (Dank Mono, proprietary) must be installed manually:
     #   mkdir -p ~/.local/share/fonts && cp DankMono*.otf ~/.local/share/fonts/
+    # Until you do, the fontconfig alias in modules/desktop.nix silently
+    # resolves "Dank Mono" to Intel One Mono, so kitty still looks right.
     # The activation.nix fc-cache script runs after font packages are installed.
     nerd-fonts.symbols-only
 

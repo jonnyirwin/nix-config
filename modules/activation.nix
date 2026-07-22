@@ -26,22 +26,8 @@
 {
   home.activation = {
 
-    # ----------------------------------------------------------
-    # Tmux Plugin Manager (tpm) — install plugins on first run
-    # ----------------------------------------------------------
-    # Your tmux.conf loads plugins via tpm, but tpm's `install_plugins`
-    # script must be run at least once before the plugins are usable.
-    # This script runs it automatically after every switch, but tpm's
-    # install is idempotent (it skips already-installed plugins).
-    #
-    # Manual equivalent: open tmux, press prefix + I (capital i)
-    installTpmPlugins = lib.hm.dag.entryAfter ["writeBoundary"] ''
-      TPM_DIR="${config.home.homeDirectory}/.dotfiles/tmux/.config/tmux/plugins/tpm"
-      if [ -f "$TPM_DIR/bin/install_plugins" ]; then
-        # Run in the background — don't block hm switch
-        TMUX= "$TPM_DIR/bin/install_plugins" > /dev/null 2>&1 || true
-      fi
-    '';
+    # NOTE: tmux plugins are no longer installed here. tpm is gone — plugins
+    # come from the store via programs.tmux.plugins in modules/tmux.nix.
 
     # ----------------------------------------------------------
     # Font cache refresh

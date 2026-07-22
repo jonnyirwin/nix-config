@@ -100,7 +100,8 @@
     ./modules/programs.nix    # bat, lazygit, zathura, btop (with catppuccin)
     ./modules/shell.nix       # Fish, Starship, zoxide, atuin, fzf, direnv
     ./modules/editor.nix      # Neovim + LSP tools on PATH
-    ./modules/terminal.nix    # Kitty + Tmux
+    ./modules/terminal.nix    # Kitty
+    ./modules/tmux.nix        # Tmux (declarative: plugins + catppuccin)
     ./modules/ssh.nix         # SSH client config
     ./modules/services.nix    # gpg-agent, syncthing, background services
     ./modules/activation.nix  # home.activation one-time/periodic setup scripts

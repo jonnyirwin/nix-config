@@ -38,14 +38,8 @@
         "/mnt/data/jonny/Camera" # 20 G
       ];
 
-      exclude = [
-        ".direnv/**"
-        "node_modules/**"
-        "**/.git/**"
-        "**/.cache/**"
-        "**/result"
-        "**/result-*"
-
+      # Appends to the shared defaults rather than replacing them.
+      extraExclude = [
         # 11 G of checkouts that all have remotes. The only thing here that is
         # not on a server somewhere is uncommitted work.
         "git/**"

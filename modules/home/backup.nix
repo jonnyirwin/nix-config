@@ -63,22 +63,49 @@ in
 
     exclude = lib.mkOption {
       type = lib.types.listOf lib.types.str;
+      # NOTE the pattern form: rclone matches a pattern at *any* depth unless it
+      # starts with `/`. A `**/` prefix therefore does the opposite of what it
+      # looks like — it requires at least one directory level before the name,
+      # so `**/.thumbnails/**` silently fails to match `.thumbnails/` sitting at
+      # the root of a copied directory. Which is exactly what it did here.
       default = [
         ".direnv/**"
         "node_modules/**"
-        "**/.git/**"
-        "**/.cache/**"
-        "**/result"
-        "**/result-*"
+        ".git/**"
+        ".cache/**"
+        "result"
+        "result-*"
+
+        # Regenerable image caches. Worth excluding for speed as much as size:
+        # Camera holds 3712 thumbnails against 2365 real photos, and each tiny
+        # file costs a full API round-trip, so they dominate the runtime while
+        # contributing 2% of the bytes.
+        ".thumbnails/**"
+        ".trash/**"
+        "Thumbs.db"
+        ".DS_Store"
       ];
       description = ''
-        rclone filter patterns applied to every path.
+        Baseline rclone filter patterns applied to every path. Setting this
+        replaces the defaults — to add host-specific patterns, use
+        `extraExclude` instead, which appends.
 
         Prefer backing up a whole directory and excluding the reproducible
         parts, over listing the interesting subdirectories: an allow-list
         silently misses whatever you forget, and what you forget is discovered
         only when you need the backup. This list started as an allow-list and
         omitted a password database.
+      '';
+    };
+
+    extraExclude = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+      example = [ "git/**" ];
+      description = ''
+        Host-specific patterns, appended to `exclude`. Separate option so a
+        host adding one pattern does not silently drop the shared defaults —
+        which is exactly what happened when this was a single list.
       '';
     };
 
@@ -133,7 +160,7 @@ in
               --low-level-retries 10 \
               --order-by size,ascending \
               ${lib.concatMapStringsSep " \\\n              "
-                (p: "--exclude ${lib.escapeShellArg p}") cfg.exclude}
+                (p: "--exclude ${lib.escapeShellArg p}") (cfg.exclude ++ cfg.extraExclude)}
           done
 
           notify-send "Backup" "Finished uploading to $dest" 2>/dev/null || true

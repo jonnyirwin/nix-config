@@ -5,24 +5,18 @@ let
 in
 {
   config = lib.mkIf cfg.enable {
+    # Only what you invoke *directly*. Anything a script in scripts.nix needs is
+    # pinned there via runtimeInputs, so listing it again here would be a second
+    # place to keep in step — grim, slurp, tesseract, imagemagick, wtype,
+    # flameshot, wf-recorder, autotiling, udiskie and swaybg are all deliberately
+    # absent for that reason.
     home.packages = with pkgs; [
       # ---- Wayland session ----
-      swaybg # wallpaper, driven by the random-wallpaper script
-      swayidle # idle timeouts (configured in sway.nix's extraConfig)
-      autotiling # automatic split direction
       wdisplays # GUI output configurator, bound to Mod+Shift+D
       wlopm # wlr-output-power-management
-      wtype # synthesise keystrokes (emoji picker, PRIMARY paste)
-
-      # ---- Capture ----
-      grim
-      slurp
-      wf-recorder
-      flameshot # screenshot annotation (Mod+Shift+S, via screenshot-annotate)
-      tesseract # OCR
 
       # ---- Clipboard ----
-      wl-clipboard
+      wl-clipboard # also used interactively, not just by scripts
       wl-clip-persist # keeps the clipboard alive after the source app exits
       cliphist # clipboard history
 
@@ -31,17 +25,14 @@ in
       pavucontrol
       pamixer
       playerctl
-      # pactl, for scripts that speak the PulseAudio protocol to PipeWire's shim
+      # pactl, for anything that speaks the PulseAudio protocol to PipeWire's shim
       pulseaudio
 
       # ---- Misc desktop tools ----
       brightnessctl
-      libnotify # notify-send
+      libnotify # notify-send, used interactively too
       hyprpicker # Wayland colour picker
-      imagemagick # used by the colour picker script
       ffmpeg
-      udiskie # automount removable media
-      rofimoji # emoji picker backend
     ];
   };
 }

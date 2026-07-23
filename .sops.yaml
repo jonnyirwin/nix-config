@@ -1,24 +1,38 @@
 # sops-nix key configuration.
 #
-# The recipient below is optiplex's SSH host key converted to an age key
-# (`ssh-to-age -i /etc/ssh/ssh_host_ed25519_key.pub`). Using the host key means
-# there is no extra key material to manage or back up: a reinstalled machine
-# needs its /etc/ssh host key restored, which you want anyway.
+# Each host decrypts with its own SSH host key converted to an age key:
+#   nix run nixpkgs#ssh-to-age -- -i /etc/ssh/ssh_host_ed25519_key.pub
+# Using the host key means there is no extra key material to manage or back up
+# — a reinstalled machine needs its /etc/ssh restored, which you want anyway.
+#
+# Secrets are per-host (secrets/<hostname>.yaml) so adding a machine does not
+# require re-encrypting anything the other machines own. Shared secrets go in
+# secrets/common.yaml, which every host can read.
 #
 # To add a secret:
-#   nix run nixpkgs#sops -- secrets/secrets.yaml
-#   # then declare it in modules/nixos/core/secrets.nix and reference
-#   # config.sops.secrets.<name>.path from the consuming module.
+#   nix run nixpkgs#sops -- secrets/optiplex.yaml
+#   # then declare it in modules/nixos/core/secrets.nix
 #
-# To edit from a machine that is not optiplex you must add that machine's (or
-# your personal) age public key as a second recipient and re-encrypt with
-# `sops updatekeys secrets/secrets.yaml`.
+# To add a machine:
+#   1. install it, then read its age key with the command above
+#   2. add it below as a new anchor, and to common.yaml's key_groups
+#   3. nix run nixpkgs#sops -- updatekeys secrets/common.yaml
+#
+# Editing from a machine that is not the owner requires adding that machine's
+# (or your personal) age key as a second recipient and re-encrypting.
 
 keys:
   - &optiplex age1vxlapad4sgk8e79yy24ck4kj39qnugp2d5wk6a8r3wmvy3t82vwsy09gd7
 
 creation_rules:
-  - path_regex: secrets/[^/]+\.yaml$
+  # Shared across every machine.
+  - path_regex: secrets/common\.yaml$
+    key_groups:
+      - age:
+          - *optiplex
+
+  # Per-host.
+  - path_regex: secrets/optiplex\.yaml$
     key_groups:
       - age:
           - *optiplex

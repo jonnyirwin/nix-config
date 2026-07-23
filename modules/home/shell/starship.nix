@@ -4,11 +4,11 @@ let
   palette = config.jonny.theme.palette;
 
   # Powerline Extra half-circle caps (U+E0B6 left, U+E0B4 right) wrap every
-  # module in its own surface0 capsule — the same pill vocabulary as waybar,
+  # module in its own surface capsule — the same pill vocabulary as waybar,
   # tmux and rofi.
-  pill = colour: body: "[](fg:surface0)[ ${body} ](fg:${colour} bg:surface0)[](fg:surface0) ";
+  pill = colour: body: "[](fg:surface)[ ${body} ](fg:${colour} bg:surface)[](fg:surface) ";
 
-  # Every language module renders identically, in sapphire.
+  # Every language module renders identically.
   langModules = [
     { name = "dotnet"; symbol = " "; }
     { name = "elixir"; symbol = " "; }
@@ -27,7 +27,7 @@ let
     ({ name, symbol }: lib.nameValuePair name {
       inherit symbol;
       disabled = false;
-      format = pill "sapphire" "$symbol$version";
+      format = pill "lang" "$symbol$version";
     })
     langModules);
 in
@@ -38,7 +38,7 @@ in
 
     settings = {
       add_newline = true;
-      palette = "catppuccin";
+      palette = "theme";
 
       format = lib.concatStrings [
         "$username"
@@ -58,45 +58,55 @@ in
 
       username = {
         show_always = true;
-        format = pill "teal" " 󰀄 $user";
+        format = pill "session" " 󰀄 $user";
         style_user = "fg:teal bg:surface0";
         style_root = "fg:red bg:surface0";
       };
 
       directory = {
-        format = pill "peach" "  $path";
+        format = pill "path" "  $path";
         truncation_length = 4;
         truncation_symbol = "…/";
       };
 
       git_branch = {
         symbol = "";
-        format = pill "green" "  $branch";
+        format = pill "git" "  $branch";
       };
 
       git_status = {
         disabled = false;
-        format = pill "green" "❲$all_status$ahead_behind❳";
+        format = pill "git" "❲$all_status$ahead_behind❳";
       };
 
       time = {
         disabled = false;
         # No trailing space: this is the last pill before the line break.
-        format = "[](fg:surface0)[ 󰥔 $time ](fg:blue bg:surface0)[](fg:surface0)";
+        format = "[](fg:surface)[ 󰥔 $time ](fg:time bg:surface)[](fg:surface)";
         time_format = "%H:%M";
       };
 
       nix_shell = {
         disabled = false;
         symbol = " ";
-        format = pill "sapphire" "$symbol$state";
+        format = pill "lang" "$symbol$state";
       };
 
       shell.disabled = true;
 
-      # The palette is derived from jonny.theme, so `accent` follows
-      # jonny.theme.accent rather than being rewritten by a script.
-      palettes.catppuccin = palette;
+      # Starship palettes are flat name→colour maps, so this is an explicit
+      # projection of the theme rather than the whole palette attrset (which
+      # now nests `hues` and `ansi`). The names are the ones the formats above
+      # use, so a reader can see what each segment means.
+      palettes.theme = {
+        inherit (palette) surface accent;
+        session = palette.hues.cyan;
+        path = palette.hues.orange;
+        git = palette.success;
+        lang = palette.hues.blue;
+        time = palette.info;
+        red = palette.error;
+      };
     }
     // langSettings;
   };

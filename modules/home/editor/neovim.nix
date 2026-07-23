@@ -19,7 +19,7 @@
 # profile stays clean.
 
 let
-  configPath = "${config.home.homeDirectory}/git/nix/modules/home/editor/nvim";
+  configPath = "${config.jonny.flakePath}/modules/home/editor/nvim";
 
   # Treesitter parsers, prebuilt from nixpkgs. This replaces the runtime
   # `require('nvim-treesitter').install(...)` block plus `build = ":TSUpdate"`

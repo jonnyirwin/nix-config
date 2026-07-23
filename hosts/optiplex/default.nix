@@ -1,19 +1,29 @@
-{ ... }:
+{ inputs, ... }:
 
 # ============================================================
-# Host: optiplex — Dell OptiPlex desktop (Intel)
+# Host: optiplex — Dell OptiPlex 3000, Intel i3-12100T (Alder Lake)
 # ============================================================
 # Encrypted (LUKS) root + encrypted swap; UEFI / systemd-boot.
 # Everything here is either a hardware fact or a deliberate per-host choice;
 # shared behaviour lives in modules/nixos.
 {
-  imports = [ ./hardware.nix ];
+  imports = with inputs.nixos-hardware.nixosModules; [
+    ./hardware.nix
 
-  networking.hostName = "optiplex";
+    # Community hardware profiles — see github.com/NixOS/nixos-hardware.
+    # common-cpu-intel pulls in the Intel GPU profile, which is considerably
+    # more thorough than hand-rolling it: 32-bit VA-API, the compute runtime,
+    # i915/xe driver selection, and an assertion against too-old kernels.
+    common-cpu-intel
+    common-pc
+    common-pc-ssd # NVMe + SATA SSD; enables periodic fstrim
+  ];
 
   jonny = {
-    desktop.enable = true;
-    hardware.intel.enable = true;
+    desktop = {
+      enable = true;
+      compositor = "sway";
+    };
     services.openssh.enable = true;
     secrets.enable = true;
     security.passwordlessSudo = true;

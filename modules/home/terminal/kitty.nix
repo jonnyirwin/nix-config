@@ -2,15 +2,15 @@
 
 let
   p = config.jonny.theme.palette;
-  font = config.jonny.theme.font;
+  fonts = config.jonny.theme.fonts;
 in
 {
   programs.kitty = {
     enable = true;
 
     font = {
-      name = font.family;
-      size = 16.0;
+      name = fonts.mono.family;
+      size = fonts.mono.size + 0.0;
     };
 
     settings = {
@@ -62,51 +62,55 @@ in
       cursor_stop_blinking_after = "15.0";
 
       # ---- Colours (derived from jonny.theme) ----
-      foreground = p.text;
-      background = p.base;
-      selection_foreground = p.base;
-      selection_background = p.rosewater;
+      foreground = p.fg;
+      background = p.bg;
+      selection_foreground = p.bg;
+      selection_background = p.highlight;
 
-      cursor = p.rosewater;
-      cursor_text_color = p.base;
-      url_color = p.rosewater;
+      cursor = p.highlight;
+      cursor_text_color = p.bg;
+      url_color = p.highlight;
 
-      active_border_color = p.lavender;
-      inactive_border_color = p.overlay0;
-      bell_border_color = p.yellow;
+      active_border_color = p.borderActive;
+      inactive_border_color = p.border;
+      bell_border_color = p.warning;
 
       wayland_titlebar_color = "system";
 
-      active_tab_foreground = p.crust;
+      active_tab_foreground = p.bgInset;
       active_tab_background = p.accent; # follows jonny.theme.accent
-      inactive_tab_foreground = p.text;
-      inactive_tab_background = p.mantle;
-      tab_bar_background = p.crust;
+      inactive_tab_foreground = p.fg;
+      inactive_tab_background = p.bgAlt;
+      tab_bar_background = p.bgInset;
 
-      mark1_foreground = p.base;
-      mark1_background = p.lavender;
-      mark2_foreground = p.base;
-      mark2_background = p.mauve;
-      mark3_foreground = p.base;
-      mark3_background = p.sapphire;
+      mark1_foreground = p.bg;
+      mark1_background = p.borderActive;
+      mark2_foreground = p.bg;
+      mark2_background = p.hues.purple;
+      mark3_foreground = p.bg;
+      mark3_background = p.hues.blue;
 
-      # The 16 terminal colours
-      color0 = p.surface1;
-      color8 = p.surface2;
-      color1 = p.red;
-      color9 = p.red;
-      color2 = p.green;
-      color10 = p.green;
-      color3 = p.yellow;
-      color11 = p.yellow;
-      color4 = p.blue;
-      color12 = p.blue;
-      color5 = p.pink;
-      color13 = p.pink;
-      color6 = p.teal;
-      color14 = p.teal;
-      color7 = p.subtext1;
-      color15 = p.subtext0;
+      # The 16 terminal colours. These come from the scheme's own ANSI mapping
+      # rather than being assembled from roles: a scheme that specifies its
+      # terminal palette deliberately (Gruvbox and Nord both do) would
+      # otherwise be second-guessed here.
+      color0 = p.ansi.black;
+      color1 = p.ansi.red;
+      color2 = p.ansi.green;
+      color3 = p.ansi.yellow;
+      color4 = p.ansi.blue;
+      color5 = p.ansi.magenta;
+      color6 = p.ansi.cyan;
+      color7 = p.ansi.white;
+
+      color8 = p.ansi.brightBlack;
+      color9 = p.ansi.brightRed;
+      color10 = p.ansi.brightGreen;
+      color11 = p.ansi.brightYellow;
+      color12 = p.ansi.brightBlue;
+      color13 = p.ansi.brightMagenta;
+      color14 = p.ansi.brightCyan;
+      color15 = p.ansi.brightWhite;
     };
 
     keybindings = {

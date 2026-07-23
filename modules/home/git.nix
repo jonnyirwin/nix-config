@@ -1,10 +1,11 @@
 { config, lib, ... }:
 
 let
-  flavor = config.jonny.theme.flavor;
-  # delta names its bundled themes with a capitalised flavour, e.g.
-  # "Catppuccin Mocha".
-  deltaTheme = "Catppuccin ${lib.toUpper (builtins.substring 0 1 flavor)}${builtins.substring 1 (-1) flavor}";
+  myLib = import ../../lib { inherit lib; };
+
+  # delta renders through bat's theme set, so this follows jonny.theme.scheme
+  # rather than naming Catppuccin.
+  deltaTheme = myLib.batThemes.${config.jonny.theme.scheme};
 in
 {
   programs.git = {

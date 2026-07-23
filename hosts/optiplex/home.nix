@@ -4,6 +4,7 @@
   jonny = {
     desktop = {
       enable = true;
+      compositor = "sway";
 
       # Was config.d/display-settings.conf, rewritten at runtime by
       # resolution-switcher.sh. Portrait 1440p on the sole DisplayPort output.
@@ -13,9 +14,13 @@
       };
     };
 
+    # Change either line to re-theme everything. Schemes: catppuccin-{latte,
+    # frappe,macchiato,mocha}, gruvbox-dark, nord — see lib/schemes/.
+    # The accent is named by hue, so it keeps its meaning across schemes:
+    # "purple" is Catppuccin's mauve, Gruvbox's bright purple, Nord's nord15.
     theme = {
-      flavor = "mocha";
-      accent = "mauve";
+      scheme = "catppuccin-mocha";
+      accent = "purple";
     };
   };
 

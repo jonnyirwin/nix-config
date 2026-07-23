@@ -66,7 +66,7 @@ let
     [ "Left" "Right" "Up" "Down" ]);
 in
 {
-  config = lib.mkIf cfg.enable {
+  config = lib.mkIf (cfg.enable && cfg.compositor == "sway") {
     wayland.windowManager.sway = {
       enable = true;
 
@@ -103,27 +103,27 @@ in
           let
             # Shared across focused/unfocused: only the border colour differs.
             common = {
-              background = p.base;
-              inherit (p) text;
-              indicator = p.rosewater;
+              background = p.bg;
+              text = p.fg;
+              indicator = p.highlight;
             };
             withBorder = colour: common // { border = colour; childBorder = colour; };
           in
           {
-            focused = withBorder p.lavender;
-            focusedInactive = withBorder p.overlay0;
-            unfocused = withBorder p.overlay0;
-            placeholder = withBorder p.overlay0;
+            focused = withBorder p.borderActive;
+            focusedInactive = withBorder p.border;
+            unfocused = withBorder p.border;
+            placeholder = withBorder p.border;
 
             urgent = {
-              border = p.peach;
-              background = p.base;
-              text = p.peach;
-              indicator = p.overlay0;
-              childBorder = p.peach;
+              border = p.hues.orange;
+              background = p.bg;
+              text = p.hues.orange;
+              indicator = p.border;
+              childBorder = p.hues.orange;
             };
 
-            background = p.base;
+            background = p.bg;
           };
 
         # ---- Input ----

@@ -1,16 +1,56 @@
-# Catppuccin palettes as raw hex values.
+# Catppuccin's four flavours, expressed in the shared role/hue vocabulary.
 #
-# The catppuccin/nix HM modules theme programs that have upstream support, but
-# they expose the accent as a *name* only. Anywhere we write colours ourselves
-# (sway, waybar CSS, rofi, mako, swaylock) we need the hex, so it lives here.
+# The native palette is kept in `raw` per flavour so the mapping below stays
+# readable — you can see that `surface` is Catppuccin's surface0 — but nothing
+# outside this file should reach into `raw`. Modules read roles and hues.
 #
-# This replaces the old ~/.dotfiles/catppuccin/.local/bin/set-accent, which
-# rewrote `# >>> catppuccin-accent` marker blocks across five config files in
-# place. One value in Nix now derives all of them.
-#
-# Source: https://github.com/catppuccin/catppuccin (palette definitions)
+# Source: https://github.com/catppuccin/catppuccin
+
+let
+  mkFlavour = raw: {
+    inherit raw;
+
+    # ---- Structure ----
+    bg = raw.base;
+    bgAlt = raw.mantle;
+    bgInset = raw.crust;
+
+    surface = raw.surface0;
+    surfaceAlt = raw.surface1;
+    surfaceActive = raw.surface2;
+
+    # ---- Foreground ramp, brightest first ----
+    fg = raw.text;
+    fgDim = raw.subtext1;
+    fgSubtle = raw.subtext0;
+    fgMuted = raw.overlay1;
+    fgFaint = raw.overlay0;
+
+    # ---- Lines and emphasis ----
+    border = raw.overlay0;
+    borderActive = raw.lavender;
+    highlight = raw.rosewater; # cursor, selection, link underline
+
+    # ---- Status ----
+    error = raw.red;
+    warning = raw.yellow;
+    success = raw.green;
+    info = raw.blue;
+
+    # ---- Distinct hues ----
+    # `inherit` where Catppuccin already uses the generic name; the explicit
+    # lines are the translations out of its own vocabulary.
+    hues = {
+      inherit (raw) red yellow green blue;
+      orange = raw.peach;
+      cyan = raw.teal;
+      purple = raw.mauve;
+      magenta = raw.pink;
+    };
+  };
+in
 {
-  latte = {
+  latte = mkFlavour {
     rosewater = "#dc8a78";
     flamingo = "#dd7878";
     pink = "#ea76cb";
@@ -39,7 +79,7 @@
     crust = "#dce0e8";
   };
 
-  frappe = {
+  frappe = mkFlavour {
     rosewater = "#f2d5cf";
     flamingo = "#eebebe";
     pink = "#f4b8e4";
@@ -68,7 +108,7 @@
     crust = "#232634";
   };
 
-  macchiato = {
+  macchiato = mkFlavour {
     rosewater = "#f4dbd6";
     flamingo = "#f0c6c6";
     pink = "#f5bde6";
@@ -97,7 +137,7 @@
     crust = "#181926";
   };
 
-  mocha = {
+  mocha = mkFlavour {
     rosewater = "#f5e0dc";
     flamingo = "#f2cdcd";
     pink = "#f5c2e7";

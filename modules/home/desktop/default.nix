@@ -1,21 +1,50 @@
-{ lib, ... }:
+{ lib, config, ... }:
 
+let
+  cfg = config.jonny.desktop;
+in
 {
   imports = [
+    # ---- Compositor-agnostic ----
     ./scripts.nix
     ./pomodoro.nix
-    ./sway.nix
     ./waybar.nix
     ./rofi.nix
     ./mako.nix
-    ./swaylock.nix
     ./fonts.nix
     ./gtk.nix
     ./packages.nix
+
+    # ---- Compositor-specific ----
+    # Each gates itself on jonny.desktop.compositor, so adding a second one is
+    # a new file plus an enum value — nothing here or in the shared modules
+    # changes.
+    ./compositors/sway.nix
+    ./compositors/swaylock.nix
   ];
 
   options.jonny.desktop = {
-    enable = lib.mkEnableOption "the Sway desktop user environment";
+    enable = lib.mkEnableOption "the graphical desktop user environment";
+
+    compositor = lib.mkOption {
+      type = lib.types.nullOr (lib.types.enum [ "sway" ]);
+      default = null;
+      description = ''
+        Which Wayland compositor to configure. Everything that is not
+        compositor-specific — bar, launcher, notifications, theme, fonts,
+        scripts — is shared, so switching this should not require touching
+        anything else.
+      '';
+    };
+
+    # Read by waybar (workspace module, systemd target) and by anything else
+    # that needs to vary by compositor without hardcoding a name.
+    sessionTarget = lib.mkOption {
+      type = lib.types.str;
+      readOnly = true;
+      default = "${cfg.compositor}-session.target";
+      description = "The systemd user target the compositor's session binds to.";
+    };
 
     outputs = lib.mkOption {
       type = lib.types.attrsOf (lib.types.attrsOf lib.types.str);
@@ -24,17 +53,26 @@
         { "DP-1" = { resolution = "2560x1440"; transform = "90"; }; }
       '';
       description = ''
-        Sway output configuration, per host. This replaces the runtime-generated
-        config.d/display-settings.conf that resolution-switcher.sh used to write:
-        permanent layout belongs here, ad-hoc changes go through wdisplays
-        (Mod+Shift+D) and should be folded back into this option.
+        Display configuration, per host. This replaces the runtime-generated
+        config.d/display-settings.conf that resolution-switcher.sh used to
+        write: permanent layout belongs here, ad-hoc changes go through
+        wdisplays (Mod+Shift+D) and should be folded back into this option.
       '';
     };
 
     extraKeybindings = lib.mkOption {
       type = lib.types.attrsOf lib.types.str;
       default = { };
-      description = "Host-specific sway keybindings, merged over the shared set.";
+      description = "Host-specific keybindings, merged over the shared set.";
     };
+  };
+
+  config = lib.mkIf cfg.enable {
+    assertions = [
+      {
+        assertion = cfg.compositor != null;
+        message = "jonny.desktop.enable requires jonny.desktop.compositor to be set.";
+      }
+    ];
   };
 }

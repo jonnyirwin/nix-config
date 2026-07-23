@@ -22,10 +22,10 @@ in
       "--prompt='❯ '"
       "--pointer=❯"
       "--marker=❯"
-      "--color=bg:${p.base},bg+:${p.surface1},fg:${p.text},fg+:${p.text}"
-      "--color=hl:${p.blue},hl+:${p.blue}"
-      "--color=prompt:${p.accent},pointer:${p.accent},marker:${p.green}"
-      "--color=spinner:${p.accent},info:${p.surface2},header:${p.blue}"
+      "--color=bg:${p.bg},bg+:${p.surfaceAlt},fg:${p.fg},fg+:${p.fg}"
+      "--color=hl:${p.info},hl+:${p.info}"
+      "--color=prompt:${p.accent},pointer:${p.accent},marker:${p.success}"
+      "--color=spinner:${p.accent},info:${p.surfaceActive},header:${p.info}"
     ];
   };
 }

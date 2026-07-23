@@ -192,7 +192,7 @@ in
       set -g status-right "#{E:@catppuccin_status_application} #{E:@catppuccin_status_date} #{E:@catppuccin_status_time} #{?@ai_total,#{E:@catppuccin_status_ai} ,}#{E:@catppuccin_status_session}"
 
       # Pane borders: subtle grey + accent focus, matching waybar.
-      set -g pane-border-style "fg=${p.surface1}"
+      set -g pane-border-style "fg=${p.surfaceAlt}"
       set -g pane-active-border-style "fg=#{@thm_accent}"
       set -g pane-border-lines single
 

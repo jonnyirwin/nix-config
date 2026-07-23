@@ -1,4 +1,4 @@
-{ pkgs, pkgsWithFenix }:
+{ pkgs }:
 
 # Per-stack development environments.
 #
@@ -8,13 +8,13 @@
 # These replace mise and ghcup: a project's toolchain is selected by its .envrc
 # and pinned by this flake's lock file, rather than by a global version manager.
 # If a project has its own flake with a devShell, use `use flake` instead.
+#
+# `pkgs` carries the fenix overlay (see flake.nix), so rust.nix reads
+# pkgs.fenix.* directly rather than needing a second package set.
 
-let
-  args = { inherit pkgs pkgsWithFenix; };
-in
 {
-  haskell = import ./haskell.nix args;
-  elixir = import ./elixir.nix args;
-  rust = import ./rust.nix args;
-  ruby = import ./ruby.nix args;
+  haskell = import ./haskell.nix { inherit pkgs; };
+  elixir = import ./elixir.nix { inherit pkgs; };
+  rust = import ./rust.nix { inherit pkgs; };
+  ruby = import ./ruby.nix { inherit pkgs; };
 }

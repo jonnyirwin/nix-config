@@ -365,11 +365,11 @@ let
       text =
         let
           accent = rgbOf p.accent;
-          blue = rgbOf p.blue;
-          lavender = rgbOf p.lavender;
-          subtext = rgbOf p.subtext0;
-          text' = rgbOf p.text;
-          surface = rgbOf p.surface2;
+          blue = rgbOf p.info;
+          lavender = rgbOf p.borderActive;
+          subtext = rgbOf p.fgSubtle;
+          text' = rgbOf p.fg;
+          surface = rgbOf p.surfaceActive;
         in
         ''
           RESET='\033[0m'

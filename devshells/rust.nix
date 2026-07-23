@@ -1,4 +1,4 @@
-{ pkgs, pkgsWithFenix, ... }:
+{ pkgs, ... }:
 
 # ============================================================
 # Rust development shell
@@ -22,7 +22,7 @@ let
   # IMPORTANT: the path is evaluated relative to THIS FLAKE, not the
   # project you're developing. For project-specific toolchains, add a
   # flake.nix to that project, or use a fixed path here.
-  toolchain = pkgsWithFenix.fenix.stable.withComponents [
+  toolchain = pkgs.fenix.stable.withComponents [
     "rustc"
     "cargo"
     "rust-std"
@@ -41,7 +41,7 @@ pkgs.mkShell {
   # Using it also means they're added to PATH and linker search paths correctly.
   nativeBuildInputs = [
     toolchain # rustc, cargo, rustfmt, clippy
-    pkgsWithFenix.fenix.stable.rust-analyzer # LSP server
+    pkgs.fenix.stable.rust-analyzer # LSP server
     pkgs.pkg-config # lets Cargo find system libraries
   ];
 
@@ -55,7 +55,7 @@ pkgs.mkShell {
 
   env = {
     # rust-analyzer needs this to resolve std types
-    RUST_SRC_PATH = "${pkgsWithFenix.fenix.stable.rust-src}/lib/rustlib/src/rust/library";
+    RUST_SRC_PATH = "${pkgs.fenix.stable.rust-src}/lib/rustlib/src/rust/library";
     # Show backtraces on panic (very useful during development)
     RUST_BACKTRACE = "1";
     # Linker flags for openssl (set automatically by openssl-sys crate

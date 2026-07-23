@@ -10,7 +10,9 @@ in
     services.greetd = {
       enable = true;
       settings.default_session = {
-        command = "${lib.getExe pkgs.tuigreet} --time --cmd sway";
+        # Follows jonny.desktop.compositor rather than naming one, so switching
+        # compositor does not leave the greeter launching the old one.
+        command = "${lib.getExe pkgs.tuigreet} --time --cmd ${cfg.compositor}";
         user = "greeter";
       };
     };

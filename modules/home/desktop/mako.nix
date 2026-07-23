@@ -3,7 +3,7 @@
 let
   cfg = config.jonny.desktop;
   p = config.jonny.theme.palette;
-  font = config.jonny.theme.font;
+  fonts = config.jonny.theme.fonts;
 in
 {
   config = lib.mkIf cfg.enable {
@@ -11,14 +11,14 @@ in
       enable = true;
 
       settings = {
-        font = "${font.family} ${toString font.size}";
+        font = "${fonts.ui.family} ${toString fonts.ui.size}";
 
-        background-color = p.surface0;
-        text-color = p.text;
-        border-color = p.surface1;
+        background-color = p.surface;
+        text-color = p.fg;
+        border-color = p.surfaceAlt;
         border-size = 1;
         border-radius = 18;
-        progress-color = "over ${p.surface1}";
+        progress-color = "over ${p.surfaceAlt}";
 
         width = 360;
         height = 140;
@@ -32,18 +32,18 @@ in
         max-icon-size = 48;
         markup = true;
 
-        format = ''<span foreground="${p.accent}" weight="bold">%s</span>\n<span foreground="${p.subtext1}">%b</span>'';
+        format = ''<span foreground="${p.accent}" weight="bold">%s</span>\n<span foreground="${p.fgDim}">%b</span>'';
 
         "urgency=low" = {
-          border-color = p.overlay0;
+          border-color = p.border;
           default-timeout = 3000;
-          format = ''<span foreground="${p.overlay0}" weight="bold">%s</span>\n<span foreground="${p.subtext1}">%b</span>'';
+          format = ''<span foreground="${p.border}" weight="bold">%s</span>\n<span foreground="${p.fgDim}">%b</span>'';
         };
 
         "urgency=high" = {
-          border-color = p.red;
+          border-color = p.error;
           default-timeout = 0; # critical notifications stay until dismissed
-          format = ''<span foreground="${p.red}" weight="bold">%s</span>\n<span foreground="${p.subtext1}">%b</span>'';
+          format = ''<span foreground="${p.error}" weight="bold">%s</span>\n<span foreground="${p.fgDim}">%b</span>'';
         };
       };
     };

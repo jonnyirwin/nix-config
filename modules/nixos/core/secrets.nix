@@ -2,7 +2,7 @@
 
 let
   cfg = config.jonny.secrets;
-  sopsFile = ../../../secrets/secrets.yaml;
+  hostFile = ../../../secrets + "/${config.networking.hostName}.yaml";
 in
 {
   imports = [ inputs.sops-nix.nixosModules.sops ];
@@ -12,7 +12,10 @@ in
 
   config = lib.mkIf cfg.enable {
     sops = {
-      defaultSopsFile = sopsFile;
+      # Per-host by convention, so adding a machine never means re-encrypting
+      # secrets the other machines own. Shared values go in secrets/common.yaml
+      # and are declared with an explicit `sopsFile`.
+      defaultSopsFile = lib.mkIf (builtins.pathExists hostFile) hostFile;
 
       # The host's own SSH key doubles as the age identity — see .sops.yaml.
       # No separate key to generate, copy, or lose.

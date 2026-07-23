@@ -188,7 +188,7 @@ in
       nixconfig = {
         description = "Edit this Nix configuration";
         body = ''
-          cd ${config.home.homeDirectory}/git/nix
+          cd ${config.jonny.flakePath}
           and $EDITOR .
         '';
       };
@@ -241,7 +241,7 @@ in
       set -gx LS_COLORS 'di=1;34:ln=1;36:so=32:pi=33:ex=1;32:bd=1;33:cd=1;33:su=0;41:sg=0;46:tw=0;42:ow=0;43:'
 
       set -g fish_autosuggestion_enabled 1
-      set -g fish_color_autosuggestion ${lib.removePrefix "#" palette.surface2} brblack
+      set -g fish_color_autosuggestion ${lib.removePrefix "#" palette.surfaceActive} brblack
     '';
   };
 

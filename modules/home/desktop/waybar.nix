@@ -3,31 +3,40 @@
 let
   cfg = config.jonny.desktop;
   p = config.jonny.theme.palette;
-  font = config.jonny.theme.font;
+  fonts = config.jonny.theme.fonts;
   s = cfg.scripts;
 
   pomodoro = config.jonny.desktop.pomodoro;
   pomodoroBin = name: "${pomodoro.package}/bin/${name}";
+
+  # Waybar names its workspace widget after the compositor. Deriving it here is
+  # the only compositor-specific thing left in this file.
+  workspaceModule = "${cfg.compositor}/workspaces";
+
+  # Icon coverage is declared once in jonny.theme.fonts.fallback rather than
+  # being spelled out in this CSS.
+  fontStack = lib.concatMapStringsSep ", " (f: ''"${f}"'')
+    ([ fonts.ui.family ] ++ fonts.fallback) + ", monospace";
 in
 {
   config = lib.mkIf cfg.enable {
     programs.waybar = {
       enable = true;
 
-      # Bound to sway-session.target rather than launched from sway's config.
-      # This replaces waybar-supervisor.sh, which existed only to work around a
-      # race with the old unit's `Requisite=graphical-session.target`: that
-      # failed instantly if the target wasn't up yet when sway's exec fired.
+      # Bound to the compositor's session target rather than launched from its
+      # config. This replaces waybar-supervisor.sh, which existed only to work
+      # around a race with the old unit's `Requisite=graphical-session.target`:
+      # that failed instantly if the target wasn't up yet when the exec fired.
       systemd = {
         enable = true;
-        targets = [ "sway-session.target" ];
+        targets = [ cfg.sessionTarget ];
       };
 
       settings.mainBar = {
         layer = "top";
         position = "top";
 
-        modules-left = [ "custom/pomodoro" "sway/workspaces" ];
+        modules-left = [ "custom/pomodoro" workspaceModule ];
         modules-center = [ "custom/music" ];
         modules-right = [
           "custom/audio-output"
@@ -39,7 +48,7 @@ in
           "tray"
         ];
 
-        "sway/workspaces" = {
+        ${workspaceModule} = {
           disable-scroll = true;
           sort-by-number = true;
           format = "{name}";
@@ -125,14 +134,14 @@ in
       # segments and rofi's selection. Colours come from jonny.theme.
       style = ''
         * {
-          font-family: "${font.family}", "Symbols Nerd Font Mono", "DejaVu Sans Mono", monospace;
-          font-size: ${toString font.size}px;
+          font-family: ${fontStack};
+          font-size: ${toString fonts.ui.size}px;
           min-height: 0;
         }
 
         #waybar {
-          background: ${p.mantle};
-          color: ${p.text};
+          background: ${p.bgAlt};
+          color: ${p.fg};
           margin: 0;
           padding: 4px 0;
         }
@@ -147,8 +156,8 @@ in
         }
 
         #workspaces button {
-          background: ${p.surface0};
-          color: ${p.overlay1};
+          background: ${p.surface};
+          color: ${p.fgMuted};
           border-radius: 999px;
           padding: 0 10px;
           margin: 2px 3px;
@@ -159,12 +168,12 @@ in
         }
 
         #workspaces button:hover {
-          color: ${p.text};
-          background: ${p.surface1};
+          color: ${p.fg};
+          background: ${p.surfaceAlt};
         }
 
         #workspaces button.focused {
-          color: ${p.crust};
+          color: ${p.bgInset};
           background: ${p.accent};
         }
 
@@ -182,7 +191,7 @@ in
         #pulseaudio,
         #custom-audio-output,
         #custom-idle-inhibitor {
-          background: ${p.surface0};
+          background: ${p.surface};
           border: none;
           border-radius: 999px;
           padding: 0 12px;
@@ -198,35 +207,35 @@ in
 
         /* ── Per-module colour ────────────────── */
 
-        #clock { color: ${p.blue}; }
+        #clock { color: ${p.info}; }
 
-        #battery { color: ${p.green}; }
-        #battery.charging { color: ${p.teal}; }
-        #battery.warning:not(.charging) { color: ${p.yellow}; }
-        #battery.critical:not(.charging) { color: ${p.red}; }
+        #battery { color: ${p.success}; }
+        #battery.charging { color: ${p.hues.cyan}; }
+        #battery.warning:not(.charging) { color: ${p.warning}; }
+        #battery.critical:not(.charging) { color: ${p.error}; }
 
-        #backlight { color: ${p.yellow}; }
+        #backlight { color: ${p.warning}; }
 
         #pulseaudio,
-        #custom-audio-output { color: ${p.sapphire}; }
+        #custom-audio-output { color: ${p.hues.blue}; }
 
-        #cpu { color: ${p.green}; }
-        #memory { color: ${p.teal}; }
-        #custom-ip { color: ${p.sky}; }
-        #custom-ip.internal { color: ${p.overlay1}; }
+        #cpu { color: ${p.success}; }
+        #memory { color: ${p.hues.cyan}; }
+        #custom-ip { color: ${p.hues.cyan}; }
+        #custom-ip.internal { color: ${p.fgMuted}; }
 
-        #custom-idle-inhibitor { color: ${p.overlay2}; }
+        #custom-idle-inhibitor { color: ${p.fgMuted}; }
 
         #tray { margin-right: 8px; }
 
         #custom-music { color: ${p.accent}; }
 
-        #custom-pomodoro { color: ${p.peach}; }
-        #custom-pomodoro.running { color: ${p.green}; }
-        #custom-pomodoro.paused { color: ${p.overlay1}; }
+        #custom-pomodoro { color: ${p.hues.orange}; }
+        #custom-pomodoro.running { color: ${p.success}; }
+        #custom-pomodoro.paused { color: ${p.fgMuted}; }
         #custom-pomodoro.break {
-          background: ${p.peach};
-          color: ${p.crust};
+          background: ${p.hues.orange};
+          color: ${p.bgInset};
         }
       '';
     };

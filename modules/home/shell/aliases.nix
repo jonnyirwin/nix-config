@@ -1,5 +1,13 @@
+{ config, osConfig, ... }:
+
 # home.shellAliases is propagated to every shell HM manages, so these survive
 # adding bash or zsh later. Fish-specific things live in fish.nix.
+
+let
+  # Derived, not hardcoded: on a second machine these would otherwise rebuild
+  # optiplex from a path that may not exist.
+  flake = "${config.jonny.flakePath}#${osConfig.networking.hostName}";
+in
 {
   home.shellAliases = {
     # Modern CLI replacements
@@ -11,10 +19,10 @@
     find = "fd";
     top = "btop";
 
-    # Rebuild this flake
-    nrs = "sudo nixos-rebuild switch --flake ~/git/nix#optiplex";
-    nrt = "sudo nixos-rebuild test --flake ~/git/nix#optiplex";
-    nrb = "nixos-rebuild build --flake ~/git/nix#optiplex && nvd diff /run/current-system ./result";
+    # Rebuild this flake for *this* host
+    nrs = "sudo nixos-rebuild switch --flake ${flake}";
+    nrt = "sudo nixos-rebuild test --flake ${flake}";
+    nrb = "nixos-rebuild build --flake ${flake} && nvd diff /run/current-system ./result";
 
     # Run or enter any nixpkgs package without installing it
     nxs = "nix shell nixpkgs#";

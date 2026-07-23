@@ -26,7 +26,7 @@ let
 
   backupNow = pkgs.writeShellApplication {
     name = "backup-now";
-    runtimeInputs = [ pkgs.rclone pkgs.libnotify pkgs.coreutils ];
+    runtimeInputs = [ pkgs.rclone pkgs.libnotify pkgs.coreutils pkgs.jq ];
     text = ''
       dest="${cfg.remote}:${cfg.destination}"
       state="${stateDir}"
@@ -52,6 +52,16 @@ let
         [ -e "$path" ] || { echo "skip (missing): $path"; continue; }
         echo "==> $path"
         basename "$path" > "$state/current"
+
+        # Record the full size of this path so the waybar module can report
+        # progress against the *path*, not against whatever is left to do in
+        # this particular rclone process. Without it, resuming an almost
+        # finished backup displays 0%, because rclone's own totalBytes counts
+        # only the work remaining.
+        rclone size "$path" --json \
+          ${lib.concatMapStringsSep " \\\n          "
+            (p: "--exclude ${lib.escapeShellArg p}") (cfg.exclude ++ cfg.extraExclude)} \
+          | jq -r '.bytes' > "$state/current-total" || echo 0 > "$state/current-total"
 
         rclone copy "$path" "$dest/$(basename "$path")" \
           --progress \
@@ -85,19 +95,30 @@ let
       if [ -n "$stats" ] && [ "$(jq -r 'has("bytes")' <<<"$stats")" = "true" ]; then
         path=$(cat "$state/current" 2>/dev/null || echo "backup")
 
-        jq -c -n --argjson s "$stats" --arg path "$path" '
-          ($s.totalBytes // 0)            as $total
-        | ($s.bytes // 0)                 as $done
+        # Progress is measured against the size of the whole path, recorded by
+        # backup-now. rclone's own totalBytes counts only what is left to do in
+        # this process, so a resumed backup that is nearly finished would
+        # otherwise report ~0% — which it did.
+        pathTotal=$(cat "$state/current-total" 2>/dev/null || echo 0)
+
+        jq -c -n --argjson s "$stats" --arg path "$path" --argjson pathTotal "$pathTotal" '
+          ($s.bytes // 0)                        as $thisRun
+        | ($s.totalBytes // 0)                   as $runTotal
+        | (($runTotal - $thisRun) | if . < 0 then 0 else . end) as $remaining
+        | (if $pathTotal > 0 then $pathTotal else $runTotal end)  as $total
+        | (($total - $remaining) | if . < 0 then 0 else . end)    as $done
         | (if $total > 0 then ($done / $total * 100) else 0 end | floor) as $pct
-        | ($s.speed // 0)                 as $speed
-        | ($s.eta // null)                as $eta
+        | ($s.speed // 0)                        as $speed
+        | ($s.eta // null)                       as $eta
         | (if $eta == null then "—"
            elif $eta > 3600 then "\(($eta / 3600) | floor)h\((($eta % 3600) / 60) | floor)m"
            elif $eta > 60   then "\(($eta / 60) | floor)m"
-           else "\($eta | floor)s" end)   as $etatxt
+           else "\($eta | floor)s" end)          as $etatxt
+        | (($done / 1073741824 * 10 | floor) / 10)  as $doneGiB
+        | (($total / 1073741824 * 10 | floor) / 10) as $totalGiB
         | {
             text: "󰅧 \($pct)%",
-            tooltip: "\($path) — \($pct)% of \(($total / 1073741824 * 10 | floor) / 10) GiB\nspeed \(($speed / 1024) | floor) KiB/s\neta \($etatxt)",
+            tooltip: "\($path) — \($doneGiB) of \($totalGiB) GiB (\($pct)%)\nspeed \(($speed / 1024) | floor) KiB/s\neta \($etatxt)",
             class: "running"
           }'
         exit 0

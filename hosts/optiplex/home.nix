@@ -22,6 +22,19 @@
       scheme = "catppuccin-mocha";
       accent = "purple";
     };
+
+    # What cannot be regenerated. Deliberately excludes /mnt/data/jonny/git
+    # (pushed to remotes), RetroPie and pi-backup (re-obtainable), and anything
+    # this flake rebuilds.
+    backup.paths = [
+      "/mnt/data/jonny/Camera"
+      "/mnt/data/jonny/Pictures"
+      "/mnt/data/jonny/obsidian-backup"
+      "/mnt/data/jonny/Second-Brain_old"
+      "/mnt/data/jonny/Thinking-Into-Results"
+      "/mnt/data/jonny/ToPhone"
+      "/home/jonny"
+    ];
   };
 
   home.sessionVariables = {

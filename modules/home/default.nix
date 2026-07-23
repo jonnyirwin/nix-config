@@ -10,6 +10,7 @@
     ./onepassword.nix
     ./ssh.nix
     ./services.nix
+    ./backup.nix
     ./firefox.nix
   ];
 }

@@ -60,6 +60,21 @@ in
         backup manual. Start with null: run it by hand until you trust it.
       '';
     };
+
+    bandwidthLimit = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = "08:00,400k 23:00,off";
+      description = ''
+        Passed to `rclone --bwlimit`. This uplink is 5.7 Mbit/s (~715 KB/s),
+        and a saturated uplink stalls *downloads* too, because TCP ACKs queue
+        behind the outbound data — the connection feels broken, not merely
+        busy.
+
+        The default is a timetable: 400 KB/s from 08:00 (a little over half the
+        uplink, leaving the rest usable), unrestricted from 23:00. Set to null
+        to always run at full speed.
+      '';
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -80,17 +95,26 @@ in
           # `copy`, not `sync`: sync deletes anything at the destination that is
           # no longer local, which turns an accidental local deletion into a
           # backup that no longer has the file either.
+          #
+          # Paths are processed in the order declared, so put the small
+          # irreplaceable things first — on a slow uplink the large ones can
+          # take days, and you want the important bits safe within the hour.
           for path in ${lib.escapeShellArgs cfg.paths}; do
             [ -e "$path" ] || { echo "skip (missing): $path"; continue; }
             echo "==> $path"
             rclone copy "$path" "$dest/$(basename "$path")" \
               --progress \
-              --transfers 8 \
-              --checkers 16 \
+              ${lib.optionalString (cfg.bandwidthLimit != null)
+                ''--bwlimit ${lib.escapeShellArg cfg.bandwidthLimit} \''}
+              --transfers 4 \
+              --checkers 8 \
               --retries 5 \
+              --low-level-retries 10 \
+              --order-by size,ascending \
               --exclude '.direnv/**' \
               --exclude 'node_modules/**' \
-              --exclude '**/.git/**'
+              --exclude '**/.git/**' \
+              --exclude '**/.cache/**'
           done
 
           notify-send "Backup" "Finished uploading to $dest" 2>/dev/null || true

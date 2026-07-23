@@ -26,14 +26,18 @@
     # What cannot be regenerated. Deliberately excludes /mnt/data/jonny/git
     # (pushed to remotes), RetroPie and pi-backup (re-obtainable), and anything
     # this flake rebuilds.
+    #
+    # Ordered smallest-first on purpose: the uplink is 5.7 Mbit/s, so Camera
+    # alone is an overnight job. Everything above it totals ~4 GB and is done
+    # inside a couple of hours.
     backup.paths = [
-      "/mnt/data/jonny/Camera"
-      "/mnt/data/jonny/Pictures"
-      "/mnt/data/jonny/obsidian-backup"
-      "/mnt/data/jonny/Second-Brain_old"
-      "/mnt/data/jonny/Thinking-Into-Results"
-      "/mnt/data/jonny/ToPhone"
-      "/home/jonny"
+      "/mnt/data/jonny/obsidian-backup" # 192 M
+      "/mnt/data/jonny/Second-Brain_old" # 193 M
+      "/mnt/data/jonny/ToPhone" # 255 M
+      "/mnt/data/jonny/Thinking-Into-Results" # 587 M
+      "/mnt/data/jonny/Pictures" # 884 M
+      "/home/jonny" # 1.3 G
+      "/mnt/data/jonny/Camera" # 20 G — the long pole
     ];
   };
 

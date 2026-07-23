@@ -1,0 +1,24 @@
+# sops-nix key configuration.
+#
+# The recipient below is optiplex's SSH host key converted to an age key
+# (`ssh-to-age -i /etc/ssh/ssh_host_ed25519_key.pub`). Using the host key means
+# there is no extra key material to manage or back up: a reinstalled machine
+# needs its /etc/ssh host key restored, which you want anyway.
+#
+# To add a secret:
+#   nix run nixpkgs#sops -- secrets/secrets.yaml
+#   # then declare it in modules/nixos/core/secrets.nix and reference
+#   # config.sops.secrets.<name>.path from the consuming module.
+#
+# To edit from a machine that is not optiplex you must add that machine's (or
+# your personal) age public key as a second recipient and re-encrypt with
+# `sops updatekeys secrets/secrets.yaml`.
+
+keys:
+  - &optiplex age1vxlapad4sgk8e79yy24ck4kj39qnugp2d5wk6a8r3wmvy3t82vwsy09gd7
+
+creation_rules:
+  - path_regex: secrets/[^/]+\.yaml$
+    key_groups:
+      - age:
+          - *optiplex

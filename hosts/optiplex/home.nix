@@ -1,27 +1,26 @@
-{ config, pkgs, lib, ... }:
-
-# ============================================================
-# Home Manager config: optiplex (Dell OptiPlex desktop)
-# ============================================================
-# Machine-specific user environment. Universal config lives in home.nix.
+# Home Manager config specific to optiplex. Shared user config lives in
+# modules/home; this file should stay small enough to read at a glance.
 {
-  imports = [
-    ../../modules/desktop.nix   # Sway, Waybar, Rofi, Mako + dotfile symlinks
+  jonny = {
+    desktop = {
+      enable = true;
 
-    # Dev stacks — uncomment the ones you want on this machine.
-    # Left off for a lean first build; each pulls a full toolchain.
-    # ../../modules/dev/haskell.nix
-    # ../../modules/dev/elixir.nix
-    # ../../modules/dev/rust.nix
-    # ../../modules/dev/ruby.nix
-  ];
+      # Was config.d/display-settings.conf, rewritten at runtime by
+      # resolution-switcher.sh. Portrait 1440p on the sole DisplayPort output.
+      outputs."DP-1" = {
+        resolution = "2560x1440";
+        transform = "90";
+      };
+    };
 
-  home.sessionVariables = {
-    WAYLAND_DISPLAY     = "wayland-1";
-    NIXOS_OZONE_WL      = "1";
-    XDG_SCREENSHOTS_DIR = "${config.home.homeDirectory}/Pictures/Screenshots";
+    theme = {
+      flavor = "mocha";
+      accent = "mauve";
+    };
   };
 
-  # Desktop-specific packages (user level).
-  home.packages = with pkgs; [ ];
+  home.sessionVariables = {
+    # Chromium/Electron apps use the Wayland backend rather than XWayland.
+    NIXOS_OZONE_WL = "1";
+  };
 }

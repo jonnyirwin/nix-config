@@ -20,6 +20,110 @@
 
 let
   cfg = config.jonny.backup;
+
+  stateDir = "\${XDG_STATE_HOME:-$HOME/.local/state}/backup";
+  rc = "http://127.0.0.1:${toString cfg.rcPort}";
+
+  backupNow = pkgs.writeShellApplication {
+    name = "backup-now";
+    runtimeInputs = [ pkgs.rclone pkgs.libnotify pkgs.coreutils ];
+    text = ''
+      dest="${cfg.remote}:${cfg.destination}"
+      state="${stateDir}"
+      mkdir -p "$state"
+
+      if ! rclone listremotes | grep -qx "${cfg.remote}:"; then
+        echo "No rclone remote named '${cfg.remote}'. Run: rclone config" >&2
+        exit 1
+      fi
+
+      # Cleared on exit however we exit, so a killed backup does not leave the
+      # waybar module claiming one is still running.
+      trap 'rm -f "$state/current"' EXIT INT TERM
+
+      # `copy`, not `sync`: sync deletes anything at the destination that is
+      # no longer local, which turns an accidental local deletion into a
+      # backup that no longer has the file either.
+      #
+      # Paths are processed in the order declared, so put the small
+      # irreplaceable things first — on a slow uplink the large ones can
+      # take days, and you want the important bits safe within the hour.
+      for path in ${lib.escapeShellArgs cfg.paths}; do
+        [ -e "$path" ] || { echo "skip (missing): $path"; continue; }
+        echo "==> $path"
+        basename "$path" > "$state/current"
+
+        rclone copy "$path" "$dest/$(basename "$path")" \
+          --progress \
+          ${lib.optionalString (cfg.bandwidthLimit != null)
+            ''--bwlimit ${lib.escapeShellArg cfg.bandwidthLimit} \''}
+          --transfers 4 \
+          --checkers 8 \
+          --retries 5 \
+          --low-level-retries 10 \
+          --order-by size,ascending \
+          --rc --rc-addr 127.0.0.1:${toString cfg.rcPort} --rc-no-auth \
+          ${lib.concatMapStringsSep " \\\n          "
+            (p: "--exclude ${lib.escapeShellArg p}") (cfg.exclude ++ cfg.extraExclude)}
+      done
+
+      date +%s > "$state/last-success"
+      notify-send "Backup" "Finished uploading to $dest" 2>/dev/null || true
+    '';
+  };
+
+  backupStatus = pkgs.writeShellApplication {
+    name = "backup-status";
+    runtimeInputs = [ pkgs.curl pkgs.jq pkgs.coreutils ];
+    text = ''
+      # Emits waybar JSON. Reads rclone's remote-control API while a backup is
+      # running, and falls back to the age of the last success when it is not.
+      state="${stateDir}"
+
+      stats=$(curl -s --max-time 1 -X POST ${rc}/core/stats 2>/dev/null || true)
+
+      if [ -n "$stats" ] && [ "$(jq -r 'has("bytes")' <<<"$stats")" = "true" ]; then
+        path=$(cat "$state/current" 2>/dev/null || echo "backup")
+
+        jq -c -n --argjson s "$stats" --arg path "$path" '
+          ($s.totalBytes // 0)            as $total
+        | ($s.bytes // 0)                 as $done
+        | (if $total > 0 then ($done / $total * 100) else 0 end | floor) as $pct
+        | ($s.speed // 0)                 as $speed
+        | ($s.eta // null)                as $eta
+        | (if $eta == null then "—"
+           elif $eta > 3600 then "\(($eta / 3600) | floor)h\((($eta % 3600) / 60) | floor)m"
+           elif $eta > 60   then "\(($eta / 60) | floor)m"
+           else "\($eta | floor)s" end)   as $etatxt
+        | {
+            text: "󰅧 \($pct)%",
+            tooltip: "\($path) — \($pct)% of \(($total / 1073741824 * 10 | floor) / 10) GiB\nspeed \(($speed / 1024) | floor) KiB/s\neta \($etatxt)",
+            class: "running"
+          }'
+        exit 0
+      fi
+
+      # Not running: report how long ago the last one finished.
+      if [ ! -r "$state/last-success" ]; then
+        jq -c -n '{ text: "󰅧 never", tooltip: "No backup has completed yet", class: "never" }'
+        exit 0
+      fi
+
+      last=$(cat "$state/last-success")
+      age=$(( $(date +%s) - last ))
+      days=$(( age / 86400 ))
+
+      if [ "$age" -lt 3600 ]; then ago="$(( age / 60 ))m ago"
+      elif [ "$age" -lt 86400 ]; then ago="$(( age / 3600 ))h ago"
+      else ago="''${days}d ago"; fi
+
+      if [ "$days" -ge ${toString cfg.staleAfterDays} ]; then class="stale"; else class="ok"; fi
+
+      jq -c -n --arg ago "$ago" --arg class "$class" \
+        --arg when "$(date -d "@$last" '+%Y-%m-%d %H:%M')" \
+        '{ text: "󰅧 \($ago)", tooltip: "Last backup completed \($when)", class: $class }'
+    '';
+  };
 in
 {
   options.jonny.backup = {
@@ -109,6 +213,30 @@ in
       '';
     };
 
+    rcPort = lib.mkOption {
+      type = lib.types.port;
+      default = 5572;
+      description = ''
+        Port for rclone's remote-control API, bound to loopback only. It is
+        what lets the waybar module read live progress: the alternative is
+        scraping --progress output, which is carriage-return animated and
+        formatted for humans.
+      '';
+    };
+
+    staleAfterDays = lib.mkOption {
+      type = lib.types.int;
+      default = 7;
+      description = "Age at which the waybar module flags the last backup as stale.";
+    };
+
+    packages = lib.mkOption {
+      type = lib.types.attrsOf lib.types.package;
+      readOnly = true;
+      default = { now = backupNow; status = backupStatus; };
+      description = "Referenced by the waybar module; see modules/home/desktop/waybar.nix.";
+    };
+
     bandwidthLimit = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
       default = "08:00,400k 23:00,off";
@@ -128,44 +256,8 @@ in
   config = lib.mkIf cfg.enable {
     home.packages = [
       pkgs.rclone
-
-      (pkgs.writeShellApplication {
-        name = "backup-now";
-        runtimeInputs = [ pkgs.rclone pkgs.libnotify ];
-        text = ''
-          dest="${cfg.remote}:${cfg.destination}"
-
-          if ! rclone listremotes | grep -qx "${cfg.remote}:"; then
-            echo "No rclone remote named '${cfg.remote}'. Run: rclone config" >&2
-            exit 1
-          fi
-
-          # `copy`, not `sync`: sync deletes anything at the destination that is
-          # no longer local, which turns an accidental local deletion into a
-          # backup that no longer has the file either.
-          #
-          # Paths are processed in the order declared, so put the small
-          # irreplaceable things first — on a slow uplink the large ones can
-          # take days, and you want the important bits safe within the hour.
-          for path in ${lib.escapeShellArgs cfg.paths}; do
-            [ -e "$path" ] || { echo "skip (missing): $path"; continue; }
-            echo "==> $path"
-            rclone copy "$path" "$dest/$(basename "$path")" \
-              --progress \
-              ${lib.optionalString (cfg.bandwidthLimit != null)
-                ''--bwlimit ${lib.escapeShellArg cfg.bandwidthLimit} \''}
-              --transfers 4 \
-              --checkers 8 \
-              --retries 5 \
-              --low-level-retries 10 \
-              --order-by size,ascending \
-              ${lib.concatMapStringsSep " \\\n              "
-                (p: "--exclude ${lib.escapeShellArg p}") (cfg.exclude ++ cfg.extraExclude)}
-          done
-
-          notify-send "Backup" "Finished uploading to $dest" 2>/dev/null || true
-        '';
-      })
+      backupNow
+      backupStatus
     ];
 
     systemd.user = lib.mkIf (cfg.schedule != null) {

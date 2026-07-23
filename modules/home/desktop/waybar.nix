@@ -9,6 +9,8 @@ let
   pomodoro = config.jonny.desktop.pomodoro;
   pomodoroBin = name: "${pomodoro.package}/bin/${name}";
 
+  backup = config.jonny.backup;
+
   # Waybar names its workspace widget after the compositor. Deriving it here is
   # the only compositor-specific thing left in this file.
   workspaceModule = "${cfg.compositor}/workspaces";
@@ -39,6 +41,7 @@ in
         modules-left = [ "custom/pomodoro" workspaceModule ];
         modules-center = [ "custom/music" ];
         modules-right = [
+          "custom/backup"
           "custom/audio-output"
           "pulseaudio"
           "backlight"
@@ -128,6 +131,17 @@ in
           on-click = lib.getExe s.idle-inhibitor-toggle;
           tooltip = false;
         };
+
+        "custom/backup" = lib.mkIf backup.enable {
+          format = "{}";
+          return-type = "json";
+          # While a backup runs this reads rclone's remote-control API; when
+          # idle it reports the age of the last success, so a backup that
+          # silently stopped happening is visible rather than assumed.
+          interval = 5;
+          exec = lib.getExe backup.packages.status;
+          on-click = "${lib.getExe pkgs.kitty} --class=float-backup ${lib.getExe backup.packages.now}";
+        };
       };
 
       # Capsule pills on a mantle bar — the same vocabulary as tmux's status
@@ -190,6 +204,7 @@ in
         #custom-ip,
         #pulseaudio,
         #custom-audio-output,
+        #custom-backup,
         #custom-idle-inhibitor {
           background: ${p.surface};
           border: none;
@@ -225,6 +240,16 @@ in
         #custom-ip.internal { color: ${p.fgMuted}; }
 
         #custom-idle-inhibitor { color: ${p.fgMuted}; }
+
+        /* Backup: muted when idle and recent, so it reads as "nothing to see".
+           Only the states that want attention are coloured. */
+        #custom-backup { color: ${p.fgMuted}; }
+        #custom-backup.running { color: ${p.info}; }
+        #custom-backup.stale { color: ${p.warning}; }
+        #custom-backup.never {
+          background: ${p.error};
+          color: ${p.bgInset};
+        }
 
         #tray { margin-right: 8px; }
 

@@ -61,6 +61,27 @@ in
       '';
     };
 
+    exclude = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [
+        ".direnv/**"
+        "node_modules/**"
+        "**/.git/**"
+        "**/.cache/**"
+        "**/result"
+        "**/result-*"
+      ];
+      description = ''
+        rclone filter patterns applied to every path.
+
+        Prefer backing up a whole directory and excluding the reproducible
+        parts, over listing the interesting subdirectories: an allow-list
+        silently misses whatever you forget, and what you forget is discovered
+        only when you need the backup. This list started as an allow-list and
+        omitted a password database.
+      '';
+    };
+
     bandwidthLimit = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
       default = "08:00,400k 23:00,off";
@@ -111,10 +132,8 @@ in
               --retries 5 \
               --low-level-retries 10 \
               --order-by size,ascending \
-              --exclude '.direnv/**' \
-              --exclude 'node_modules/**' \
-              --exclude '**/.git/**' \
-              --exclude '**/.cache/**'
+              ${lib.concatMapStringsSep " \\\n              "
+                (p: "--exclude ${lib.escapeShellArg p}") cfg.exclude}
           done
 
           notify-send "Backup" "Finished uploading to $dest" 2>/dev/null || true

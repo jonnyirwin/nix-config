@@ -23,22 +23,34 @@
       accent = "purple";
     };
 
-    # What cannot be regenerated. Deliberately excludes /mnt/data/jonny/git
-    # (pushed to remotes), RetroPie and pi-backup (re-obtainable), and anything
-    # this flake rebuilds.
-    #
-    # Ordered smallest-first on purpose: the uplink is 5.7 Mbit/s, so Camera
-    # alone is an overnight job. Everything above it totals ~4 GB and is done
-    # inside a couple of hours.
-    backup.paths = [
-      "/mnt/data/jonny/obsidian-backup" # 192 M
-      "/mnt/data/jonny/Second-Brain_old" # 193 M
-      "/mnt/data/jonny/ToPhone" # 255 M
-      "/mnt/data/jonny/Thinking-Into-Results" # 587 M
-      "/mnt/data/jonny/Pictures" # 884 M
-      "/home/jonny" # 1.3 G
-      "/mnt/data/jonny/Camera" # 20 G — the long pole
-    ];
+    backup = {
+      # Photos only, by choice — everything else here is either reproducible or
+      # accepted as expendable. The staging copy on the SATA disk still covers
+      # the rest through the disk migration.
+      #
+      # If that ever changes, the candidates are small: Keepass is 336 KB,
+      # Documents 136 MB, pi-backup 1.7 GB — minutes, not hours.
+      #
+      # Ordered smallest-first: the uplink is 5.7 Mbit/s, so Pictures is done
+      # within the hour while Camera runs overnight.
+      paths = [
+        "/mnt/data/jonny/Pictures" # 884 M
+        "/mnt/data/jonny/Camera" # 20 G
+      ];
+
+      exclude = [
+        ".direnv/**"
+        "node_modules/**"
+        "**/.git/**"
+        "**/.cache/**"
+        "**/result"
+        "**/result-*"
+
+        # 11 G of checkouts that all have remotes. The only thing here that is
+        # not on a server somewhere is uncommitted work.
+        "git/**"
+      ];
+    };
   };
 
   home.sessionVariables = {

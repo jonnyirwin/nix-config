@@ -20,7 +20,7 @@ in
       # failed instantly if the target wasn't up yet when sway's exec fired.
       systemd = {
         enable = true;
-        target = "sway-session.target";
+        targets = [ "sway-session.target" ];
       };
 
       settings.mainBar = {

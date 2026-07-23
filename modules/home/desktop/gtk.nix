@@ -45,6 +45,7 @@ in
 
     # Match the cursor in Wayland-native clients too.
     home.pointerCursor = {
+      enable = true;
       name = cursorName;
       package = pkgs.catppuccin-cursors."${theme.flavor}${capitalise theme.accent}";
       size = 24;

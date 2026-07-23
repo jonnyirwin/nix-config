@@ -10,16 +10,14 @@ in
   programs.git = {
     enable = true;
 
-    # Commit signing via SSH, backed by the 1Password agent.
-    # `key` is the public half of the 1Password "Bearnagh SSH Key"; the private
-    # key never touches disk — `op-ssh-sign` asks 1Password to produce the
-    # signature (with a desktop approval prompt). The same key authenticates
-    # to GitHub via the agent (see modules/home/ssh.nix IdentityAgent).
+    # Commit signing goes through the 1Password agent, declared once in
+    # modules/home/onepassword.nix along with the SSH auth socket and the
+    # allowed-signers file used to verify these signatures.
     signing = {
       format = "ssh";
-      key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIP6XbyUKquA4YBu3pKfFlOrDOIIbrj7o4tYpWFZ+3NOV";
+      inherit (config.jonny.onepassword) signer;
+      key = config.jonny.onepassword.sshKey;
       signByDefault = true;
-      signer = "/run/current-system/sw/bin/op-ssh-sign";
     };
 
     settings = {

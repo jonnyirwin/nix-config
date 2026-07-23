@@ -13,6 +13,8 @@
 # (HM will error if the file already exists and wasn't created by HM).
 # ============================================================
 
+{ config, ... }:
+
 {
   programs.ssh = {
     enable = true;
@@ -28,14 +30,16 @@
     settings = {
 
       # Global defaults (applies to all hosts unless overridden).
-      # AddKeysToAgent: automatically add keys to the running SSH agent.
-      # ServerAliveInterval: keepalive every N seconds (prevents idle drops).
       "*" = {
-        # Use the 1Password SSH agent for authentication (keys live in 1Password,
-        # not on disk). Requires "Use the SSH agent" enabled in the 1Password app.
-        IdentityAgent = "~/.1password/agent.sock";
-        AddKeysToAgent = "yes";
-        ServerAliveInterval = 60;
+        # The 1Password agent is the only source of keys — see
+        # modules/home/onepassword.nix. Nothing lives in ~/.ssh.
+        IdentityAgent = config.jonny.onepassword.agentSocket;
+
+        # Deliberately no AddKeysToAgent: it only matters for on-disk keys, and
+        # there are none. Leaving it on invited ssh-add against whichever agent
+        # happened to own the socket.
+
+        ServerAliveInterval = 60; # keepalive, prevents idle disconnects
         ServerAliveCountMax = 3;
       };
 

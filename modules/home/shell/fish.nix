@@ -266,9 +266,8 @@ in
     LESS_TERMCAP_ue = "\\e[0m";
     LESS_TERMCAP_us = "\\e[1;4;31m";
 
-    # 1Password serves SSH keys; gpg-agent's SSH support is off (see services.nix)
-    # so there is exactly one agent answering on this socket.
-    SSH_AUTH_SOCK = "${config.home.homeDirectory}/.1password/agent.sock";
+    # SSH_AUTH_SOCK is set in modules/home/onepassword.nix, which owns the
+    # single-agent invariant. Setting it here too would be a conflict.
   };
 
   home.sessionPath = [

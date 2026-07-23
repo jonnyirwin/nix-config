@@ -217,7 +217,7 @@ in
 
             # ---- Capture and pickers ----
             "${mod}+s" = "exec ${lib.getExe s.screenshot-region}";
-            "${mod}+Shift+s" = "exec ${lib.getExe pkgs.grim} -g \"$(${lib.getExe pkgs.slurp})\" - | ${lib.getExe pkgs.satty} --filename - --output-filename ${config.home.homeDirectory}/Pictures/Screenshots/satty-$(date '+%Y%m%d-%H%M%S').png";
+            "${mod}+Shift+s" = "exec ${lib.getExe s.screenshot-annotate}";
             "${mod}+period" = "exec ${lib.getExe s.emoji-picker}";
             "${mod}+Shift+o" = "exec ${lib.getExe s.ocr-region}";
             "${mod}+Shift+p" = "exec ${lib.getExe s.color-picker}";

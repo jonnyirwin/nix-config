@@ -44,6 +44,22 @@ let
       '';
     };
 
+    screenshot-annotate = {
+      runtimeInputs = with pkgs; [ flameshot ];
+      text = ''
+        # Flameshot is Qt and predates Wayland; without these it either starts
+        # on XWayland with a blank/stale capture or refuses to draw its overlay.
+        # QT_STYLE_OVERRIDE is needed because sway's exec environment has no
+        # QT_QPA_PLATFORMTHEME (that is exported for interactive shells only),
+        # so the toolbar would otherwise render in the default light style.
+        export XDG_CURRENT_DESKTOP=sway
+        export QT_QPA_PLATFORM=wayland
+        export QT_STYLE_OVERRIDE=Adwaita-Dark
+
+        exec flameshot gui --path ${lib.escapeShellArg "${config.home.homeDirectory}/Pictures/Screenshots"}
+      '';
+    };
+
     ocr-region = {
       runtimeInputs = with pkgs; [ grim slurp tesseract wl-clipboard libnotify coreutils ];
       text = ''
@@ -397,7 +413,7 @@ let
           key "Mod+Shift+O"     ; desc "OCR region → clipboard"
           key "Mod+Shift+P"     ; desc "Colour picker → clipboard"
           key "Mod+S"           ; desc "Screenshot region → clipboard"
-          key "Mod+Shift+S"     ; desc "Screenshot (satty annotations)"
+          key "Mod+Shift+S"     ; desc "Screenshot (flameshot + annotations)"
           key "Mod+Shift+R"     ; desc "Toggle screen recording"
 
           header "Scratchpads"

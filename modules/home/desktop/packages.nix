@@ -18,7 +18,7 @@ in
       grim
       slurp
       wf-recorder
-      satty # screenshot annotation
+      flameshot # screenshot annotation (Mod+Shift+S, via screenshot-annotate)
       tesseract # OCR
 
       # ---- Clipboard ----

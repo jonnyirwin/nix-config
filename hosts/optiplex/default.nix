@@ -10,6 +10,16 @@
   imports = with inputs.nixos-hardware.nixosModules; [
     ./hardware.nix
 
+    # Hardware detected rather than guessed. Regenerate after a hardware
+    # change with:
+    #   sudo nix run nixpkgs#nixos-facter -- -o hosts/optiplex/facter.json
+    #
+    # This currently runs *alongside* the generated hardware.nix — the two
+    # only set list-valued options, which merge. hardware.nix goes away at the
+    # disk migration, when disko takes over the filesystem half of it.
+    inputs.nixos-facter-modules.nixosModules.facter
+    { config.facter.reportPath = ./facter.json; }
+
     # Community hardware profiles — see github.com/NixOS/nixos-hardware.
     # common-cpu-intel pulls in the Intel GPU profile, which is considerably
     # more thorough than hand-rolling it: 32-bit VA-API, the compute runtime,

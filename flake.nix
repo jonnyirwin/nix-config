@@ -28,6 +28,19 @@
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Declarative partitioning. A host's disk layout is code, so provisioning a
+    # replacement machine does not involve a manual cryptsetup session.
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # Hardware detection: `nixos-facter -o hosts/<name>/facter.json` writes a
+    # machine report, and this module turns it into the kernel modules and
+    # firmware that machine needs. Replaces the guesswork half of
+    # nixos-generate-config; disko replaces the disk half.
+    nixos-facter-modules.url = "github:nix-community/nixos-facter-modules";
   };
 
   outputs = { self, nixpkgs, fenix, ... }@inputs:

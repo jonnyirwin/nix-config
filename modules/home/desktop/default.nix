@@ -14,6 +14,7 @@ in
     ./fonts.nix
     ./gtk.nix
     ./packages.nix
+    ./pico8.nix
     ./espanso.nix
     ./wallpaper.nix
 

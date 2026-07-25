@@ -22,6 +22,18 @@ in
           install_url = "https://addons.mozilla.org/firefox/downloads/latest/1password-x-password-manager/latest.xpi";
           installation_mode = "force_installed";
         };
+
+        # Vimium – vim-style keyboard navigation
+        "{d7742d87-e61d-4b78-b8a1-b469842139fa}" = {
+          install_url = "https://addons.mozilla.org/firefox/downloads/latest/vimium-ff/latest.xpi";
+          installation_mode = "force_installed";
+        };
+
+        # Dark Reader
+        "addon@darkreader.org" = {
+          install_url = "https://addons.mozilla.org/firefox/downloads/latest/darkreader/latest.xpi";
+          installation_mode = "force_installed";
+        };
       };
     };
   };

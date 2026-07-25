@@ -298,7 +298,17 @@ in
         Unit.Description = "Off-machine backup via rclone";
         Service = {
           Type = "oneshot";
-          ExecStart = "${config.home.homeDirectory}/.nix-profile/bin/backup-now";
+          # The store path, not a profile path. ~/.nix-profile does not exist
+          # on this setup at all: mkHost.nix sets home-manager.useUserPackages,
+          # which puts home.packages in /etc/profiles/per-user/$USER/bin. The
+          # old ~/.nix-profile ExecStart would have failed with a missing
+          # executable the first time a schedule was set, and never before —
+          # the unit is only generated when cfg.schedule is non-null.
+          #
+          # Referring to the derivation sidesteps the question: the timer runs
+          # exactly the build this generation declares, with no dependency on
+          # how packages happen to be surfaced into PATH.
+          ExecStart = lib.getExe backupNow;
         };
       };
 

@@ -130,12 +130,16 @@ in
           on-click-right = lib.getExe s.audio-switch;
         };
 
+        # Caffeine pill. State changes only when the toggle runs, so this polls
+        # once at startup and thereafter refreshes on RTMIN+10, which
+        # idle-inhibitor-toggle raises.
         "custom/idle-inhibitor" = {
+          format = "{}";
+          return-type = "json";
           interval = "once";
           signal = 10;
           exec = lib.getExe s.idle-inhibitor-status;
           on-click = lib.getExe s.idle-inhibitor-toggle;
-          tooltip = false;
         };
 
         "custom/backup" = lib.mkIf backup.enable {
@@ -245,7 +249,13 @@ in
         #custom-ip { color: ${p.hues.cyan}; }
         #custom-ip.internal { color: ${p.fgMuted}; }
 
+        /* Muted while idle timers run — it only earns attention when the
+           screen has been deliberately pinned awake. */
         #custom-idle-inhibitor { color: ${p.fgMuted}; }
+        #custom-idle-inhibitor.active {
+          background: ${p.warning};
+          color: ${p.bgInset};
+        }
 
         /* Backup: muted when idle and recent, so it reads as "nothing to see".
            Only the states that want attention are coloured. */

@@ -398,18 +398,25 @@ let
       '';
     };
 
+    # ---- Idle inhibitor ----
+    # Holding a logind idle inhibitor is what actually stops the lock: swayidle
+    # 1.9 reads the manager's BlockInhibited property and skips its timeout
+    # commands while an --what=idle block lock is held. The lock lives for as
+    # long as the `sleep infinity` child, so the pidfile is the whole state.
     idle-inhibitor-toggle = {
-      runtimeInputs = with pkgs; [ systemd procps coreutils ];
+      runtimeInputs = with pkgs; [ systemd procps coreutils libnotify ];
       text = ''
         pidfile="''${XDG_RUNTIME_DIR:-/tmp}/idle-inhibitor.pid"
 
         if [ -f "$pidfile" ] && kill -0 "$(cat "$pidfile")" 2>/dev/null; then
           kill "$(cat "$pidfile")"
           rm -f "$pidfile"
+          notify-send -t 2000 "Idle inhibitor" "Off — screen locks after 5 min"
         else
-          systemd-inhibit --what=idle --who="waybar-toggle" \
+          systemd-inhibit --what=idle --who="idle-inhibitor-toggle" \
             --why="Manual idle inhibitor" --mode=block sleep infinity &
           echo $! > "$pidfile"
+          notify-send -t 2000 "Idle inhibitor" "On — screen will stay awake"
         fi
 
         # Refresh the waybar custom/idle-inhibitor module.
@@ -417,15 +424,18 @@ let
       '';
     };
 
+    # WARNING: the two `text` glyphs below are Nerd Font PUA codepoints
+    # (nf-md-coffee, nf-md-sleep). Editors strip these silently — see the
+    # warning at the top of waybar.nix. Re-inject the bytes, never retype them.
     idle-inhibitor-status = {
-      runtimeInputs = with pkgs; [ coreutils procps ];
+      runtimeInputs = with pkgs; [ coreutils procps jq ];
       text = ''
         pidfile="''${XDG_RUNTIME_DIR:-/tmp}/idle-inhibitor.pid"
 
         if [ -f "$pidfile" ] && kill -0 "$(cat "$pidfile")" 2>/dev/null; then
-          echo ""
+          jq -c -n '{ text: "󰅶", tooltip: "Idle inhibited — the screen will not lock", class: "active" }'
         else
-          echo ""
+          jq -c -n '{ text: "󰒲", tooltip: "Idle timers running — the screen locks after 5 min", class: "inactive" }'
         fi
       '';
     };

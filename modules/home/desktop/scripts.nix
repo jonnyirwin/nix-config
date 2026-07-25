@@ -152,6 +152,45 @@ let
       '';
     };
 
+    # Rofi menu to rotate the focused output. Applies via `swaymsg output …
+    # transform`; the same wl_output transform values also go in
+    # jonny.desktop.outputs (for the permanent default) and the SDDM greeter's
+    # weston config (modules/nixos/desktop/sddm.nix), so a rotation set here is
+    # ephemeral — fold anything permanent back into those.
+    screen-rotate = {
+      runtimeInputs = with pkgs; [ sway jq rofi ];
+      text = ''
+        options=(
+          "Landscape"
+          "Portrait (right)"
+          "Landscape (flipped)"
+          "Portrait (left)"
+        )
+
+        choice=$(printf '%s\n' "''${options[@]}" \
+          | rofi -dmenu -i -p "Rotate screen" -theme-str 'window {width: 300px;}')
+        [ -n "$choice" ] || exit 0
+
+        # "Landscape (flipped)" must be tested before the bare "Landscape" glob.
+        case "$choice" in
+          *"Landscape (flipped)"*) transform="180" ;;
+          *"Portrait (right)"*)    transform="90" ;;
+          *"Portrait (left)"*)     transform="270" ;;
+          *Landscape*)             transform="normal" ;;
+          *)                       exit 0 ;;
+        esac
+
+        # Rotate the focused output; fall back to the first active one.
+        output=$(swaymsg -t get_outputs | jq -r 'map(select(.focused))[0].name // empty')
+        if [ -z "$output" ]; then
+          output=$(swaymsg -t get_outputs | jq -r 'map(select(.active))[0].name // empty')
+        fi
+        [ -n "$output" ] || exit 1
+
+        swaymsg output "$output" transform "$transform"
+      '';
+    };
+
     power-menu = {
       runtimeInputs = with pkgs; [ rofi sway systemd scripts.lock-screen ];
       text = ''
@@ -415,6 +454,8 @@ let
           key "Mod+S"           ; desc "Screenshot region → clipboard"
           key "Mod+Shift+S"     ; desc "Screenshot (flameshot + annotations)"
           key "Mod+Shift+R"     ; desc "Toggle screen recording"
+          key "Mod+Shift+D"     ; desc "Display layout (wdisplays)"
+          key "Mod+Ctrl+R"      ; desc "Rotate screen (rofi menu)"
 
           header "Scratchpads"
           key "Mod+M"           ; desc "Pulsemixer (audio mixer)"

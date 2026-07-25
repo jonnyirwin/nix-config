@@ -263,6 +263,9 @@ in
             # Replaces the old resolution-switcher.sh: permanent layout belongs
             # in `jonny.desktop.outputs`, ad-hoc changes go through wdisplays.
             "${mod}+Shift+d" = "exec ${lib.getExe pkgs.wdisplays}";
+            # Quick rotate of the focused output via a rofi menu. Ephemeral —
+            # the permanent default lives in jonny.desktop.outputs.
+            "${mod}+Ctrl+r" = "exec ${lib.getExe s.screen-rotate}";
 
             # ---- External ----
             # whisper.cpp lives outside this flake; the binding is a no-op until

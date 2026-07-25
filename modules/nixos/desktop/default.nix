@@ -8,6 +8,7 @@ in
     # ---- Compositor-agnostic ----
     ./audio.nix
     ./bluetooth.nix
+    ./espanso.nix
     ./fonts.nix
     ./graphics.nix
     ./plymouth.nix

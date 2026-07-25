@@ -14,6 +14,7 @@ in
     ./fonts.nix
     ./gtk.nix
     ./packages.nix
+    ./espanso.nix
 
     # ---- Compositor-specific ----
     # Each gates itself on jonny.desktop.compositor, so adding a second one is

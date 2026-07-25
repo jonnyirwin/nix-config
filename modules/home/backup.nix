@@ -61,7 +61,17 @@ let
       # Paths are processed in the order declared, so put the small
       # irreplaceable things first — on a slow uplink the large ones can
       # take days, and you want the important bits safe within the hour.
-      for path in ${lib.escapeShellArgs cfg.paths}; do
+      # An array rather than a bare word list. With a single configured path
+      # the unquoted form expands to `for path in /home/jonny/backup`, which
+      # trips SC2043, and writeShellApplication runs the linter as a build
+      # step, so that fails the derivation outright rather than warning. The
+      # array form is correct for one path or twenty.
+      #
+      # Do not start a comment line here with the linter's own name: that is
+      # the directive syntax, and a sentence about it parses as a malformed
+      # directive (SC1072). Which is how this comment first broke the build.
+      paths=(${lib.escapeShellArgs cfg.paths})
+      for path in "''${paths[@]}"; do
         [ -e "$path" ] || { echo "skip (missing): $path"; continue; }
         echo "==> $path"
         basename "$path" > "$state/current"

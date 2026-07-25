@@ -262,16 +262,16 @@ in
 
     bandwidthLimit = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
-      default = "08:00,400k 23:00,off";
+      default = "01:00,off 07:00,400k";
       description = ''
         Passed to `rclone --bwlimit`. This uplink is 5.7 Mbit/s (~715 KB/s),
         and a saturated uplink stalls *downloads* too, because TCP ACKs queue
         behind the outbound data — the connection feels broken, not merely
         busy.
 
-        The default is a timetable: 400 KB/s from 08:00 (a little over half the
-        uplink, leaving the rest usable), unrestricted from 23:00. Set to null
-        to always run at full speed.
+        The default is a timetable: unrestricted from 01:00, then 400 KB/s from
+        07:00 (a little over half the uplink, leaving the rest usable) for the
+        rest of the day. Set to null to always run at full speed.
       '';
     };
   };

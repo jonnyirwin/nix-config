@@ -35,7 +35,9 @@
       # within the hour while Camera runs overnight.
       paths = [
         "/mnt/data/jonny/Pictures" # 884 M
+        "/home/jonny/Downloads/Takeout/Google Photos" # 8.6 G
         "/mnt/data/jonny/Camera" # 20 G
+        "/mnt/data/photo-backup" # 48 G (bigDrive, smallDrive, iPhone Backups)
       ];
 
       # Appends to the shared defaults rather than replacing them.
@@ -43,6 +45,16 @@
         # 11 G of checkouts that all have remotes. The only thing here that is
         # not on a server somewhere is uncommitted work.
         "git/**"
+
+        # Google Takeout writes a tiny (~700 B) `*.supplemental-metadata.json`
+        # sidecar next to every photo — thousands of them. Each is a full API
+        # round-trip, so they dominate the runtime while adding ~nothing in
+        # bytes, exactly like the .thumbnails case in the shared excludes. The
+        # bare `*.json` (not the specific sidecar name) is deliberate: Takeout
+        # truncates the sidecar filename when the path is long, so the full
+        # name does not reliably match. These are only photo paths, where a
+        # stray .json is never the irreplaceable thing.
+        "*.json"
       ];
     };
   };

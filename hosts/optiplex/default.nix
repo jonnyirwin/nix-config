@@ -1,4 +1,4 @@
-{ inputs, ... }:
+{ inputs, lib, ... }:
 
 # ============================================================
 # Host: optiplex — Dell OptiPlex 3000, Intel i3-12100T (Alder Lake)
@@ -8,15 +8,24 @@
 # shared behaviour lives in modules/nixos.
 {
   imports = with inputs.nixos-hardware.nixosModules; [
-    ./hardware.nix
-
-    # Hardware detected rather than guessed. Regenerate after a hardware
-    # change with:
-    #   sudo nix run nixpkgs#nixos-facter -- -o hosts/optiplex/facter.json
+    # Disks. ./disks declares the partition layout, and disko derives
+    # fileSystems, swapDevices and the LUKS unlock from it — so this is both
+    # the thing that formats the machine and the thing that tells the running
+    # system what to mount. There is deliberately no generated hardware.nix
+    # any more: it described the *old* single-SSD layout, and keeping a second
+    # source of truth for mounts is how you end up with a config that formats
+    # one disk and boots another.
     #
-    # This currently runs *alongside* the generated hardware.nix — the two
-    # only set list-valued options, which merge. hardware.nix goes away at the
-    # disk migration, when disko takes over the filesystem half of it.
+    # WARNING: these mounts do not exist until ./disks has been applied. See
+    # docs/disk-migration.md — building this config is safe, switching to it
+    # on the pre-migration layout produces a system that cannot boot.
+    inputs.disko.nixosModules.disko
+    ./disks
+
+    # Hardware detected rather than guessed, and now the only source of the
+    # kernel modules and firmware facts hardware.nix used to carry. Regenerate
+    # after a hardware change with:
+    #   sudo nix run nixpkgs#nixos-facter -- -o hosts/optiplex/facter.json
     inputs.nixos-facter-modules.nixosModules.facter
     { config.facter.reportPath = ./facter.json; }
 
@@ -45,21 +54,16 @@
     loader.efi.canTouchEfiVariables = true;
 
     # ── Disk encryption ──────────────────────────────────────
-    # Root LUKS unlock lives in the generated hardware.nix; this is the
-    # encrypted *swap* device, which nixos-generate-config does not emit.
-    initrd.luks.devices."luks-3f374acb-7aaf-4c5d-9b48-fac6c449931f".device =
-      "/dev/disk/by-uuid/3f374acb-7aaf-4c5d-9b48-fac6c449931f";
+    # Nothing to declare. disko emits the LUKS unlock for `cryptroot` from
+    # ./disks/nvme.nix, and swap is an LV inside that container rather than the
+    # second LUKS device the old layout needed — one passphrase at boot, not
+    # two.
   };
 
-  # ── Secondary data drive ───────────────────────────────────
-  # 512 GB Samsung NVMe (nvme0n1p1), ext4, unencrypted. Kept here rather than in
-  # the generated hardware.nix so it survives a nixos-generate-config regen.
-  # `nofail` + a short device timeout mean a missing drive never blocks boot.
-  fileSystems."/mnt/data" = {
-    device = "/dev/disk/by-uuid/68a6be10-d9d7-455c-9566-c8da66238360";
-    fsType = "ext4";
-    options = [ "nofail" "x-systemd.device-timeout=5s" ];
-  };
+  # ── Platform ───────────────────────────────────────────────
+  # Was in the generated hardware.nix, which is gone. lib/mkHost.nix does not
+  # pass `system` to nixosSystem on purpose, so it has to come from the host.
+  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
 
   # First installed on NixOS 26.05. Never bump this to "upgrade" — it selects
   # backwards-compatibility defaults for stateful services.

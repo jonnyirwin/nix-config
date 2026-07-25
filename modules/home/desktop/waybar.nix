@@ -1,3 +1,9 @@
+# WARNING: This file contains Nerd Font glyphs (Private Use Area codepoints,
+# e.g. the volume, backlight and battery format-icons). Many editors and tools
+# SILENTLY STRIP these on a typed edit, leaving an empty "" or a bare space
+# where the icon was — waybar then renders with missing icons. This has
+# happened repeatedly. If you touch a glyph, re-inject the raw UTF-8 bytes
+# (e.g. `perl -CSD -i -pe 's/.../"\x{F057E}"/e'`), never retype them by hand.
 { config, osConfig, lib, pkgs, ... }:
 
 let
@@ -92,7 +98,7 @@ in
 
         backlight = {
           format = "{icon} {percent:>3}%";
-          format-icons = [ "" "" "" ];
+          format-icons = [ "" "" "" ];
           on-scroll-up = "${lib.getExe pkgs.brightnessctl} set 1%+";
           on-scroll-down = "${lib.getExe pkgs.brightnessctl} set 1%-";
         };
@@ -118,8 +124,8 @@ in
 
         pulseaudio = {
           format = "{icon} {volume:>3}%";
-          format-muted = " ---%";
-          format-icons.default = [ "" "" "" ];
+          format-muted = "󰸈 ---%";
+          format-icons.default = [ "󰕿" "󰖀" "󰕾" ];
           on-click = lib.getExe pkgs.pavucontrol;
           on-click-right = lib.getExe s.audio-switch;
         };

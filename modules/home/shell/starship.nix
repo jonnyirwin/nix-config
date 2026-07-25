@@ -1,3 +1,9 @@
+# WARNING: This file contains Nerd Font glyphs (Private Use Area codepoints,
+# e.g. U+E0B6 caps, U+F07B folder, the language symbols). Many editors and
+# tools SILENTLY STRIP these on a typed edit, leaving an empty "" or a bare
+# space where the icon was — the prompt then renders with missing icons. This
+# has happened repeatedly. If you touch a glyph, re-inject the raw UTF-8 bytes
+# (e.g. `perl -CSD -i -pe 's/.../"\x{F07B}"/e'`), never retype them by hand.
 { config, lib, ... }:
 
 let
@@ -6,21 +12,21 @@ let
   # Powerline Extra half-circle caps (U+E0B6 left, U+E0B4 right) wrap every
   # module in its own surface capsule — the same pill vocabulary as waybar,
   # tmux and rofi.
-  pill = colour: body: "[](fg:surface)[ ${body} ](fg:${colour} bg:surface)[](fg:surface) ";
+  pill = colour: body: "[](fg:surface)[ ${body} ](fg:${colour} bg:surface)[](fg:surface) ";
 
   # Every language module renders identically.
   langModules = [
-    { name = "dotnet"; symbol = " "; }
-    { name = "elixir"; symbol = " "; }
-    { name = "elm"; symbol = " "; }
-    { name = "haskell"; symbol = " "; }
-    { name = "lua"; symbol = " "; }
-    { name = "nodejs"; symbol = " "; }
-    { name = "ocaml"; symbol = " "; }
-    { name = "python"; symbol = " "; }
-    { name = "rust"; symbol = " "; }
-    { name = "scala"; symbol = " "; }
-    { name = "vagrant"; symbol = " "; }
+    { name = "dotnet"; symbol = " "; }
+    { name = "elixir"; symbol = " "; }
+    { name = "elm"; symbol = " "; }
+    { name = "haskell"; symbol = " "; }
+    { name = "lua"; symbol = " "; }
+    { name = "nodejs"; symbol = " "; }
+    { name = "ocaml"; symbol = " "; }
+    { name = "python"; symbol = " "; }
+    { name = "rust"; symbol = " "; }
+    { name = "scala"; symbol = " "; }
+    { name = "vagrant"; symbol = " "; }
   ];
 
   langSettings = lib.listToAttrs (map
@@ -64,14 +70,14 @@ in
       };
 
       directory = {
-        format = pill "path" "  $path";
+        format = pill "path" "  $path";
         truncation_length = 4;
         truncation_symbol = "…/";
       };
 
       git_branch = {
         symbol = "";
-        format = pill "git" "  $branch";
+        format = pill "git" "  $branch";
       };
 
       git_status = {
@@ -82,13 +88,13 @@ in
       time = {
         disabled = false;
         # No trailing space: this is the last pill before the line break.
-        format = "[](fg:surface)[ 󰥔 $time ](fg:time bg:surface)[](fg:surface)";
+        format = "[](fg:surface)[ 󰥔 $time ](fg:time bg:surface)[](fg:surface)";
         time_format = "%H:%M";
       };
 
       nix_shell = {
         disabled = false;
-        symbol = " ";
+        symbol = " ";
         format = pill "lang" "$symbol$state";
       };
 

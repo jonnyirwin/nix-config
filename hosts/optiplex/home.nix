@@ -24,37 +24,26 @@
     };
 
     backup = {
-      # Photos only, by choice — everything else here is either reproducible or
-      # accepted as expendable. The staging copy on the SATA disk still covers
-      # the rest through the disk migration.
+      # One collection point rather than a list of scattered sources: things
+      # get copied into ~/backup by hand, and whatever is in there is what
+      # goes off-machine. Deciding what deserves backing up is then a file
+      # manager operation, not an edit to this file.
       #
-      # If that ever changes, the candidates are small: Keepass is 336 KB,
-      # Documents 136 MB, pi-backup 1.7 GB — minutes, not hours.
+      # The paths this replaced — Pictures, Takeout, Camera, photo-backup —
+      # are already uploaded and STAY uploaded. `rclone copy` never deletes at
+      # the destination, so dropping a path here only stops it being revisited;
+      # onedrive:backup/optiplex/{Pictures,Camera,...} are untouched.
       #
-      # Ordered smallest-first: the uplink is 5.7 Mbit/s, so Pictures is done
-      # within the hour while Camera runs overnight.
+      # Note ~/backup lives on the OS disk, which the reinstall wipes. That is
+      # the point — it is a staging area for the upload, not a backup itself.
+      # No extraExclude: with a single hand-curated path there is nothing to
+      # carve out. `git/**` and `*.json` existed to skip checkouts and Google
+      # Takeout sidecars in the old scattered photo paths; neither applies to
+      # ~/backup, and a pattern that outlives its reason is how an exclude
+      # list quietly starts dropping things you meant to keep. The shared
+      # defaults in modules/home/backup.nix still apply.
       paths = [
-        "/mnt/data/jonny/Pictures" # 884 M
-        "/home/jonny/Downloads/Takeout/Google Photos" # 8.6 G
-        "/mnt/data/jonny/Camera" # 20 G
-        "/mnt/data/photo-backup" # 48 G (bigDrive, smallDrive, iPhone Backups)
-      ];
-
-      # Appends to the shared defaults rather than replacing them.
-      extraExclude = [
-        # 11 G of checkouts that all have remotes. The only thing here that is
-        # not on a server somewhere is uncommitted work.
-        "git/**"
-
-        # Google Takeout writes a tiny (~700 B) `*.supplemental-metadata.json`
-        # sidecar next to every photo — thousands of them. Each is a full API
-        # round-trip, so they dominate the runtime while adding ~nothing in
-        # bytes, exactly like the .thumbnails case in the shared excludes. The
-        # bare `*.json` (not the specific sidecar name) is deliberate: Takeout
-        # truncates the sidecar filename when the path is long, so the full
-        # name does not reliably match. These are only photo paths, where a
-        # stray .json is never the irreplaceable thing.
-        "*.json"
+        "/home/jonny/backup"
       ];
     };
   };

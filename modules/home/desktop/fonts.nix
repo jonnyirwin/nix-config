@@ -31,11 +31,13 @@ in
             <edit name="spacing"><int>100</int></edit>
           </match>
 
-          <!-- binding="same" appends rather than replaces, so the real family
-               still wins outright when it is installed. -->
+          <!-- <accept> APPENDS the substitute after the real family, so the
+               real family is matched first and wins whenever it is installed;
+               the substitute is only reached when it is absent. <prefer> would
+               prepend it and shadow the real font even when present. -->
           <alias binding="same">
             <family>${fonts.mono.family}</family>
-            <prefer><family>${sub.family}</family></prefer>
+            <accept><family>${sub.family}</family></accept>
           </alias>
         </fontconfig>
       '';

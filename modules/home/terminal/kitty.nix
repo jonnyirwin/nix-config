@@ -137,12 +137,12 @@ in
     extraConfig = ''
       mouse_map right press ungrabbed paste_from_selection
 
-      symbol_map U+E0A0-U+E0A3,U+E0B0-U+E0BF,U+E0C0-U+E0C7 Symbols Nerd Font
-      symbol_map U+E200-U+E2A9 Symbols Nerd Font
-      symbol_map U+E300-U+E3E3 Symbols Nerd Font
-      symbol_map U+E5FA-U+E6AC Symbols Nerd Font
-      symbol_map U+E700-U+E7C5 Symbols Nerd Font
-      symbol_map U+F000-U+F2E0 Symbols Nerd Font
+      symbol_map U+E0A0-U+E0A3,U+E0B0-U+E0BF,U+E0C0-U+E0C7 Symbols Nerd Font Mono
+      symbol_map U+E200-U+E2A9 Symbols Nerd Font Mono
+      symbol_map U+E300-U+E3E3 Symbols Nerd Font Mono
+      symbol_map U+E5FA-U+E6AC Symbols Nerd Font Mono
+      symbol_map U+E700-U+E7C5 Symbols Nerd Font Mono
+      symbol_map U+F000-U+F2E0 Symbols Nerd Font Mono
     '';
   };
 }

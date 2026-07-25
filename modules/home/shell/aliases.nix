@@ -23,6 +23,10 @@ in
     nrs = "sudo nixos-rebuild switch --flake ${flake}";
     nrt = "sudo nixos-rebuild test --flake ${flake}";
     nrb = "nixos-rebuild build --flake ${flake} && nvd diff /run/current-system ./result";
+    # Stage as the *next* boot's default without activating live — the safe
+    # path for display-manager/initrd changes that a `switch` would otherwise
+    # apply mid-session. Follow with a reboot.
+    nrboot = "sudo nixos-rebuild boot --flake ${flake}";
 
     # Run or enter any nixpkgs package without installing it
     nxs = "nix shell nixpkgs#";

@@ -15,6 +15,7 @@ in
     ./gtk.nix
     ./packages.nix
     ./espanso.nix
+    ./wallpaper.nix
 
     # ---- Compositor-specific ----
     # Each gates itself on jonny.desktop.compositor, so adding a second one is

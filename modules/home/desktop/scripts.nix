@@ -299,6 +299,38 @@ let
       '';
     };
 
+    # Fetches only — applying it is the wallpaper.nix timer's job (chaining
+    # this with random-wallpaper), so this script stays a plain producer that
+    # both the desktop background and lock-screen pickers above pick up on
+    # their own since it drops the image straight into wallpaperDir.
+    nasa-wallpaper = {
+      runtimeInputs = with pkgs; [ curl jq findutils coreutils ];
+      text = ''
+        dir=${lib.escapeShellArg "${wallpaperDir}/nasa"}
+        mkdir -p "$dir"
+
+        today=$(date +%F)
+        dest="$dir/apod-$today.jpg"
+
+        # Already fetched today's picture.
+        [ -e "$dest" ] && exit 0
+
+        api_key="''${NASA_API_KEY:-DEMO_KEY}"
+        json=$(curl -fsS "https://api.nasa.gov/planetary/apod?api_key=$api_key")
+
+        media_type=$(printf '%s' "$json" | jq -r '.media_type')
+        # Some days are videos rather than images — nothing to download.
+        [ "$media_type" = "image" ] || exit 0
+
+        url=$(printf '%s' "$json" | jq -r '.hdurl // .url')
+        curl -fsSL "$url" -o "$dest"
+
+        # APOD updates once a day; a month of history is plenty of rotation
+        # variety without the directory growing forever.
+        find "$dir" -type f -name 'apod-*.jpg' -mtime +30 -delete
+      '';
+    };
+
     clipboard-sync = {
       runtimeInputs = [ pkgs.wl-clipboard ];
       text = ''

@@ -33,6 +33,24 @@ in
       libnotify # notify-send, used interactively too
       hyprpicker # Wayland colour picker
       ffmpeg
+
+      # ---- Design / engineering ----
+      kicad # PCB design
+      openscad # programmatic CAD
+      krita # digital painting
+      inkscape # vector graphics
+
+      # ---- Game dev ----
+      furnace # chiptune tracker
+
+      # ---- Notes ----
+      obsidian # markdown knowledge base (unfree; allowUnfree is set globally)
+
+      # ---- Media ----
+      mpv
+
+      # ---- Viewers ----
+      imv # vim-keybinding, Wayland-native image viewer
     ];
   };
 }

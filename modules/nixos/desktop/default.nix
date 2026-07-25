@@ -10,6 +10,7 @@ in
     ./bluetooth.nix
     ./fonts.nix
     ./graphics.nix
+    ./plymouth.nix
     ./sddm.nix
     ./onepassword.nix
     ./portals.nix

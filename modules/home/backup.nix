@@ -26,11 +26,24 @@ let
 
   backupNow = pkgs.writeShellApplication {
     name = "backup-now";
-    runtimeInputs = [ pkgs.rclone pkgs.libnotify pkgs.coreutils pkgs.jq ];
+    runtimeInputs = [ pkgs.rclone pkgs.libnotify pkgs.coreutils pkgs.util-linux ];
     text = ''
       dest="${cfg.remote}:${cfg.destination}"
       state="${stateDir}"
       mkdir -p "$state"
+
+      # Only one backup at a time. The timer and a manual `backup-now` share the
+      # same rclone remote-control port and the same "$state/current" file, so a
+      # second run would corrupt the waybar progress display and double the load
+      # on a 5.7 Mbit uplink. A non-blocking lock means the loser exits cleanly
+      # (exit 0, so the timer unit does not fail) rather than queueing behind the
+      # winner. The fd stays open for the life of the process; the kernel drops
+      # the lock when it exits, however it exits.
+      exec 9>"$state/lock"
+      if ! flock -n 9; then
+        echo "A backup is already running; leaving it to finish." >&2
+        exit 0
+      fi
 
       if ! rclone listremotes | grep -qx "${cfg.remote}:"; then
         echo "No rclone remote named '${cfg.remote}'. Run: rclone config" >&2
@@ -52,16 +65,6 @@ let
         [ -e "$path" ] || { echo "skip (missing): $path"; continue; }
         echo "==> $path"
         basename "$path" > "$state/current"
-
-        # Record the full size of this path so the waybar module can report
-        # progress against the *path*, not against whatever is left to do in
-        # this particular rclone process. Without it, resuming an almost
-        # finished backup displays 0%, because rclone's own totalBytes counts
-        # only the work remaining.
-        rclone size "$path" --json \
-          ${lib.concatMapStringsSep " \\\n          "
-            (p: "--exclude ${lib.escapeShellArg p}") (cfg.exclude ++ cfg.extraExclude)} \
-          | jq -r '.bytes' > "$state/current-total" || echo 0 > "$state/current-total"
 
         rclone copy "$path" "$dest/$(basename "$path")" \
           --progress \
@@ -95,30 +98,29 @@ let
       if [ -n "$stats" ] && [ "$(jq -r 'has("bytes")' <<<"$stats")" = "true" ]; then
         path=$(cat "$state/current" 2>/dev/null || echo "backup")
 
-        # Progress is measured against the size of the whole path, recorded by
-        # backup-now. rclone's own totalBytes counts only what is left to do in
-        # this process, so a resumed backup that is nearly finished would
-        # otherwise report ~0% — which it did.
-        pathTotal=$(cat "$state/current-total" 2>/dev/null || echo 0)
-
-        jq -c -n --argjson s "$stats" --arg path "$path" --argjson pathTotal "$pathTotal" '
-          ($s.bytes // 0)                        as $thisRun
-        | ($s.totalBytes // 0)                   as $runTotal
-        | (($runTotal - $thisRun) | if . < 0 then 0 else . end) as $remaining
-        | (if $pathTotal > 0 then $pathTotal else $runTotal end)  as $total
-        | (($total - $remaining) | if . < 0 then 0 else . end)    as $done
-        | (if $total > 0 then ($done / $total * 100) else 0 end | floor) as $pct
-        | ($s.speed // 0)                        as $speed
-        | ($s.eta // null)                       as $eta
+        # Report how much is left to upload and the ETA, straight from rclone's
+        # own core/stats (totalBytes is the work this run has to do, bytes is
+        # how much of it is done). No recorded path-total to fall out of sync,
+        # so a second backup-now or a resumed transfer can no longer desync the
+        # display into 0%.
+        jq -c -n --argjson s "$stats" --arg path "$path" '
+          def human:
+            if   . >= 1073741824 then "\((. / 1073741824 * 10 | floor) / 10) GiB"
+            elif . >= 1048576    then "\((. / 1048576 | floor)) MiB"
+            elif . >= 1024       then "\((. / 1024 | floor)) KiB"
+            else "\(. | floor) B" end;
+          ($s.bytes // 0)                          as $done
+        | ($s.totalBytes // 0)                     as $total
+        | (($total - $done) | if . < 0 then 0 else . end) as $left
+        | ($s.speed // 0)                          as $speed
+        | ($s.eta // null)                         as $eta
         | (if $eta == null then "—"
            elif $eta > 3600 then "\(($eta / 3600) | floor)h\((($eta % 3600) / 60) | floor)m"
            elif $eta > 60   then "\(($eta / 60) | floor)m"
-           else "\($eta | floor)s" end)          as $etatxt
-        | (($done / 1073741824 * 10 | floor) / 10)  as $doneGiB
-        | (($total / 1073741824 * 10 | floor) / 10) as $totalGiB
+           else "\($eta | floor)s" end)            as $etatxt
         | {
-            text: "󰅧 \($pct)%",
-            tooltip: "\($path) — \($doneGiB) of \($totalGiB) GiB (\($pct)%)\nspeed \(($speed / 1024) | floor) KiB/s\neta \($etatxt)",
+            text: "󰅧 \($left | human) · \($etatxt)",
+            tooltip: "\($path) — \($left | human) left of \($total | human)\nspeed \(($speed / 1024) | floor) KiB/s\neta \($etatxt)",
             class: "running"
           }'
         exit 0

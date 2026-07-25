@@ -7,5 +7,6 @@
     ./btop.nix
     ./lazygit.nix
     ./zathura.nix
+    ./taskwarrior.nix
   ];
 }

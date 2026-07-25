@@ -184,6 +184,11 @@ in
 
         # ---- Startup ----
         startup = [
+          # Land on workspace 1 at login. Without this sway can come up focused
+          # on whichever workspace was last touched (it had been starting on
+          # 10). Not `always` — a reload should not yank you back to 1.
+          { command = "${lib.getExe' pkgs.sway "swaymsg"} workspace number 1"; }
+
           { command = lib.getExe s.random-wallpaper; always = true; }
           { command = lib.getExe s.clipboard-sync; }
           { command = "${lib.getExe' pkgs.wl-clipboard "wl-paste"} --watch ${lib.getExe pkgs.cliphist} store"; }

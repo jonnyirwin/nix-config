@@ -10,7 +10,7 @@ in
     ./bluetooth.nix
     ./fonts.nix
     ./graphics.nix
-    ./greetd.nix
+    ./sddm.nix
     ./onepassword.nix
     ./portals.nix
 
@@ -34,7 +34,7 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    # greetd launches this; kept as an option so it stays in step with the
+    # SDDM launches this; kept as an option so it stays in step with the
     # compositor rather than being spelled out in the greeter command.
     services.displayManager.defaultSession = lib.mkDefault cfg.compositor;
   };

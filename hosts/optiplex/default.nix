@@ -42,7 +42,23 @@
     desktop = {
       enable = true;
       compositor = "sway";
+
+      # The panel is mounted portrait. SDDM runs before Home Manager, so the
+      # greeter rotation is set here to match the session's transform in
+      # hosts/optiplex/home.nix (jonny.desktop.outputs."DP-1".transform).
+      greeter = {
+        output = "DP-1";
+        transform = "90";
+      };
     };
+
+    # System-level counterpart of jonny.theme in home.nix (themes SDDM, which
+    # runs before any Home Manager profile is activated) — keep both in step.
+    theme = {
+      scheme = "catppuccin-mocha";
+      accent = "purple";
+    };
+
     services.openssh.enable = true;
     secrets.enable = true;
     security.passwordlessSudo = true;

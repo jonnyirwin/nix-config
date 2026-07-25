@@ -74,8 +74,9 @@ in
       # setting this to null stops HM installing a second, unwrapped copy.
       package = null;
 
-      # The session is started by greetd, not by HM, so do not let HM manage
-      # sway-session.target's startup — but waybar and mako still bind to it.
+      # The session is started by the display manager (SDDM), not HM, so do
+      # not let HM manage sway-session.target's startup — but waybar and mako
+      # still bind to it.
       systemd.enable = true;
 
       # Config validation needs a sway package to run against; ours is null

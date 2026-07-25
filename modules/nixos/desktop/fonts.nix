@@ -5,7 +5,7 @@ let
 in
 {
   config = lib.mkIf cfg.enable {
-    # System-wide fonts: greetd's login screen and GTK apps need these before
+    # System-wide fonts: SDDM's login screen and GTK apps need these before
     # any Home Manager profile is activated.
     fonts.packages = with pkgs; [
       nerd-fonts.jetbrains-mono

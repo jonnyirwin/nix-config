@@ -27,6 +27,12 @@ nixpkgs.lib.nixosSystem {
     ../modules/nixos
     hostDir
 
+    # NixOS-side catppuccin.* options — needed here (not just inside the
+    # home-manager block below) because SDDM is a system service, themed
+    # before any Home Manager profile is activated. See
+    # modules/nixos/desktop/sddm.nix.
+    catppuccin.nixosModules.catppuccin
+
     home-manager.nixosModules.home-manager
     {
       networking.hostName = nixpkgs.lib.mkDefault name;

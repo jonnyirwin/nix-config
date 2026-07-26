@@ -23,7 +23,10 @@ in
     systemd.user.timers.nasa-wallpaper = {
       Unit.Description = "Daily NASA wallpaper refresh";
       Timer = {
-        OnCalendar = "daily";
+        # Not "daily" (00:00 local): APOD rolls over at midnight US Eastern,
+        # so a local-midnight run in BST fires at 23:00 UTC and still sees
+        # yesterday's picture. 06:00 UTC clears the rollover year-round.
+        OnCalendar = "*-*-* 06:00:00 UTC";
         # Runs on the next login/boot if the machine was off at the scheduled
         # time — including immediately on first-ever activation, since there
         # is no recorded last-run yet.

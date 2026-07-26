@@ -309,14 +309,18 @@ let
         dir=${lib.escapeShellArg "${wallpaperDir}/nasa"}
         mkdir -p "$dir"
 
-        today=$(date +%F)
-        dest="$dir/apod-$today.jpg"
-
-        # Already fetched today's picture.
-        [ -e "$dest" ] && exit 0
-
         api_key="''${NASA_API_KEY:-DEMO_KEY}"
         json=$(curl -fsS "https://api.nasa.gov/planetary/apod?api_key=$api_key")
+
+        # Name the file after APOD's own date rather than the local one. The
+        # two disagree either side of the rollover (midnight US Eastern), and
+        # naming by local date filed one picture under two names — doubling
+        # the directory and halving the rotation's variety.
+        apod_date=$(printf '%s' "$json" | jq -r '.date')
+        dest="$dir/apod-$apod_date.jpg"
+
+        # Already have this one.
+        [ -e "$dest" ] && exit 0
 
         media_type=$(printf '%s' "$json" | jq -r '.media_type')
         # Some days are videos rather than images — nothing to download.

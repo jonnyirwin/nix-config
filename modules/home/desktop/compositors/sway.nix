@@ -267,6 +267,11 @@ in
             # the permanent default lives in jonny.desktop.outputs.
             "${mod}+Ctrl+r" = "exec ${lib.getExe s.screen-rotate}";
 
+            # ---- Wallpaper ----
+            # Re-roll from ~/Pictures/Wallpapers without waiting for the daily
+            # timer. Picks from the whole pool, NASA archive included.
+            "${mod}+w" = "exec ${lib.getExe s.random-wallpaper}";
+
             # ---- External ----
             # whisper.cpp lives outside this flake; the binding is a no-op until
             # that checkout exists.

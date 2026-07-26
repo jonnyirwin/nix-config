@@ -41,6 +41,14 @@
     # firmware that machine needs. Replaces the guesswork half of
     # nixos-generate-config; disko replaces the disk half.
     nixos-facter-modules.url = "github:nix-community/nixos-facter-modules";
+
+    # Own project: terminal RSS reader. Installed from its own flake rather than
+    # packaged here, so the package definition stays with the source.
+    # `nix flake update rss-is-terminal` picks up new commits.
+    rss-is-terminal = {
+      url = "github:jonnyirwin/rss_is_terminal";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, fenix, ... }@inputs:

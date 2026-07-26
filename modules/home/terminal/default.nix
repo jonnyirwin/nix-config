@@ -8,5 +8,6 @@
     ./lazygit.nix
     ./zathura.nix
     ./taskwarrior.nix
+    ./rss-is-terminal.nix
   ];
 }

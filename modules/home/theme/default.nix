@@ -1,8 +1,19 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, osConfig ? { }, ... }:
 
 let
   cfg = config.jonny.theme;
   myLib = import ../../../lib { inherit lib; };
+
+  # The host declares its theme once, at the system level
+  # (modules/nixos/theme.nix), because SDDM needs it before any Home Manager
+  # profile exists. These options default from there so a host does not repeat
+  # itself — and can still override, for a user whose session should not match
+  # the greeter.
+  #
+  # `or` rather than a plain lookup: osConfig is absent when this module tree is
+  # consumed as homeModules.default from a standalone Home Manager setup, where
+  # there is no NixOS config to read.
+  osTheme = osConfig.jonny.theme or { };
 
   catppuccinFlavor = myLib.catppuccinFlavors.${cfg.scheme} or null;
 
@@ -34,9 +45,11 @@ in
   options.jonny.theme = {
     scheme = lib.mkOption {
       type = lib.types.enum myLib.schemeNames;
-      default = "catppuccin-mocha";
+      default = osTheme.scheme or "catppuccin-mocha";
+      defaultText = lib.literalExpression "osConfig.jonny.theme.scheme";
       description = ''
-        Colour scheme. Every module renders from `palette` below rather than
+        Colour scheme, inherited from the host's system-level jonny.theme.scheme
+        unless overridden here. Every module renders from `palette` below rather than
         naming a scheme, so changing this one line re-themes sway, waybar,
         rofi, mako, swaylock, kitty, fzf, starship and tmux together.
 
@@ -47,9 +60,11 @@ in
 
     accent = lib.mkOption {
       type = lib.types.enum myLib.accentNames;
-      default = "purple";
+      default = osTheme.accent or "purple";
+      defaultText = lib.literalExpression "osConfig.jonny.theme.accent";
       description = ''
-        The focus colour, chosen by hue rather than by a scheme's brand name
+        The focus colour, inherited from the host's system-level
+        jonny.theme.accent unless overridden here. Chosen by hue rather than by a scheme's brand name
         for a colour — so "purple" means the same thing in every scheme and
         survives switching. Drives sway borders, the waybar focused workspace
         pill, the swaylock ring, rofi selection, and mako's summary text.

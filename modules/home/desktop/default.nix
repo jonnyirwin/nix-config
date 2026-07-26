@@ -1,7 +1,12 @@
-{ lib, config, ... }:
+{ lib, config, osConfig ? { }, ... }:
 
 let
   cfg = config.jonny.desktop;
+
+  # Defaults come from the host's system-level jonny.desktop, so enabling the
+  # desktop and picking a compositor is stated once per host rather than twice.
+  # See the same pattern in modules/home/theme/default.nix for why `or` is used.
+  osDesktop = osConfig.jonny.desktop or { };
 in
 {
   imports = [
@@ -18,6 +23,8 @@ in
     ./pico8.nix
     ./espanso.nix
     ./wallpaper.nix
+    ./kitty.nix
+    ./zathura.nix
 
     # ---- Compositor-specific ----
     # Each gates itself on jonny.desktop.compositor, so adding a second one is
@@ -28,13 +35,23 @@ in
   ];
 
   options.jonny.desktop = {
-    enable = lib.mkEnableOption "the graphical desktop user environment";
+    enable = lib.mkOption {
+      type = lib.types.bool;
+      default = osDesktop.enable or false;
+      defaultText = lib.literalExpression "osConfig.jonny.desktop.enable";
+      description = ''
+        Whether to configure the graphical desktop user environment. Follows the
+        host's system-level jonny.desktop.enable unless overridden here.
+      '';
+    };
 
     compositor = lib.mkOption {
       type = lib.types.nullOr (lib.types.enum [ "sway" ]);
-      default = null;
+      default = osDesktop.compositor or null;
+      defaultText = lib.literalExpression "osConfig.jonny.desktop.compositor";
       description = ''
-        Which Wayland compositor to configure. Everything that is not
+        Which Wayland compositor to configure, inherited from the host's
+        system-level jonny.desktop.compositor. Everything that is not
         compositor-specific — bar, launcher, notifications, theme, fonts,
         scripts — is shared, so switching this should not require touching
         anything else.

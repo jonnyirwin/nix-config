@@ -2,25 +2,17 @@
 # modules/home; this file should stay small enough to read at a glance.
 {
   jonny = {
+    # desktop.enable, desktop.compositor and the whole of jonny.theme are
+    # inherited from hosts/optiplex/default.nix via osConfig — declared once at
+    # the system level because SDDM needs them before this profile exists.
+    # Only the parts with no system-level counterpart are set here.
     desktop = {
-      enable = true;
-      compositor = "sway";
-
       # Was config.d/display-settings.conf, rewritten at runtime by
       # resolution-switcher.sh. Portrait 1440p on the sole DisplayPort output.
       outputs."DP-1" = {
         resolution = "2560x1440";
         transform = "90";
       };
-    };
-
-    # Change either line to re-theme everything. Schemes: catppuccin-{latte,
-    # frappe,macchiato,mocha}, gruvbox-dark, nord — see lib/schemes/.
-    # The accent is named by hue, so it keeps its meaning across schemes:
-    # "purple" is Catppuccin's mauve, Gruvbox's bright purple, Nord's nord15.
-    theme = {
-      scheme = "catppuccin-mocha";
-      accent = "purple";
     };
 
     backup = {

@@ -1,3 +1,27 @@
+{ config, lib, ... }:
+
+# yazi itself is a TUI and works fine without a display, so it is not gated.
+# Its openers are not: zathura, imv and mpv all need a compositor. On a
+# headless host those entries are dropped rather than left pointing at
+# programs that are not installed, and the affected mime types fall through to
+# the `open` rule.
+let
+  cfg = config.jonny.desktop;
+
+  guiOpeners = {
+    pdf = [{ run = ''zathura "$@"''; orphan = true; desc = "Open in Zathura"; }];
+    image = [{ run = ''imv-wayland "$@"''; orphan = true; desc = "Open in imv"; }];
+    video = [{ run = ''mpv "$@"''; orphan = true; desc = "Play in mpv"; }];
+    audio = [{ run = ''mpv "$@"''; orphan = true; desc = "Play in mpv"; }];
+  };
+
+  guiRules = [
+    { mime = "application/pdf"; use = [ "pdf" "open" ]; }
+    { mime = "image/*"; use = [ "image" "open" ]; }
+    { mime = "video/*"; use = [ "video" "open" ]; }
+    { mime = "audio/*"; use = [ "audio" "open" ]; }
+  ];
+in
 {
   programs.yazi = {
     enable = true;
@@ -31,21 +55,15 @@
 
       opener = {
         edit = [{ run = ''nvim "$@"''; block = true; desc = "Edit in nvim"; }];
-        pdf = [{ run = ''zathura "$@"''; orphan = true; desc = "Open in Zathura"; }];
-        image = [{ run = ''imv-wayland "$@"''; orphan = true; desc = "Open in imv"; }];
-        video = [{ run = ''mpv "$@"''; orphan = true; desc = "Play in mpv"; }];
-        audio = [{ run = ''mpv "$@"''; orphan = true; desc = "Play in mpv"; }];
         open = [{ run = ''xdg-open "$@"''; orphan = true; desc = "Open with xdg-open"; }];
-      };
+      } // lib.optionalAttrs cfg.enable guiOpeners;
 
+      # First match wins, so the catch-all stays last.
       open.rules = [
         { mime = "text/*"; use = [ "edit" "open" ]; }
         { mime = "application/json"; use = [ "edit" "open" ]; }
         { mime = "application/xml"; use = [ "edit" "open" ]; }
-        { mime = "application/pdf"; use = [ "pdf" "open" ]; }
-        { mime = "image/*"; use = [ "image" "open" ]; }
-        { mime = "video/*"; use = [ "video" "open" ]; }
-        { mime = "audio/*"; use = [ "audio" "open" ]; }
+      ] ++ lib.optionals cfg.enable guiRules ++ [
         { mime = "*"; use = "open"; }
       ];
     };

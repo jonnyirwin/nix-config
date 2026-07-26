@@ -4,19 +4,18 @@
 # catppuccin/nix's NixOS module. Replaces the previous greetd + tuigreet
 # (TUI) setup.
 #
-# jonny.theme here is a system-level counterpart to the Home Manager option
-# of the same name (modules/home/theme/default.nix): SDDM runs before any
-# user's Home Manager profile is activated, so it cannot read that option,
-# and catppuccin/nix's NixOS and Home Manager modules are independent of each
-# other. Set both to the same scheme/accent on a host; they don't sync
-# automatically.
+# The scheme comes from jonny.theme (modules/nixos/theme.nix), which the Home
+# Manager side also defaults from — so the greeter and the session cannot drift
+# apart. SDDM needs the system-level option because it runs before any user's
+# Home Manager profile is activated, and catppuccin/nix's NixOS and Home
+# Manager modules are independent of each other.
 let
   cfg = config.jonny.desktop;
   themeCfg = config.jonny.theme;
   myLib = import ../../../lib { inherit lib; };
   catppuccinFlavor = myLib.catppuccinFlavors.${themeCfg.scheme} or null;
 
-  greeter = cfg.greeter;
+  inherit (cfg) greeter;
 
   # SDDM's Wayland greeter runs weston (--shell=kiosk); weston reads its output
   # rotation from a weston.ini [output] block keyed by connector name. This is
@@ -72,20 +71,6 @@ in
         wl_output transform for the greeter output, matching the value in
         jonny.desktop.outputs. Only applied when greeter.output is set.
       '';
-    };
-  };
-
-  options.jonny.theme = {
-    scheme = lib.mkOption {
-      type = lib.types.enum myLib.schemeNames;
-      default = "catppuccin-mocha";
-      description = "System-level theme scheme, used to theme SDDM.";
-    };
-
-    accent = lib.mkOption {
-      type = lib.types.enum myLib.accentNames;
-      default = "purple";
-      description = "System-level accent, used to theme SDDM. Named by hue — see jonny.theme.accent on the Home Manager side.";
     };
   };
 

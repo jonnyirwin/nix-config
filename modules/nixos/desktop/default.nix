@@ -27,10 +27,10 @@ in
       type = lib.types.nullOr (lib.types.enum [ "sway" ]);
       default = null;
       description = ''
-        Which Wayland compositor the session runs. Mirrors the Home Manager
-        option of the same name — mkHost does not wire them together, so a host
-        sets this once at the system level and the HM side reads it via
-        osConfig.
+        Which Wayland compositor the session runs. This is the host's single
+        declaration: the Home Manager option of the same name defaults from it
+        via osConfig, so setting it here configures both the system session
+        (seat, portals, greeter target) and the user's compositor config.
       '';
     };
   };

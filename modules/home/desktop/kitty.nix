@@ -1,11 +1,16 @@
-{ config, ... }:
+{ config, lib, ... }:
 
+# The terminal emulator itself, as opposed to the terminal-based tools in
+# modules/home/terminal/. It draws a window, so it belongs to the desktop and
+# follows that gate — a headless host gets the TUI tools without pulling a
+# graphical stack into its profile.
 let
+  cfg = config.jonny.desktop;
   p = config.jonny.theme.palette;
   fonts = config.jonny.theme.fonts;
 in
 {
-  programs.kitty = {
+  programs.kitty = lib.mkIf cfg.enable {
     enable = true;
 
     font = {

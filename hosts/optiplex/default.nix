@@ -52,8 +52,13 @@
       };
     };
 
-    # System-level counterpart of jonny.theme in home.nix (themes SDDM, which
-    # runs before any Home Manager profile is activated) — keep both in step.
+    # The host's one theme declaration. Change either line to re-theme
+    # everything: SDDM reads it directly, and the Home Manager side defaults
+    # from it, so the greeter and the session cannot drift apart. Schemes:
+    # catppuccin-{latte,frappe,macchiato,mocha}, gruvbox-dark, nord — see
+    # lib/schemes/. The accent is named by hue, so it keeps its meaning across
+    # schemes: "purple" is Catppuccin's mauve, Gruvbox's bright purple, Nord's
+    # nord15.
     theme = {
       scheme = "catppuccin-mocha";
       accent = "purple";

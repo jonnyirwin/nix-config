@@ -15,13 +15,19 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Per-device hardware profiles. Selected per host via jonny.hardware.profiles
-    # — see modules/nixos/hardware/default.nix.
-    nixos-hardware.url = "github:NixOS/nixos-hardware/master";
+    # Per-device hardware profiles, imported directly by the hosts that want
+    # them — see the `imports` block in hosts/optiplex/default.nix.
+    nixos-hardware = {
+      url = "github:NixOS/nixos-hardware/master";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # Pre-built Catppuccin theme modules for programs that have one.
     # Raw palette values come from lib/schemes/ instead.
-    catppuccin.url = "github:catppuccin/nix";
+    catppuccin = {
+      url = "github:catppuccin/nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # Secrets encrypted in-repo, decrypted at activation. See .sops.yaml.
     sops-nix = {
@@ -92,15 +98,22 @@
 
       # `nix flake check` evaluates every host and lints the tree, so a dead
       # binding or an anti-pattern fails rather than lingering.
+      # Every .nix file here is hand-written — there is no longer a generated
+      # hardware.nix to exempt (disko and nixos-facter replaced it), so these
+      # run over the whole tree with no exclusions.
       checks = forAllSystems (pkgs: {
         statix = pkgs.runCommand "statix-check" { nativeBuildInputs = [ pkgs.statix ]; } ''
-          # hosts/*/hardware.nix is generated; not ours to restyle.
-          statix check --ignore hardware.nix ${self} && touch $out
+          statix check ${self} && touch $out
         '';
 
         deadnix = pkgs.runCommand "deadnix-check" { nativeBuildInputs = [ pkgs.deadnix ]; } ''
-          # Same reasoning: its unused module arguments are not ours to fix.
-          deadnix --fail --exclude ${self}/hosts/*/hardware.nix ${self} && touch $out
+          deadnix --fail ${self} && touch $out
+        '';
+
+        # The tree is formatter-clean today, so enforcing it is free and stops
+        # `nix fmt` from ever producing a diff nobody asked for.
+        format = pkgs.runCommand "format-check" { nativeBuildInputs = [ pkgs.nixpkgs-fmt ]; } ''
+          nixpkgs-fmt --check ${self} && touch $out
         '';
       });
     };

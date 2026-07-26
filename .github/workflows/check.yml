@@ -1,0 +1,25 @@
+name: check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  flake-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: DeterminateSystems/nix-installer-action@main
+
+      # `nix flake check` does three things here: it builds the statix, deadnix
+      # and nixpkgs-fmt checks, and it evaluates every nixosConfiguration under
+      # hosts/. So a dead binding, an unformatted file, or a host that no longer
+      # evaluates all fail here rather than at `nixos-rebuild switch` time.
+      #
+      # Evaluation only — the system closure itself is not built, so this stays
+      # fast and does not need a machine resembling any of the hosts.
+      - name: nix flake check
+        run: nix flake check --print-build-logs

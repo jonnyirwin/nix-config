@@ -34,6 +34,12 @@ in
           install_url = "https://addons.mozilla.org/firefox/downloads/latest/darkreader/latest.xpi";
           installation_mode = "force_installed";
         };
+
+        # Netflix 1080p UA – spoofs the user agent so Netflix serves 1080p
+        "{221ca73e-12bd-11f1-b1cd-2cf05d5d458e}" = {
+          install_url = "https://addons.mozilla.org/firefox/downloads/latest/netflix-1080p-ua/latest.xpi";
+          installation_mode = "force_installed";
+        };
       };
     };
   };

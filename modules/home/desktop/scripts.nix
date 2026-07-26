@@ -293,7 +293,10 @@ let
         # Nothing to show; leave whatever swaybg is already doing alone.
         [ -n "$pick" ] || exit 0
 
-        pkill -x swaybg || true
+        # Not `pkill -x swaybg`: nixpkgs wraps the binary, so the running
+        # process is named .swaybg-wrapped and an exact-name match never hits
+        # it. Substring-matching the name leaked one live swaybg per run.
+        pkill swaybg || true
         swaybg -i "$pick" -m fill &
         disown
       '';

@@ -172,11 +172,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1785100744,
-        "narHash": "sha256-hAxs+WRE+CYsNRy3mUEI2p8VVcNeLrKs5bNsnRKt3Xc=",
+        "lastModified": 1785101842,
+        "narHash": "sha256-ImOe9f2GMngDSER+qgL93tyqpGmWQ1oTaG5g3QymUZg=",
         "owner": "jonnyirwin",
         "repo": "rss_is_terminal",
-        "rev": "8f9c2e07cc07482bb0a58fc39df1a394b3526e69",
+        "rev": "feb3643c4dbd6de3b06b24ea699b9fb4d1d5cb82",
         "type": "github"
       },
       "original": {

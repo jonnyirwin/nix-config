@@ -8,6 +8,7 @@
     ./packages.nix
     ./secrets.nix
     ./security.nix
+    ./tailscale.nix
     ./users.nix
   ];
 }

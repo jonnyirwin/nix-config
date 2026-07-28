@@ -67,6 +67,7 @@
     };
 
     services.openssh.enable = true;
+    services.tailscale.enable = true;
     secrets.enable = true;
     security.passwordlessSudo = true;
   };

@@ -120,11 +120,20 @@ in
     ];
   };
 
-  xdg.dataFile."nvim/site/parser".source = "${treesitterGrammars}/parser";
+  # One `xdg` block rather than three `xdg.*` assignments, and `dataFile`
+  # written once inside it: statix's repeated-keys lint fires on any leading
+  # key that appears more than once in the same attribute set, so the partly
+  # nested form still trips it.
+  xdg = {
+    dataFile = {
+      "nvim/site/parser".source = "${treesitterGrammars}/parser";
 
-  # Not under site/: lazy.nvim resets packpath, so nothing here would be
-  # sourced automatically anyway — this is only a stable path for lazy's `dir`.
-  xdg.dataFile."nvim/nix/telescope-fzf-native.nvim".source = fzfNative;
+      # Not under site/: lazy.nvim resets packpath, so nothing here would be
+      # sourced automatically anyway — this is only a stable path for lazy's
+      # `dir`.
+      "nvim/nix/telescope-fzf-native.nvim".source = fzfNative;
+    };
 
-  xdg.configFile."nvim".source = config.lib.file.mkOutOfStoreSymlink configPath;
+    configFile."nvim".source = config.lib.file.mkOutOfStoreSymlink configPath;
+  };
 }

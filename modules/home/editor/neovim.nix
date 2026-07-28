@@ -65,6 +65,16 @@ let
       ]
     );
   };
+
+  # telescope-fzf-native is a C library. Under lazy.nvim it carries
+  # `build = "make"`, which needs a compiler at runtime and silently leaves the
+  # extension broken when there isn't one — the same failure mode the
+  # treesitter grammars above were moved into Nix to avoid.
+  #
+  # nixpkgs already ships it compiled, so it is linked to a stable path below
+  # and lua/plugins/telescope.lua points lazy's `dir` at that path. lazy then
+  # treats it as a local plugin: no clone, no build step, no lock entry.
+  fzfNative = pkgs.vimPlugins.telescope-fzf-native-nvim;
 in
 {
   programs.neovim = {
@@ -111,6 +121,10 @@ in
   };
 
   xdg.dataFile."nvim/site/parser".source = "${treesitterGrammars}/parser";
+
+  # Not under site/: lazy.nvim resets packpath, so nothing here would be
+  # sourced automatically anyway — this is only a stable path for lazy's `dir`.
+  xdg.dataFile."nvim/nix/telescope-fzf-native.nvim".source = fzfNative;
 
   xdg.configFile."nvim".source = config.lib.file.mkOutOfStoreSymlink configPath;
 }

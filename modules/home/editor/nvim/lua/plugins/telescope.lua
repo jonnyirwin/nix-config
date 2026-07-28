@@ -4,7 +4,12 @@ return {
     event = "VeryLazy",  -- Load at same time as which-key
     dependencies = {
         'nvim-lua/plenary.nvim',
-        { 'nvim-telescope/telescope-fzf-native.nvim', build = "make" }
+        -- Prebuilt by Nix (modules/home/editor/neovim.nix) and linked to this
+        -- path. `dir` makes lazy use it in place: no clone, no `make`.
+        {
+            'nvim-telescope/telescope-fzf-native.nvim',
+            dir = vim.fn.stdpath('data') .. '/nix/telescope-fzf-native.nvim',
+        }
     },
         config = function()
             local telescope = require('telescope')

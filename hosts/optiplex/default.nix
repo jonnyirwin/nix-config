@@ -50,6 +50,8 @@
         output = "DP-1";
         transform = "90";
       };
+
+      steam.enable = true;
     };
 
     # The host's one theme declaration. Change either line to re-theme

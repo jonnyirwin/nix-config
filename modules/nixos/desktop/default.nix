@@ -11,10 +11,12 @@ in
     ./espanso.nix
     ./fonts.nix
     ./graphics.nix
+    ./localsend.nix
     ./plymouth.nix
     ./sddm.nix
     ./onepassword.nix
     ./portals.nix
+    ./steam.nix
 
     # ---- Compositor-specific ----
     ./compositors/sway.nix

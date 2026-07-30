@@ -36,10 +36,12 @@ in
 
       # ---- Design / engineering ----
       kicad # PCB design
-      # The stable `openscad` attr is still the 2021.01 release; the nightly
-      # carries the Manifold geometry backend, which is far faster on CSG-heavy
-      # models. Same binary name, so nothing downstream changes.
-      openscad-unstable # programmatic CAD
+      # `openscad-unstable` carries the Manifold geometry backend, which is far
+      # faster on CSG-heavy models than the 2021.01 release this attr pins. It
+      # is off for now: the nightly fails to link under LTO — lld rejects a
+      # malformed .debug_gdb_scripts section — and there is no cache hit, so it
+      # builds from source and fails. Switch back once that clears upstream.
+      openscad # programmatic CAD
       freecad # parametric GUI CAD — sketch-driven work and STEP import, which OpenSCAD cannot do
       qalculate-gtk # unit-aware calculator (does dimensional analysis); the `qalc` CLI lives in libqalculate, not here
       krita # digital painting

@@ -62,9 +62,26 @@ let
   };
 
   order = [
-    "windowText" "button" "light" "midlight" "dark" "mid" "text" "brightText"
-    "buttonText" "base" "window" "shadow" "highlight" "highlightedText" "link"
-    "linkVisited" "alternateBase" "noRole" "toolTipBase" "toolTipText"
+    "windowText"
+    "button"
+    "light"
+    "midlight"
+    "dark"
+    "mid"
+    "text"
+    "brightText"
+    "buttonText"
+    "base"
+    "window"
+    "shadow"
+    "highlight"
+    "highlightedText"
+    "link"
+    "linkVisited"
+    "alternateBase"
+    "noRole"
+    "toolTipBase"
+    "toolTipText"
     "placeholderText"
   ];
 

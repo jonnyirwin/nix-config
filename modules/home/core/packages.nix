@@ -53,6 +53,9 @@
     pciutils
     usbutils
     nvme-cli
+    # Serial console. Reconnects automatically when the device re-enumerates,
+    # which is what you want across an ESP32 reset. Needs the `dialout` group.
+    tio
 
     # ---- Archives ----
     unzip

@@ -235,9 +235,6 @@ in
     # The starship/zoxide/direnv/fzf init lines that used to live here are gone:
     # each program's HM module writes its own snippet into vendor_conf.d.
     interactiveShellInit = ''
-      # Qt5 apps (OpenSCAD, etc.) use qt5ct for theming
-      set -gx QT_QPA_PLATFORMTHEME qt5ct
-
       set -gx LS_COLORS 'di=1;34:ln=1;36:so=32:pi=33:ex=1;32:bd=1;33:cd=1;33:su=0;41:sg=0;46:tw=0;42:ow=0;43:'
 
       set -g fish_autosuggestion_enabled 1

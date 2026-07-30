@@ -49,12 +49,11 @@ let
       text = ''
         # Flameshot is Qt and predates Wayland; without these it either starts
         # on XWayland with a blank/stale capture or refuses to draw its overlay.
-        # QT_STYLE_OVERRIDE is needed because sway's exec environment has no
-        # QT_QPA_PLATFORMTHEME (that is exported for interactive shells only),
-        # so the toolbar would otherwise render in the default light style.
+        # Theming needs nothing here: QT_QPA_PLATFORMTHEME now reaches sway's
+        # environment via home.sessionVariables (see desktop/qt.nix), so the
+        # toolbar picks up the palette like every other Qt app.
         export XDG_CURRENT_DESKTOP=sway
         export QT_QPA_PLATFORM=wayland
-        export QT_STYLE_OVERRIDE=Adwaita-Dark
 
         exec flameshot gui --path ${lib.escapeShellArg "${config.home.homeDirectory}/Pictures/Screenshots"}
       '';

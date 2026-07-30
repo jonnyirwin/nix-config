@@ -14,13 +14,18 @@
 #   waybar's per-module colours, kitty's marks, terminal ANSI. These are the
 #   names every palette defines in some form, so nothing has to be invented.
 #
+# Every scheme also states a `polarity` ("dark" or "light"). Toolkits and the
+# desktop portal need to be *told* which one a palette is — they cannot infer it
+# from hex values — and applications that ask the system for dark mode read that
+# signal rather than the colours. See modules/home/desktop/gtk.nix.
+#
 # Deliberately NOT used: a scheme's own brand vocabulary. Catppuccin's
 # "rosewater"/"sapphire"/"mauve" have no equivalent in Gruvbox or Nord, so
 # forcing other palettes into those slots means inventing colours that were
 # never designed — which is exactly what this layout avoids.
 #
-# To add a scheme: write <name>.nix returning the role and hue keys, and list
-# it below. ANSI is derived unless the scheme overrides it.
+# To add a scheme: write <name>.nix returning `polarity` plus the role and hue
+# keys, and list it below. ANSI is derived unless the scheme overrides it.
 
 let
   # Terminals need the 16 ANSI slots. Deriving them from roles + hues keeps

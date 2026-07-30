@@ -18,6 +18,7 @@ in
     ./mako.nix
     ./fonts.nix
     ./gtk.nix
+    ./qt.nix
     ./packages.nix
     ./aseprite.nix
     ./pico8.nix

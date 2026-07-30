@@ -24,6 +24,18 @@ let
   themeName = "catppuccin-${flavor}-${ctpAccent}-standard";
   cursorName = "catppuccin-${flavor}-${ctpAccent}-cursors";
   cursorPackage = pkgs.catppuccin-cursors."${flavor}${capitalise ctpAccent}";
+
+  # Naming a dark GTK theme is not the same as telling the desktop it *is*
+  # dark: the theme name is a string nothing interprets. Applications that ask
+  # "is the system in dark mode?" — Firefox, Chromium, Electron, anything using
+  # prefers-color-scheme — read org.freedesktop.appearance from the portal, and
+  # xdg-desktop-portal-gtk answers it from this GSettings key. With the key
+  # unset the portal reports 0 ("no preference"), which those applications treat
+  # as light, so a fully dark session still rendered light UI everywhere.
+  #
+  # gtk-application-prefer-dark-theme covers the other half: GTK3 apps read the
+  # setting directly rather than going through the portal.
+  isDark = theme.palette.polarity == "dark";
 in
 {
   config = lib.mkIf cfg.enable (lib.mkMerge [
@@ -35,11 +47,13 @@ in
           name = "Papirus-Dark";
           package = pkgs.papirus-icon-theme;
         };
+
+        gtk3.extraConfig.gtk-application-prefer-dark-theme = isDark;
+        gtk4.extraConfig.gtk-application-prefer-dark-theme = isDark;
       };
 
-      # Qt apps (OpenSCAD and friends) follow via qt5ct; the
-      # QT_QPA_PLATFORMTHEME export lives in modules/home/shell/fish.nix.
-      home.packages = [ pkgs.libsForQt5.qt5ct ];
+      dconf.settings."org/gnome/desktop/interface".color-scheme =
+        if isDark then "prefer-dark" else "prefer-light";
     }
 
     (lib.mkIf isCatppuccin {
@@ -73,9 +87,12 @@ in
       };
     })
 
-    (lib.mkIf (!isCatppuccin) {
-      gtk.theme.name = "Adwaita-dark";
-      gtk.gtk4.theme.name = "Adwaita-dark";
-    })
+    (lib.mkIf (!isCatppuccin) (
+      let adwaita = if isDark then "Adwaita-dark" else "Adwaita"; in
+      {
+        gtk.theme.name = adwaita;
+        gtk.gtk4.theme.name = adwaita;
+      }
+    ))
   ]);
 }

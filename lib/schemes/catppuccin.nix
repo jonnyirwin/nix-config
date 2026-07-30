@@ -7,8 +7,8 @@
 # Source: https://github.com/catppuccin/catppuccin
 
 let
-  mkFlavour = raw: {
-    inherit raw;
+  mkFlavour = polarity: raw: {
+    inherit polarity raw;
 
     # ---- Structure ----
     bg = raw.base;
@@ -50,7 +50,7 @@ let
   };
 in
 {
-  latte = mkFlavour {
+  latte = mkFlavour "light" {
     rosewater = "#dc8a78";
     flamingo = "#dd7878";
     pink = "#ea76cb";
@@ -79,7 +79,7 @@ in
     crust = "#dce0e8";
   };
 
-  frappe = mkFlavour {
+  frappe = mkFlavour "dark" {
     rosewater = "#f2d5cf";
     flamingo = "#eebebe";
     pink = "#f4b8e4";
@@ -108,7 +108,7 @@ in
     crust = "#232634";
   };
 
-  macchiato = mkFlavour {
+  macchiato = mkFlavour "dark" {
     rosewater = "#f4dbd6";
     flamingo = "#f0c6c6";
     pink = "#f5bde6";
@@ -137,7 +137,7 @@ in
     crust = "#181926";
   };
 
-  mocha = mkFlavour {
+  mocha = mkFlavour "dark" {
     rosewater = "#f5e0dc";
     flamingo = "#f2cdcd";
     pink = "#f5c2e7";

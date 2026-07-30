@@ -37,6 +37,8 @@ in
 {
   inherit raw;
 
+  polarity = "dark";
+
   # ---- Structure ----
   bg = raw.nord0;
   bgAlt = "#292e39"; # between nord0 and a darker inset

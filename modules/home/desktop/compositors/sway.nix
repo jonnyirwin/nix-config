@@ -194,6 +194,7 @@ in
           { command = "${lib.getExe' pkgs.wl-clipboard "wl-paste"} --watch ${lib.getExe pkgs.cliphist} store"; }
           { command = lib.getExe pkgs.autotiling; }
           { command = "${lib.getExe pkgs.udiskie} --no-notify"; }
+          { command = "${lib.getExe' pkgs.blueman "blueman-applet"}"; }
 
           # Pre-launch the scratchpads so their first summon is instant.
           # The window.commands rule above parks them out of sight.

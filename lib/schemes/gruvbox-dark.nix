@@ -39,6 +39,8 @@ in
 {
   inherit raw;
 
+  polarity = "dark";
+
   # ---- Structure ----
   bg = raw.bg0;
   bgAlt = raw.bg0_h;

@@ -33,8 +33,34 @@ in
     # has no device node, and airscan just talks HTTP to the printer's
     # address. Add jonny to `scanner` only if a USB scanner ever appears.
 
-    # GNOME's Document Scanner: the sane-airscan device shows up in it with no
-    # configuration. `scanimage -L` from the CLI sees the same device.
-    environment.systemPackages = [ pkgs.simple-scan ];
+    # All of these find the sane-airscan device with no configuration, and
+    # `scanimage -L` from the CLI sees the same one.
+    #
+    # The spread is deliberate rather than indecisive: the ENVY 4520 is a
+    # platen with no document feeder (it advertises `is=platen`, `duplex=F`),
+    # so every page is a manual lift-the-lid operation and the thing that
+    # actually makes scanning bearable is assembling multi-page output without
+    # reconfiguring per sheet. That is the axis these differ on.
+    environment.systemPackages = with pkgs; [
+      # Saved profiles, scan-more-pages into one document, page reorder before
+      # saving, OCR and auto-deskew built in. The everyday driver.
+      naps2
+
+      # Heavier post-processing than NAPS2 — unpaper cleanup, deskew, per-page
+      # editing — behind an older GTK UI. Worth reaching for on poor-quality
+      # originals, not for routine scans.
+      gscan2pdf
+
+      # Adds a searchable text layer to an already-scanned PDF, which is the
+      # one job neither GUI does well from the command line. tesseract is the
+      # engine it drives; listed explicitly so the CLI is on PATH in its own
+      # right, not just as ocrmypdf's private dependency.
+      ocrmypdf
+      tesseract
+
+      # Kept alongside the above for one-off "just scan this" runs, where
+      # NAPS2's profile-first model is more ceremony than the job needs.
+      simple-scan
+    ];
   };
 }

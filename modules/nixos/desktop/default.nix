@@ -7,12 +7,15 @@ in
   imports = [
     # ---- Compositor-agnostic ----
     ./audio.nix
+    ./avahi.nix
     ./bluetooth.nix
     ./espanso.nix
     ./fonts.nix
     ./graphics.nix
     ./localsend.nix
     ./plymouth.nix
+    ./printing.nix
+    ./scanning.nix
     ./sddm.nix
     ./onepassword.nix
     ./portals.nix

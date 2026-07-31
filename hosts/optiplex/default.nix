@@ -52,6 +52,8 @@
       };
 
       steam.enable = true;
+      printing.enable = true;
+      scanning.enable = true;
     };
 
     # The host's one theme declaration. Change either line to re-theme
@@ -71,6 +73,68 @@
     secrets.enable = true;
     security.passwordlessSudo = true;
   };
+
+  # ── Printing ───────────────────────────────────────────────
+  # The printer on this LAN. Avahi discovery would eventually produce a queue
+  # for it on its own, but a discovered queue is transient and its name is
+  # whatever the device advertises; declaring it pins both, and gives the
+  # print dialog something already selected rather than an empty list.
+  #
+  # model = "everywhere" is not a placeholder — it is IPP Everywhere, i.e.
+  # "ask the device what it can do". The ENVY 4520 advertises image/urf and
+  # image/pwg-raster, so it is fully driverless and needs no HP package.
+  #
+  # The device URI is the router's DNS name, not an address and not mDNS, and
+  # both halves of that are deliberate:
+  #
+  #   - Not the IP. DHCP can hand the printer a different lease, and a
+  #     hardcoded address fails silently when it does.
+  #   - Not `.local`, and not the `dnssd://` URI that `lpinfo -v` prints.
+  #     Both look like the right answer and neither survives setup: this CUPS
+  #     is built against Avahi rather than Bonjour, and on that build the
+  #     `.local` branch of libcups' address resolution never falls through to
+  #     getaddrinfo. `lpadmin -m everywhere` has to contact the device to read
+  #     its capabilities, so it fails with "Name or service not known" even
+  #     though `getent hosts` resolves the same name fine — and the dnssd URI
+  #     fails identically, because it resolves *to* the .local name.
+  #
+  # model = "everywhere" is IPP Everywhere: "ask the device what it can do".
+  # The ENVY 4520 advertises image/urf and image/pwg-raster, so it is fully
+  # driverless and needs no HP driver package.
+  #
+  # `ensure-printers.service` applies this at boot, and fails harmlessly if
+  # the printer is switched off. Losing it is not fatal either way — Avahi
+  # discovery still produces a working queue on its own, just an
+  # auto-named one; this block is what pins the name and the default.
+  hardware.printers = {
+    ensureDefaultPrinter = "envy4520";
+    ensurePrinters = [{
+      name = "envy4520";
+      description = "HP ENVY 4520";
+      location = "home";
+      deviceUri = "ipp://HPB8559D.lan:631/ipp/print";
+      model = "everywhere";
+    }];
+  };
+
+  # cups-browsed would find the same printer over mDNS and write a *second,
+  # permanent* queue for it into printers.conf, pointing at an implicitclass://
+  # URI. The declared queue above already covers this device, so that is just
+  # a stale artifact to keep in step — and deleting it by hand does not stick,
+  # it is rewritten the next time cups-browsed starts.
+  #
+  # This does NOT collapse the print dialog to one entry, and it is not meant
+  # to. libcups enumerates DNS-SD printers client-side, so as long as Avahi is
+  # running the ENVY also appears as a transient
+  # `HP_ENVY_4520_series_B8559D` (ipps://…:443) that lives nowhere on disk.
+  # Both entries reach the same hardware and `envy4520` is the pinned default,
+  # so the twin is cosmetic; the only way to remove it is to stop running
+  # Avahi, which would cost the scanner its discovery. Deliberately not doing
+  # that — see modules/nixos/desktop/avahi.nix.
+  #
+  # Turn this back on when printing somewhere with printers this config does
+  # not declare.
+  services.printing.browsed.enable = false;
 
   boot = {
     # ── Boot ─────────────────────────────────────────────────

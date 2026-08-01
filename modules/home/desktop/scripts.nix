@@ -217,19 +217,30 @@ let
     };
 
     network-menu = {
-      runtimeInputs = with pkgs; [ networkmanager rofi coreutils ];
+      runtimeInputs = with pkgs; [ networkmanager rofi coreutils gnugrep libnotify ];
       text = ''
-        wifi_status=$(nmcli radio wifi)
+        # "enabled"/"disabled", never "on"/"off" — nmcli has no spelling of
+        # this state that matches what this used to compare against. Every
+        # branch below therefore took the wrong path at once: the icon was
+        # always the struck-through glyph, the SSID list was never built, and
+        # Toggle WiFi always fell through to `radio wifi on`, which is a no-op
+        # on a machine whose radio was already enabled. The menu offered a
+        # toggle that did nothing and no networks to pick from.
+        #
+        # The wired hosts never showed this. It took mac — the first host with
+        # no ethernet and no saved wifi — for the menu's only two useful
+        # behaviours to both be missing at the same time.
+        wifi_status=$(nmcli -t radio wifi)
 
         # Not `[ ... ] && x=y`: under `set -e` a false test would abort the script.
         wifi_icon="󰤭"
-        if [ "$wifi_status" = "on" ]; then wifi_icon="󰤨"; fi
+        if [ "$wifi_status" = "enabled" ]; then wifi_icon="󰤨"; fi
 
         connected=$(nmcli -t -f NAME connection show --active 2>/dev/null | head -1)
 
         options="$wifi_icon Toggle WiFi"
 
-        if [ "$wifi_status" = "on" ]; then
+        if [ "$wifi_status" = "enabled" ]; then
           while IFS= read -r network; do
             [ -n "$network" ] || continue
             if [ "$network" = "$connected" ]; then
@@ -246,7 +257,7 @@ let
 
         case "$choice" in
           "$wifi_icon Toggle WiFi")
-            if [ "$wifi_status" = "on" ]; then nmcli radio wifi off; else nmcli radio wifi on; fi
+            if [ "$wifi_status" = "enabled" ]; then nmcli radio wifi off; else nmcli radio wifi on; fi
             ;;
           "Manage connections")
             nmcli connection show | rofi -dmenu -p "Connections" || true
@@ -256,7 +267,34 @@ let
             nmcli connection down "''${network#* }"
             ;;
           "󰒕"*)
-            nmcli device wifi connect "''${choice#* }"
+            ssid="''${choice#* }"
+
+            # Nothing in this session runs a NetworkManager secret agent —
+            # there is no nm-applet and no polkit agent — so for a network
+            # with no stored secrets a bare `nmcli device wifi connect` has no
+            # way to be handed the passphrase. It fails, and because nothing
+            # here surfaced the error it looked exactly like the menu doing
+            # nothing. Prompt for it ourselves instead, in the same rofi the
+            # rest of this script already uses.
+            #
+            # Only when there is nothing saved: an existing connection profile
+            # carries its own secrets, and re-prompting for a network that
+            # already works would be worse than useless.
+            if nmcli -t -f NAME connection show | grep -qxF "$ssid"; then
+              nmcli connection up "$ssid" \
+                || notify-send -u critical "Wi-Fi" "Could not connect to $ssid"
+            else
+              pass=$(rofi -dmenu -password -p "Passphrase for $ssid" < /dev/null || true)
+              if [ -n "$pass" ]; then
+                nmcli device wifi connect "$ssid" password "$pass" \
+                  || notify-send -u critical "Wi-Fi" "Could not connect to $ssid"
+              else
+                # Empty passphrase: an open network, or the prompt was
+                # dismissed. Try unauthenticated rather than assuming either.
+                nmcli device wifi connect "$ssid" \
+                  || notify-send -u critical "Wi-Fi" "Could not connect to $ssid"
+              fi
+            fi
             ;;
           *) exit 0 ;;
         esac

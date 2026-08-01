@@ -48,6 +48,7 @@ in
         modules-center = [ "custom/music" ];
         modules-right = [
           "custom/backup"
+          "network"
           "custom/audio-output"
           "pulseaudio"
           "backlight"
@@ -113,6 +114,25 @@ in
           format-plugged = "󱐥 {capacity:>3}%";
           format-alt = "{icon}";
           format-icons = [ "󰂎" "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹" ];
+        };
+
+        # Until this existed, wireless had no presence on the bar at all and the
+        # only way in was the Mod+Shift+n rofi menu — which is fine once you
+        # know it, and invisible until you do. Clicking the pill opens that same
+        # menu rather than a second implementation of it.
+        #
+        # The module updates on netlink events; the interval is only so
+        # signalStrength keeps moving while associated.
+        network = {
+          interval = 5;
+          format-wifi = "󰤨 {signalStrength:>3}%";
+          format-ethernet = "󰈀 {ipaddr}";
+          format-disconnected = "󰤭";
+          format-icons = [ "󰤯" "󰤟" "󰤢" "󰤥" "󰤨" ];
+          tooltip-format-wifi = "{essid}  {signalStrength}%\n{ipaddr}/{cidr}";
+          tooltip-format-ethernet = "{ifname}\n{ipaddr}/{cidr}";
+          tooltip-format-disconnected = "Disconnected";
+          on-click = lib.getExe s.network-menu;
         };
 
         "custom/audio-output" = {
@@ -212,6 +232,7 @@ in
         #cpu,
         #memory,
         #custom-ip,
+        #network,
         #pulseaudio,
         #custom-audio-output,
         #custom-backup,
@@ -248,6 +269,11 @@ in
         #memory { color: ${p.hues.cyan}; }
         #custom-ip { color: ${p.hues.cyan}; }
         #custom-ip.internal { color: ${p.fgMuted}; }
+
+        /* Muted rather than red when disconnected: on mac that is the normal
+           resting state after a cold boot, not a fault worth alarming about. */
+        #network { color: ${p.hues.cyan}; }
+        #network.disconnected { color: ${p.fgMuted}; }
 
         /* Muted while idle timers run — it only earns attention when the
            screen has been deliberately pinned awake. */

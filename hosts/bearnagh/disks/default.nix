@@ -39,21 +39,18 @@
               name = "cryptroot";
               settings.allowDiscards = true; # TRIM through to the SSD
 
-              # Read once, by `cryptsetup luksFormat`, at install time only.
-              # Without it disko's `askPassword` defaults to true and the
-              # format step stops for an interactive prompt, which is awkward
-              # in the middle of an unattended nixos-anywhere run.
+              # No passwordFile, deliberately. disko's `askPassword` therefore
+              # defaults to true and `cryptsetup luksFormat` prompts, which
+              # works under nixos-anywhere: it allocates a pty whenever its own
+              # stdin is a terminal (sshTtyParam="-t"), so the prompt reaches
+              # you. The passphrase then exists only in your head and in the
+              # LUKS header — never in a file, this repo, or a shell history.
               #
-              # The file's contents ARE the real passphrase — this sets the
-              # one you will type at every boot, not a throwaway install
-              # token. Only the path lives here, so no secret enters the repo;
-              # create it at install time and delete it afterwards:
-              #   (umask 077; printf '%s' 'the-passphrase' > /tmp/disk.key)
-              #   nixos-anywhere --disk-encryption-keys /tmp/disk.key /tmp/disk.key ...
-              #   shred -u /tmp/disk.key
-              # A trailing newline is stripped, so `echo` works too; leading
-              # and internal spaces are kept.
-              passwordFile = "/tmp/disk.key";
+              # The alternative, `passwordFile`, is only worth reaching for if
+              # this ever needs to run unattended. Note the file's contents
+              # become the real passphrase, so prefer feeding it from a
+              # password manager over writing plaintext to disk:
+              #   nixos-anywhere --disk-encryption-keys /tmp/disk.key <(pass ...)
               content = {
                 type = "lvm_pv";
                 vg = "pool";

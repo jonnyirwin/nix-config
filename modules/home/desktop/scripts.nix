@@ -217,7 +217,7 @@ let
     };
 
     network-menu = {
-      runtimeInputs = with pkgs; [ networkmanager rofi coreutils gnugrep libnotify ];
+      runtimeInputs = with pkgs; [ networkmanager networkmanagerapplet rofi coreutils libnotify ];
       text = ''
         # "enabled"/"disabled", never "on"/"off" — nmcli has no spelling of
         # this state that matches what this used to compare against. Every
@@ -260,7 +260,12 @@ let
             if [ "$wifi_status" = "enabled" ]; then nmcli radio wifi off; else nmcli radio wifi on; fi
             ;;
           "Manage connections")
-            nmcli connection show | rofi -dmenu -p "Connections" || true
+            # The real editor, not `nmcli connection show` piped into rofi.
+            # That only ever *displayed* the list — picking a row did nothing —
+            # so a profile holding a mistyped passphrase could be seen from
+            # here but never corrected or forgotten. This is the thing that
+            # makes "manage" mean something.
+            exec nm-connection-editor
             ;;
           *"(connected)")
             network="''${choice% (connected)}"
@@ -269,32 +274,20 @@ let
           "󰒕"*)
             ssid="''${choice#* }"
 
-            # Nothing in this session runs a NetworkManager secret agent —
-            # there is no nm-applet and no polkit agent — so for a network
-            # with no stored secrets a bare `nmcli device wifi connect` has no
-            # way to be handed the passphrase. It fails, and because nothing
-            # here surfaced the error it looked exactly like the menu doing
-            # nothing. Prompt for it ourselves instead, in the same rofi the
-            # rest of this script already uses.
+            # No passphrase handling here, deliberately. nm-applet runs as a
+            # NetworkManager secret agent (started from sway's startup block),
+            # so NM prompts for the PSK itself — for this script and for every
+            # other client, nmcli included.
             #
-            # Only when there is nothing saved: an existing connection profile
-            # carries its own secrets, and re-prompting for a network that
-            # already works would be worse than useless.
-            if nmcli -t -f NAME connection show | grep -qxF "$ssid"; then
-              nmcli connection up "$ssid" \
-                || notify-send -u critical "Wi-Fi" "Could not connect to $ssid"
-            else
-              pass=$(rofi -dmenu -password -p "Passphrase for $ssid" < /dev/null || true)
-              if [ -n "$pass" ]; then
-                nmcli device wifi connect "$ssid" password "$pass" \
-                  || notify-send -u critical "Wi-Fi" "Could not connect to $ssid"
-              else
-                # Empty passphrase: an open network, or the prompt was
-                # dismissed. Try unauthenticated rather than assuming either.
-                nmcli device wifi connect "$ssid" \
-                  || notify-send -u critical "Wi-Fi" "Could not connect to $ssid"
-              fi
-            fi
+            # This used to prompt through rofi and hand the answer to nmcli.
+            # That got the retry case wrong in a way that mattered: a profile
+            # saved with a mistyped passphrase became a dead end, because the
+            # prompt only appeared when *nothing* was saved, so every later
+            # attempt silently reused the bad secret and failed identically.
+            # The agent marks a rejected secret invalid and asks again, which
+            # is the behaviour we want and not worth reimplementing badly.
+            nmcli device wifi connect "$ssid" \
+              || notify-send -u critical "Wi-Fi" "Could not connect to $ssid"
             ;;
           *) exit 0 ;;
         esac

@@ -196,6 +196,19 @@ in
           { command = "${lib.getExe pkgs.udiskie} --no-notify"; }
           { command = "${lib.getExe' pkgs.blueman "blueman-applet"}"; }
 
+          # Not for the tray icon, though it provides one. This is the session's
+          # NetworkManager *secret agent*: without one running, nothing can be
+          # asked for a wifi passphrase, so `nmcli device wifi connect` on a
+          # secured network fails with no prompt and no explanation. That was
+          # invisible on the wired hosts and left mac — wifi-only — with no way
+          # onto a network at all.
+          #
+          # It also owns the retry path. NM marks a rejected secret invalid and
+          # re-asks; network-menu used to hand-roll the prompt and could not,
+          # which turned one mistyped passphrase into a permanently failing
+          # saved profile.
+          { command = "${lib.getExe' pkgs.networkmanagerapplet "nm-applet"} --indicator"; }
+
           # Pre-launch the scratchpads so their first summon is instant.
           # The window.commands rule above parks them out of sight.
         ] ++ lib.mapAttrsToList (_: v: { command = v.cmd; }) scratchpads;

@@ -281,23 +281,82 @@ let
     };
 
     random-wallpaper = {
-      runtimeInputs = with pkgs; [ swaybg findutils coreutils procps ];
+      runtimeInputs = with pkgs; [ findutils coreutils procps systemd ];
       text = ''
         dir="''${1:-${wallpaperDir}}"
 
-        pick=$(find "$dir" -type f \
-          \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' -o -iname '*.jxl' \) -print0 2>/dev/null \
-          | shuf -z -n 1 | tr -d '\0' || true)
+        pick_one() {
+          find "$dir" -type f \
+            \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' -o -iname '*.jxl' \) -print0 2>/dev/null \
+            | shuf -z -n 1 | tr -d '\0' || true
+        }
 
-        # Nothing to show; leave whatever swaybg is already doing alone.
+        pick=$(pick_one)
+
+        # An empty directory used to mean no wallpaper until the next timer
+        # firing at 06:00 UTC — on a fresh install, or after the 30-day prune
+        # has outrun a spell of downtime, that is a long time staring at
+        # nothing. Fetch on the spot instead. `|| true` because this also runs
+        # at login on machines that are offline then, where a failed fetch must
+        # not take the whole script down with it under `set -e`.
+        #
+        # Only for the default directory: nasa-wallpaper writes into
+        # wallpaperDir/nasa regardless of what was asked for here, so
+        # bootstrapping an explicitly-passed directory would fetch a picture
+        # that the re-pick below could not see.
+        if [ -z "$pick" ] && [ "$dir" = ${lib.escapeShellArg wallpaperDir} ]; then
+          ${lib.getExe scripts.nasa-wallpaper} || true
+          pick=$(pick_one)
+        fi
+
+        # Still nothing; leave whatever swaybg is already doing alone.
         [ -n "$pick" ] || exit 0
+
+        # swaybg has to outlive whoever started it, and `swaybg & disown` does
+        # not achieve that: disown clears the shell's job table but leaves the
+        # process in the caller's cgroup. Started from the nasa-wallpaper
+        # oneshot, the new swaybg therefore landed in that unit's cgroup, and
+        # the default KillMode=control-group had systemd kill it the instant
+        # the unit went inactive. The daily refresh reliably ended in a blank
+        # screen that lasted until the next manual Mod+w — which worked only
+        # because sway's exec puts swaybg in the long-lived session scope.
+        #
+        # A transient unit is owned by the user manager rather than by us, so
+        # it survives its launcher no matter which of the three callers
+        # (sway startup, Mod+w, the timer) started it.
+        #
+        # An absolute path, not runtimeInputs: the command is executed by the
+        # systemd user manager, which does not inherit this script's PATH.
+        systemctl --user stop wallpaper.service 2>/dev/null || true
 
         # Not `pkill -x swaybg`: nixpkgs wraps the binary, so the running
         # process is named .swaybg-wrapped and an exact-name match never hits
-        # it. Substring-matching the name leaked one live swaybg per run.
+        # it. Substring-matching the name leaked one live swaybg per run. Kept
+        # after the stop above only to catch instances predating this unit.
         pkill swaybg || true
-        swaybg -i "$pick" -m fill &
-        disown
+
+        # Forward the display explicitly rather than trusting the user manager
+        # to have been populated. sway fires its startup execs in config order
+        # without waiting, and home-manager appends its
+        # dbus-update-activation-environment after every entry from
+        # config.startup — so at first login this script runs while the
+        # manager's environment is still empty, and a transient unit would
+        # inherit no WAYLAND_DISPLAY and fail to connect. Our *own* environment
+        # always has it, whichever of the three callers we are.
+        #
+        # Not `[ -n ... ] && setenv+=(...)`: under `set -e` a false test on the
+        # last command of the script would exit nonzero.
+        setenv=()
+        if [ -n "''${WAYLAND_DISPLAY:-}" ]; then
+          setenv+=("--setenv=WAYLAND_DISPLAY=$WAYLAND_DISPLAY")
+        fi
+        if [ -n "''${XDG_RUNTIME_DIR:-}" ]; then
+          setenv+=("--setenv=XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR")
+        fi
+
+        systemd-run --user --quiet --collect --unit=wallpaper \
+          "''${setenv[@]}" \
+          ${lib.getExe pkgs.swaybg} -i "$pick" -m fill
       '';
     };
 

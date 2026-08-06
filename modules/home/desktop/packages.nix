@@ -34,6 +34,18 @@ in
       hyprpicker # Wayland colour picker
       ffmpeg
 
+      # ---- File management ----
+      # Graphical browsing to go with yazi's terminal one (Mod+Y). Picks up
+      # the Catppuccin GTK theme from gtk.nix automatically. Its device
+      # sidebar is a GVfs client, not an automounter in its own right — that
+      # is udisks2/gvfs (system side, modules/nixos/desktop/storage.nix) plus
+      # udiskie (autostarted above), so a card or drive shows up there the
+      # moment it is inserted rather than needing to be mounted by hand.
+      thunar
+      # Thumbnails in Thunar's icon view — the main payoff being actual
+      # previews of photos straight off an SD card instead of generic icons.
+      tumbler
+
       # ---- Design / engineering ----
       kicad # PCB design
       # `openscad-unstable` carries the Manifold geometry backend, which is far

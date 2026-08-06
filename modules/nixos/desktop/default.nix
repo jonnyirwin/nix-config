@@ -20,6 +20,7 @@ in
     ./onepassword.nix
     ./portals.nix
     ./steam.nix
+    ./storage.nix
 
     # ---- Compositor-specific ----
     ./compositors/sway.nix

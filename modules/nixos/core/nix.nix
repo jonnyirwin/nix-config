@@ -20,11 +20,11 @@
   # too. See the nixpkgs-aseprite input in flake.nix for why aseprite is
   # pinned separately instead of coming from the main nixpkgs.
   nixpkgs.overlays = [
-    (final: prev: {
-      aseprite = (import inputs.nixpkgs-aseprite {
+    (_final: prev: {
+      inherit (import inputs.nixpkgs-aseprite {
         system = prev.stdenv.hostPlatform.system;
         config.allowUnfree = true;
-      }).aseprite;
+      }) aseprite;
     })
   ];
 

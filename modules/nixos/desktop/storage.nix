@@ -6,7 +6,7 @@ in
 {
   config = lib.mkIf cfg.enable {
     # The actual mount/unmount/eject backend for removable media. udiskie
-    # (home-manager, autostarted by sway) and Thunar's device sidebar are both
+    # (home-manager, modules/home/desktop/storage.nix) and Thunar's sidebar are
     # just clients of this over D-Bus — neither touches a device without it.
     services.udisks2.enable = true;
 

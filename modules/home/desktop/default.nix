@@ -26,6 +26,7 @@ in
     ./wallpaper.nix
     ./kitty.nix
     ./zathura.nix
+    ./storage.nix
 
     # ---- Compositor-specific ----
     # Each gates itself on jonny.desktop.compositor, so adding a second one is

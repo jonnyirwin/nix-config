@@ -193,7 +193,9 @@ in
           { command = lib.getExe s.clipboard-sync; }
           { command = "${lib.getExe' pkgs.wl-clipboard "wl-paste"} --watch ${lib.getExe pkgs.cliphist} store"; }
           { command = lib.getExe pkgs.autotiling; }
-          { command = "${lib.getExe pkgs.udiskie} --no-notify"; }
+          # udiskie is deliberately not here — it is a systemd user unit in
+          # desktop/storage.nix so it starts after udisks2 and can be restarted
+          # without ending the session.
           { command = "${lib.getExe' pkgs.blueman "blueman-applet"}"; }
 
           # Not for the tray icon, though it provides one. This is the session's

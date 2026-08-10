@@ -55,6 +55,15 @@
       url = "github:jonnyirwin/rss_is_terminal";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Aseprite is unfree, so Hydra never builds or caches it — every switch
+    # that moves nixpkgs compiles it from source locally, bundled skia and
+    # all. Pinned to an exact commit (not a branch, and deliberately not
+    # `follows`-ing the main `nixpkgs`) so it sits still while everything
+    # else updates: a plain `nix flake update` re-resolves this URL to the
+    # same rev, so aseprite only rebuilds when this pin is bumped by hand.
+    # See modules/nixos/core/nix.nix for the overlay that wires it in.
+    nixpkgs-aseprite.url = "github:nixos/nixpkgs/104240a772428cc2e20d8fd86c9ddbb886bbaff2";
   };
 
   outputs = { self, nixpkgs, fenix, ... }@inputs:

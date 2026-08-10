@@ -39,7 +39,7 @@ in
       # the Catppuccin GTK theme from gtk.nix automatically. Its device
       # sidebar is a GVfs client, not an automounter in its own right — that
       # is udisks2/gvfs (system side, modules/nixos/desktop/storage.nix) plus
-      # udiskie (autostarted above), so a card or drive shows up there the
+      # udiskie (desktop/storage.nix), so a card or drive shows up there the
       # moment it is inserted rather than needing to be mounted by hand.
       thunar
       # Thumbnails in Thunar's icon view — the main payoff being actual

@@ -12,6 +12,7 @@ in
     ./espanso.nix
     ./fonts.nix
     ./graphics.nix
+    ./keyring.nix
     ./localsend.nix
     ./plymouth.nix
     ./printing.nix

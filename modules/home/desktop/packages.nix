@@ -74,6 +74,7 @@ in
 
       # ---- Media ----
       mpv
+      spotify # official client (unfree; allowUnfree is set globally)
 
       # ---- Viewers ----
       imv # vim-keybinding, Wayland-native image viewer

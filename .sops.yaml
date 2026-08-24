@@ -1,9 +1,16 @@
 # sops-nix key configuration.
 #
+# Every file is encrypted to two recipients: the owning host, and a personal
+# recovery key.
+#
 # Each host decrypts with its own SSH host key converted to an age key:
 #   nix run nixpkgs#ssh-to-age -- -i /etc/ssh/ssh_host_ed25519_key.pub
-# Using the host key means there is no extra key material to manage or back up
-# — a reinstalled machine needs its /etc/ssh restored, which you want anyway.
+# That needs no key material of its own, but it is per-machine and mortal: a
+# regenerated /etc/ssh (a reinstall will do it) silently invalidates the anchor
+# below, and a lost disk would otherwise take every secret it owns with it.
+# Hence the second recipient — the personal key, whose private half is in
+# 1Password and in ~/.config/sops/age/keys.txt, never in this repo. With it you
+# can decrypt from any machine and re-key a host that has been rebuilt.
 #
 # Secrets are per-host (secrets/<hostname>.yaml) so adding a machine does not
 # require re-encrypting anything the other machines own. Shared secrets go in
@@ -18,11 +25,21 @@
 #   2. add it below as a new anchor, and to common.yaml's key_groups
 #   3. nix run nixpkgs#sops -- updatekeys secrets/common.yaml
 #
-# Editing from a machine that is not the owner requires adding that machine's
-# (or your personal) age key as a second recipient and re-encrypting.
+# After a reinstall, the host's age key has changed. Re-read it, replace the
+# anchor, and re-key with your personal key available:
+#   SOPS_AGE_KEY_FILE=~/.config/sops/age/keys.txt \
+#     nix run nixpkgs#sops -- updatekeys secrets/<host>.yaml
 
 keys:
-  - &optiplex age1vxlapad4sgk8e79yy24ck4kj39qnugp2d5wk6a8r3wmvy3t82vwsy09gd7
+  # Host keys — each machine decrypts its own secrets at activation.
+  - &optiplex age1pfg6lcc8x93hyzdnmsf42he3d89whp2xsk7qsa6hj772zyj2pftsal3sd8
+
+  # Personal recovery key. Second recipient on every rule so that losing a
+  # machine never loses its secrets, and so secrets can be edited from a host
+  # that does not own them. Private half lives in 1Password and in
+  # ~/.config/sops/age/keys.txt on machines where you want to edit secrets;
+  # it is deliberately not in this repo.
+  - &jonny age1cx3ehk930ynxcv68c985r6xfupf538q08tsz2vzu453sy3szsu2s0kw8ph
 
 creation_rules:
   # Shared across every machine.
@@ -30,9 +47,11 @@ creation_rules:
     key_groups:
       - age:
           - *optiplex
+          - *jonny
 
   # Per-host.
   - path_regex: secrets/optiplex\.yaml$
     key_groups:
       - age:
           - *optiplex
+          - *jonny

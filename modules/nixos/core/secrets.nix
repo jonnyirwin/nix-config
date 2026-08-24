@@ -22,17 +22,19 @@ in
       age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
       gnupg.sshKeyPaths = [ ];
 
-      # Declare secrets here as you add them, e.g.
-      #
-      #   secrets.api_keys = {
-      #     owner = "jonny";
-      #     mode = "0400";
-      #   };
-      #
-      # then reference config.sops.secrets.api_keys.path from the module that
-      # consumes it. Fish already sources such a file if one is declared — see
+      # Declare secrets here as you add them, then reference
+      # config.sops.secrets.<name>.path from the module that consumes it.
+      # Fish already sources such a file if one is declared — see
       # modules/home/shell/secrets.nix.
-      secrets = { };
+      secrets = {
+        # Personal email address. Kept here rather than inline in the espanso
+        # match because this repo is public — see
+        # modules/home/desktop/espanso.nix, which reads it through osConfig.
+        espanso_email = {
+          owner = "jonny";
+          mode = "0400";
+        };
+      };
     };
   };
 }

@@ -210,6 +210,13 @@ in
           { command = lib.getExe s.random-wallpaper; always = true; }
           { command = lib.getExe s.clipboard-sync; }
           { command = "${lib.getExe' pkgs.wl-clipboard "wl-paste"} --watch ${lib.getExe pkgs.cliphist} store"; }
+
+          # Wayland serves a selection from the client that set it, so closing
+          # that client takes the clipboard with it. This holds a copy so a
+          # copy-then-quit still pastes. Regular clipboard only — PRIMARY is
+          # already mirrored by clipboard-sync above, and having both manage
+          # the same selection makes them fight over it.
+          { command = "${lib.getExe pkgs.wl-clip-persist} --clipboard regular"; }
           { command = lib.getExe pkgs.autotiling; }
           # udiskie is deliberately not here — it is a systemd user unit in
           # desktop/storage.nix so it starts after udisks2 and can be restarted

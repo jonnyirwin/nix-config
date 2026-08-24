@@ -17,13 +17,13 @@ in
 
       # ---- Clipboard ----
       wl-clipboard # also used interactively, not just by scripts
-      wl-clip-persist # keeps the clipboard alive after the source app exits
+      wl-clip-persist # keeps the clipboard alive after the source app exits;
+      # launched from sway's startup list, not a package you invoke
       cliphist # clipboard history
 
       # ---- Audio ----
       pulsemixer
       pavucontrol
-      pamixer
       playerctl
       # pactl, for anything that speaks the PulseAudio protocol to PipeWire's shim
       pulseaudio
@@ -53,9 +53,6 @@ in
       # malformed .debug_gdb_scripts section — and there is no cache hit, so it
       # builds from source and fails. Switch back once that clears upstream.
       openscad # programmatic CAD
-      freecad # parametric GUI CAD — sketch-driven work and STEP import, which OpenSCAD cannot do
-      qalculate-gtk # unit-aware calculator (does dimensional analysis); the `qalc` CLI lives in libqalculate, not here
-      krita # digital painting
       inkscape # vector graphics
 
       # ---- Embedded ----
@@ -77,7 +74,6 @@ in
 
       # ---- Viewers ----
       imv # vim-keybinding, Wayland-native image viewer
-      f3d # keyboard-driven 3D viewer — STL, STEP, meshes
     ];
   };
 }

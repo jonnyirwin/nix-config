@@ -44,6 +44,20 @@ in
       diff.colorMoved = "default";
     };
 
+    # The Obsidian vault is the one repo where signing is not merely
+    # inconvenient but unenforceable: it is also committed to from an iPhone via
+    # a-shell's libgit2, which cannot sign at all. Its history is therefore a
+    # permanent mix of signed and unsigned commits no matter what is configured
+    # here, so requiring signatures buys nothing and costs two things — an
+    # op-ssh-sign desktop approval prompt on every commit, and a dependency on
+    # 1Password being unlocked for jonny.vaultSync's hourly unattended timer.
+    #
+    # Scoped by gitdir so signing stays mandatory everywhere it does real work.
+    includes = lib.optional (config.jonny.vaultSync.path != null) {
+      condition = "gitdir:${toString config.jonny.vaultSync.path}/";
+      contents.commit.gpgsign = false;
+    };
+
     # Global gitignore — things to always ignore regardless of project.
     ignores = [
       # OS artifacts

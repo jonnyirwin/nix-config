@@ -38,6 +38,13 @@
         "/home/jonny/backup"
       ];
     };
+
+    vaultSync = {
+      # The Obsidian vault. Enabled here rather than in modules/home because
+      # the checkout only exists on this machine; the phone is the other end.
+      enable = true;
+      path = "/home/jonny/git/Second-Brain";
+    };
   };
 
   home.sessionVariables = {

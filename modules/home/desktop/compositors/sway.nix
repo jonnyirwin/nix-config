@@ -144,6 +144,22 @@ in
 
         workspaceAutoBackAndForth = true;
 
+        # Start on workspace 1, not 10.
+        #
+        # sway names a newly created workspace after the *first* `workspace …`
+        # binding in the config file whose target does not exist yet — see
+        # workspace_next_name / workspace_name_from_binding in sway's
+        # tree/workspace.c, which ranks candidates by binding->order, i.e.
+        # position in the file. Home Manager emits keybindings sorted by
+        # attribute name, so `bindsym Mod4+0 workspace number 10` landed ahead
+        # of `Mod4+1` and every fresh workspace — including the one sway creates
+        # at login — got named "10".
+        #
+        # defaultWorkspace hoists the matching binding to the top of the bindsym
+        # block, which makes `workspace number 1` the earliest candidate. The
+        # string must match the binding's action verbatim for the hoist to fire.
+        defaultWorkspace = "workspace number 1";
+
         # ---- Bars ----
         # waybar runs as a systemd user unit bound to sway-session.target
         # (see waybar.nix), not as a sway `bar` block.
@@ -184,9 +200,11 @@ in
 
         # ---- Startup ----
         startup = [
-          # Land on workspace 1 at login. Without this sway can come up focused
-          # on whichever workspace was last touched (it had been starting on
-          # 10). Not `always` — a reload should not yank you back to 1.
+          # Belt and braces: land on workspace 1 at login. The binding order
+          # fix (see workspaceKeys) is what actually makes sway *name* the
+          # initial workspace 1; this just guarantees focus lands there once
+          # the startup apps have finished shuffling windows around.
+          # Not `always` — a reload should not yank you back to 1.
           { command = "${lib.getExe' pkgs.sway "swaymsg"} workspace number 1"; }
 
           { command = lib.getExe s.random-wallpaper; always = true; }

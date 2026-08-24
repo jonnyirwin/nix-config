@@ -11,6 +11,7 @@
     ./ssh.nix
     ./services.nix
     ./backup.nix
+    ./vault-sync.nix
     ./firefox.nix
   ];
 }

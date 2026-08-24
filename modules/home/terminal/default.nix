@@ -11,7 +11,6 @@
     ./bat.nix
     ./btop.nix
     ./lazygit.nix
-    ./taskwarrior.nix
     ./rss-is-terminal.nix
   ];
 }

@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, osConfig ? null, ... }:
 
 # The 1Password SSH agent is the *only* signing and authentication path.
 #
@@ -61,6 +61,23 @@ in
           jonny.onepassword requires services.gpg-agent.enableSshSupport = false.
           Both agents bind SSH_AUTH_SOCK, and whichever wins is a race — the
           symptom is intermittent "Permission denied (publickey)".
+        '';
+      }
+      {
+        # The system-level counterpart, and the one that actually bit: enabling
+        # the Secret Service (modules/nixos/desktop/keyring.nix) drags in
+        # gcr-ssh-agent, whose socket unit runs `systemctl --user set-environment
+        # SSH_AUTH_SOCK=%t/gcr/ssh`. home.sessionVariables below only reaches the
+        # shell, so the two disagree and which agent you get depends on whether
+        # the client was launched from a terminal or by systemd/D-Bus.
+        #
+        # Checking gpg-agent alone left that route wide open — hence this.
+        assertion = !(osConfig.services.gnome.gcr-ssh-agent.enable or false);
+        message = ''
+          jonny.onepassword requires services.gnome.gcr-ssh-agent.enable = false.
+          Its socket unit overwrites SSH_AUTH_SOCK in the systemd user manager,
+          which home.sessionVariables cannot reach — leaving the shell on the
+          1Password agent and every systemd/D-Bus-launched client on gcr's.
         '';
       }
     ];

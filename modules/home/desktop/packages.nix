@@ -31,7 +31,6 @@ in
       # ---- Misc desktop tools ----
       brightnessctl
       libnotify # notify-send, used interactively too
-      hyprpicker # Wayland colour picker
       ffmpeg
 
       # ---- File management ----

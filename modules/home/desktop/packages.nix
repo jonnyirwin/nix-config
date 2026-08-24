@@ -13,7 +13,6 @@ in
     home.packages = with pkgs; [
       # ---- Wayland session ----
       wdisplays # GUI output configurator, bound to Mod+Shift+D
-      wlopm # wlr-output-power-management
 
       # ---- Clipboard ----
       wl-clipboard # also used interactively, not just by scripts

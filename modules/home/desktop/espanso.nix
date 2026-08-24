@@ -11,11 +11,30 @@ let
 in
 {
   config = lib.mkIf cfg.enable {
+    # Restart with `systemctl --user restart espanso`, never `espanso restart`.
+    # The latter checks the registered unit's ExecStart against its own path and
+    # refuses because they legitimately differ here: the unit runs the wrapper
+    # derivation (…-espanso/bin/espanso) while the process is the wrapped binary
+    # (…-espanso-2.4.0/bin/.espanso-wrapped). It then tells you to run
+    # `espanso service register`, which would write a second unit competing with
+    # this one — do not. It stops the service before failing, so a bare
+    # `espanso restart` leaves espanso down.
+    #
     # Wayland backend needs /dev/uinput access — see
     # modules/nixos/desktop/espanso.nix for the system-level half of this.
     services.espanso = {
       enable = true;
       waylandSupport = true;
+
+      # The Wayland backend injects synthetic key events through uinput, so it
+      # needs to be told the same xkb layout sway uses (compositors/sway.nix).
+      # Left unset it assumes "us" and mis-types every shifted symbol — @ comes
+      # out as ", # as \, and so on.
+      configs.default = {
+        keyboard_layout = {
+          layout = "gb";
+        };
+      };
 
       # The address is deliberately not written here: this tree is public on
       # GitHub, and a plaintext address in it is free food for scrapers. It

@@ -136,6 +136,14 @@
   # not declare.
   services.printing.browsed.enable = false;
 
+  # ── Firmware ───────────────────────────────────────────────
+  # BIOS updates without a vendor USB stick. This box boots UEFI with a 1G ESP,
+  # so `fwupdmgr update` can stage a capsule there and let it flash on the next
+  # reboot. LVFS does carry this model — 1.34.1 installed, 1.41.0 available.
+  # Added while chasing the fan-at-full-speed fault, which turned out to be a
+  # spinning respawn loop rather than firmware; kept for the next BIOS update.
+  services.fwupd.enable = true;
+
   boot = {
     # ── Boot ─────────────────────────────────────────────────
     loader.systemd-boot.enable = true;

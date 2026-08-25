@@ -437,18 +437,35 @@ let
     };
 
     scratchpad-toggle = {
-      runtimeInputs = with pkgs; [ sway jq ];
+      runtimeInputs = with pkgs; [ sway jq coreutils ];
       text = ''
         # scratchpad-toggle <app_id> <width> <height> <cmd...>
         app_id="$1"; w="$2"; h="$3"; shift 3
 
-        if swaymsg -t get_tree | jq -e --arg id "$app_id" \
-             'recurse(.nodes[]?, .floating_nodes[]?) | select(.app_id? == $id)' >/dev/null; then
+        present() {
+          swaymsg -t get_tree | jq -e --arg id "$app_id" \
+            'recurse(.nodes[]?, .floating_nodes[]?) | select(.app_id? == $id)' >/dev/null
+        }
+
+        reveal() {
           swaymsg "[app_id=\"$app_id\"] scratchpad show"
           swaymsg "[app_id=\"$app_id\"] resize set $w $h"
           swaymsg "[app_id=\"$app_id\"] move position center"
+        }
+
+        if present; then
+          reveal
         else
-          exec "$@"
+          # Nothing pre-launches these, so the first press has to create the
+          # window. The window rule parks it in the scratchpad the instant it
+          # appears, which would leave this press showing nothing — so wait for
+          # it and then summon it. Bounded, so a launch that never produces a
+          # window gives up instead of spinning.
+          "$@" &
+          for _ in $(seq 50); do
+            if present; then reveal; break; fi
+            sleep 0.1
+          done
         fi
       '';
     };
@@ -579,13 +596,13 @@ let
           key "Mod+Shift+V"     ; desc "Paste PRIMARY selection"
           key "Mod+Shift+C"     ; desc "Reload config"
           key "Mod+Shift+E"     ; desc "Power menu"
+          key "Mod+Shift+N"     ; desc "Network menu"
           key "Mod+Shift+X"     ; desc "Lock screen"
           key "Mod+I"           ; desc "Idle inhibitor toggle"
           key "Mod+O"           ; desc "Toggle waybar"
 
           header "Apps & Scripts"
           key "Mod+P"           ; desc "Pomodoro timer"
-          key "Mod+="           ; desc "Font size scaling"
           key "Mod+."           ; desc "Emoji picker"
           key "Mod+Shift+O"     ; desc "OCR region → clipboard"
           key "Mod+Shift+P"     ; desc "Colour picker → clipboard"
@@ -594,6 +611,7 @@ let
           key "Mod+Shift+R"     ; desc "Toggle screen recording"
           key "Mod+Shift+D"     ; desc "Display layout (wdisplays)"
           key "Mod+Ctrl+R"      ; desc "Rotate screen (rofi menu)"
+          key "Mod+W"           ; desc "Random wallpaper"
 
           header "Scratchpads"
           key "Mod+M"           ; desc "Pulsemixer (audio mixer)"
@@ -639,7 +657,7 @@ let
           key "Mod+R"           ; desc "Resize mode  (then H/J/K/L or arrows)"
 
           printf '\n%b  Q to close%b\n\n' "$SUBTEXT" "$RESET"
-          } | less -R --quit-if-one-screen
+          } | less -R
         '';
     };
   };

@@ -22,7 +22,9 @@ let
   # `window.commands` below key off the same app_id.
   # `respawn` wraps the command in a loop so quitting the program inside the
   # scratchpad leaves the window there rather than destroying it.
-  respawn = cmd: "${lib.getExe pkgs.bash} -c 'while true; do ${cmd}; done'";
+  # A command that exits immediately would spin this loop into a fork bomb, so
+  # anything that ran for less than a second earns a pause before the retry.
+  respawn = cmd: "${lib.getExe pkgs.bash} -c 'while true; do start=$SECONDS; ${cmd} || true; if [ $((SECONDS - start)) -lt 1 ]; then sleep 1; fi; done'";
 
   scratchpads = {
     "${mod}+m" = { id = "float-mixer"; w = 900; h = 500; cmd = "${term} --class=float-mixer ${lib.getExe pkgs.pulsemixer}"; };
@@ -236,9 +238,12 @@ in
           # saved profile.
           { command = "${lib.getExe' pkgs.networkmanagerapplet "nm-applet"} --indicator"; }
 
-          # Pre-launch the scratchpads so their first summon is instant.
-          # The window.commands rule above parks them out of sight.
-        ] ++ lib.mapAttrsToList (_: v: { command = v.cmd; }) scratchpads;
+          # Scratchpads are deliberately not pre-launched: each one is a kitty
+          # instance, and starting five at login costs memory and a burst of
+          # work for windows that may never be summoned. scratchpad-toggle
+          # creates one on first press instead — one slower summon, then it
+          # stays resident for the rest of the session.
+        ];
 
         # This replaces the HM module's default keybinding set outright rather
         # than merging with it — the map below is the complete binding surface.

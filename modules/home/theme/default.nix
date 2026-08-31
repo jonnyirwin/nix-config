@@ -40,6 +40,15 @@ let
       };
     };
   };
+
+  # Applied to every declared size by the `apply` on each font option below, so
+  # `jonny.theme.fonts.scale` is a single lever for the bar, notifications,
+  # launcher, terminal and GTK together rather than five numbers to keep in
+  # step. Rounded to whole points: fontconfig would take a fraction, but every
+  # consumer here (kitty, waybar CSS, mako, rofi) reads the size as an int.
+  scaled = font: font // {
+    size = lib.max 1 (builtins.floor (font.size * cfg.fonts.scale + 0.5));
+  };
 in
 {
   options.jonny.theme = {
@@ -88,8 +97,27 @@ in
     };
 
     fonts = {
+      scale = lib.mkOption {
+        type = lib.types.numbers.positive;
+        default = 1.0;
+        example = 1.25;
+        description = ''
+          Multiplier over every size in this block. The sizes below stay the
+          statement of relative proportion — mono a little larger than ui —
+          and this scales the pair, so a HiDPI panel or a screen across the
+          room is one number rather than a re-tune of each font.
+
+          It reaches the terminal, bar, notifications, launcher and lock
+          screen because they all render from these options, and GTK
+          applications because desktop/gtk.nix names `fonts.ui` as the
+          interface font. Output *scale* is a different lever and stays with
+          the display, in `jonny.desktop.outputs`.
+        '';
+      };
+
       mono = lib.mkOption {
         type = fontType;
+        apply = scaled;
         default = {
           family = "Dank Mono";
           package = null; # proprietary; installed by hand
@@ -100,6 +128,7 @@ in
 
       ui = lib.mkOption {
         type = fontType;
+        apply = scaled;
         default = {
           family = "Dank Mono";
           package = null;

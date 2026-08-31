@@ -9,6 +9,7 @@ in
     ./audio.nix
     ./avahi.nix
     ./bluetooth.nix
+    ./ddc.nix
     ./espanso.nix
     ./fonts.nix
     ./graphics.nix

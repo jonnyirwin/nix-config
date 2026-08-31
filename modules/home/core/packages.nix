@@ -29,7 +29,8 @@
     wget
     poppler-utils # pdftotext, pdfinfo
 
-    # ---- Process and system inspection ----
+    # ---- Disk and process inspection ----
+    dua # interactive disk usage; `dua i <dir>` to walk and delete
     lsof
     strace
     pstree

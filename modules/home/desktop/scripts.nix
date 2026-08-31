@@ -77,6 +77,35 @@ let
       '';
     };
 
+    # Same shape as ocr-region, one region and one decoder along: a QR code on
+    # a slide, a phone screen or a poster becomes clipboard text without
+    # reaching for a phone camera.
+    qr-decode = {
+      runtimeInputs = with pkgs; [ grim slurp zbar wl-clipboard libnotify coreutils ];
+      text = ''
+        region=$(slurp) || exit 1
+        [ -n "$region" ] || exit 1
+
+        # zbarimg's stdin handling depends on how it was built, so go via a
+        # file — grim writes PNG either way and the trap cleans up.
+        shot=$(mktemp --suffix=.png)
+        trap 'rm -f "$shot"' EXIT
+        grim -g "$region" "$shot"
+
+        # zbarimg exits non-zero when it finds nothing, which is a normal
+        # outcome here rather than a failure worth aborting on.
+        decoded=$(zbarimg --quiet --raw "$shot" 2>/dev/null) || true
+
+        if [ -z "$decoded" ]; then
+          notify-send "QR" "No code found in that region"
+          exit 1
+        fi
+
+        printf '%s' "$decoded" | wl-copy
+        notify-send "QR" "Copied: $decoded"
+      '';
+    };
+
     color-picker = {
       runtimeInputs = with pkgs; [ grim slurp imagemagick wl-clipboard libnotify ];
       text = ''
@@ -511,6 +540,71 @@ let
       '';
     };
 
+    # ---- Display ----
+    # brightnessctl only ever spoke to /sys/class/backlight, which exists on a
+    # laptop panel and not on a desktop monitor — so on the desktops the
+    # brightness keys did nothing and the adjustment lived on the monitor's own
+    # buttons. External displays take the same instruction over DDC/CI on the
+    # i2c bus behind the video cable; ddcutil speaks it. Needs the i2c group
+    # and the i2c-dev module, both from modules/nixos/desktop/ddc.nix.
+    brightness = {
+      runtimeInputs = with pkgs; [ brightnessctl ddcutil gnused libnotify coreutils ];
+      text = ''
+        case "''${1:-up}" in
+          up)   sign="+" ;;
+          down) sign="-" ;;
+          *)    echo "usage: brightness up|down [step]" >&2; exit 2 ;;
+        esac
+        step=''${2:-5}
+
+        # An internal panel is both the likelier target and the instant one, so
+        # it wins when the machine has one.
+        for panel in /sys/class/backlight/*; do
+          if [ -e "$panel" ]; then
+            brightnessctl set "''${step}%''${sign}" >/dev/null
+            exit 0
+          fi
+        done
+
+        # `ddcutil detect` probes every i2c bus and takes the better part of a
+        # second — far too slow for a key held down — so the buses are resolved
+        # once per session. Delete the cache after plugging a monitor in.
+        cache="''${XDG_RUNTIME_DIR:-/tmp}/ddc-buses"
+        if [ ! -s "$cache" ]; then
+          ddcutil detect --brief 2>/dev/null \
+            | sed -n 's|.*/dev/i2c-\([0-9][0-9]*\).*|\1|p' > "$cache" || true
+        fi
+
+        if [ ! -s "$cache" ]; then
+          notify-send "Brightness" "No internal panel, and no DDC/CI display responded"
+          exit 1
+        fi
+
+        # --noverify skips the read-back after the write, halving the round
+        # trips. A monitor that ignores VCP 10 is skipped rather than fatal:
+        # the others should still move.
+        while read -r bus; do
+          ddcutil --bus "$bus" --noverify setvcp 10 "$sign" "$step" >/dev/null 2>&1 || true
+        done < "$cache"
+      '';
+    };
+
+    # ---- Notifications ----
+    # mako keeps dismissed notifications (max-history in desktop/mako.nix) and
+    # `makoctl restore` puts the most recent one back on screen. This is the
+    # "what did that say?" recovery for a toast that timed out while you were
+    # looking at something else.
+    notification-replay = {
+      runtimeInputs = with pkgs; [ mako coreutils ];
+      text = ''
+        count=''${1:-1}
+        for _ in $(seq 1 "$count"); do
+          # Nothing left in history is the normal end of a replay, not a fault.
+          makoctl restore || break
+        done
+      '';
+    };
+
     # ---- Idle inhibitor ----
     # Holding a logind idle inhibitor is what actually stops the lock: swayidle
     # 1.9 reads the manager's BlockInhibited property and skips its timeout
@@ -612,6 +706,9 @@ let
           key "Mod+Shift+D"     ; desc "Display layout (wdisplays)"
           key "Mod+Ctrl+R"      ; desc "Rotate screen (rofi menu)"
           key "Mod+W"           ; desc "Random wallpaper"
+          key "Mod+Shift+G"     ; desc "Scan QR code → clipboard"
+          key "Mod+Shift+,"     ; desc "Replay last notification"
+          key "Mod+Ctrl+Space"  ; desc "Command menu (everything, nested)"
 
           header "Scratchpads"
           key "Mod+M"           ; desc "Pulsemixer (audio mixer)"
@@ -661,16 +758,121 @@ let
         '';
     };
   };
+  # ---- Command menu ----
+  # Omarchy 4's one idea worth borrowing wholesale: a single entry point that
+  # nests every desktop command, instead of a keybinding per action and a
+  # cheatsheet to remember them by.
+  #
+  # Deliberately additive. Every binding this fronts still works on its own
+  # key, and the launcher, power menu and network menu are untouched — this is
+  # a second door on the same rooms, kept separate so it can be dropped by
+  # deleting one keybinding if it does not earn its place.
+  #
+  # Defined out here rather than inside `scripts` because it refers to the
+  # other scripts by store path, which would be a cycle in there.
+  commandMenu = mkScript "command-menu" {
+    runtimeInputs = with pkgs; [ rofi cliphist wl-clipboard pavucontrol wdisplays coreutils ];
+    text = ''
+      # -no-custom: every entry is a known command, so a typo should filter to
+      # nothing rather than run itself.
+      pick() {
+        rofi -dmenu -i -no-custom -p "$1" -theme-str 'window {width: 520px;}'
+      }
+
+      # Escape at any level leaves entirely; "Back" is the way up one.
+      while true; do
+        case "$(printf '%s\n' \
+          Apps Windows Clipboard Capture Audio Display \
+          Network Notifications Wallpaper Power | pick Command)" in
+
+          Apps)    exec rofi -show drun -show-icons ;;
+          Windows) exec ${lib.getExe scripts.window-switcher} ;;
+          Network) exec ${lib.getExe scripts.network-menu} ;;
+
+          Clipboard)
+            entry=$(cliphist list | rofi -dmenu -i -p Clipboard) || exit 0
+            printf '%s' "$entry" | cliphist decode | wl-copy
+            exit 0
+            ;;
+
+          Capture)
+            case "$(printf '%s\n' \
+              'Screenshot to clipboard' 'Screenshot and annotate' \
+              'Toggle screen recording' 'OCR region' 'Scan QR code' \
+              'Pick colour' 'Emoji' Back | pick Capture)" in
+              'Screenshot to clipboard')  exec ${lib.getExe scripts.screenshot-region} ;;
+              'Screenshot and annotate')  exec ${lib.getExe scripts.screenshot-annotate} ;;
+              'Toggle screen recording')  exec ${lib.getExe scripts.record-toggle} ;;
+              'OCR region')               exec ${lib.getExe scripts.ocr-region} ;;
+              'Scan QR code')             exec ${lib.getExe scripts.qr-decode} ;;
+              'Pick colour')              exec ${lib.getExe scripts.color-picker} ;;
+              Emoji)                      exec ${lib.getExe scripts.emoji-picker} ;;
+              *)                          continue ;;
+            esac
+            ;;
+
+          Audio)
+            case "$(printf '%s\n' 'Output device' Mixer Back | pick Audio)" in
+              'Output device') exec ${lib.getExe scripts.audio-switch} ;;
+              Mixer)           exec pavucontrol ;;
+              *)               continue ;;
+            esac
+            ;;
+
+          Display)
+            case "$(printf '%s\n' \
+              'Arrange outputs' 'Rotate output' \
+              'Brightness up' 'Brightness down' Back | pick Display)" in
+              'Arrange outputs')  exec wdisplays ;;
+              'Rotate output')    exec ${lib.getExe scripts.screen-rotate} ;;
+              'Brightness up')    exec ${lib.getExe scripts.brightness} up ;;
+              'Brightness down')  exec ${lib.getExe scripts.brightness} down ;;
+              *)                  continue ;;
+            esac
+            ;;
+
+          Notifications)
+            case "$(printf '%s\n' 'Replay last' 'Replay last ten' Back | pick Notifications)" in
+              'Replay last')      exec ${lib.getExe scripts.notification-replay} ;;
+              'Replay last ten')  exec ${lib.getExe scripts.notification-replay} 10 ;;
+              *)                  continue ;;
+            esac
+            ;;
+
+          Wallpaper)
+            case "$(printf '%s\n' Random 'NASA picture of the day' Back | pick Wallpaper)" in
+              Random)                     exec ${lib.getExe scripts.random-wallpaper} ;;
+              'NASA picture of the day')  exec ${lib.getExe scripts.nasa-wallpaper} ;;
+              *)                          continue ;;
+            esac
+            ;;
+
+          Power)
+            case "$(printf '%s\n' 'Power menu' 'Lock screen' 'Idle inhibitor' Back | pick Power)" in
+              'Power menu')      exec ${lib.getExe scripts.power-menu} ;;
+              'Lock screen')     exec ${lib.getExe scripts.lock-screen} ;;
+              'Idle inhibitor')  exec ${lib.getExe scripts.idle-inhibitor-toggle} ;;
+              *)                 continue ;;
+            esac
+            ;;
+
+          *) exit 0 ;;
+        esac
+      done
+    '';
+  };
+
+  allScripts = scripts // { command-menu = commandMenu; };
 in
 {
   options.jonny.desktop.scripts = lib.mkOption {
     type = lib.types.attrsOf lib.types.package;
     readOnly = true;
-    default = scripts;
+    default = allScripts;
     description = "Desktop helper scripts, referenced by sway and waybar via lib.getExe.";
   };
 
   config = lib.mkIf cfg.enable {
-    home.packages = lib.attrValues scripts;
+    home.packages = lib.attrValues allScripts;
   };
 }

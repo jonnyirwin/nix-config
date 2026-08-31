@@ -68,6 +68,9 @@ in
       obsidian # markdown knowledge base (unfree; allowUnfree is set globally)
 
       # ---- Media ----
+      # Streams a desktop or a game from anything running Sunshine or
+      # GeForce Experience on the LAN.
+      moonlight-qt
       mpv
       spotify # official client (unfree; allowUnfree is set globally)
 

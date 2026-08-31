@@ -48,6 +48,18 @@ in
           package = pkgs.papirus-icon-theme;
         };
 
+        # GTK had no font of its own here, so it sat at whatever Adwaita
+        # defaults to and text scaling stopped at the edge of the Wayland
+        # shell. Naming the UI font means jonny.theme.fonts.scale reaches file
+        # dialogs, Thunar and every other GTK surface in the same move as the
+        # bar and the terminal. The package is null: the family is installed
+        # by theme/default.nix already, and naming it twice would install it
+        # twice.
+        font = {
+          name = theme.fonts.ui.family;
+          size = theme.fonts.ui.size;
+        };
+
         gtk3.extraConfig.gtk-application-prefer-dark-theme = isDark;
         gtk4.extraConfig.gtk-application-prefer-dark-theme = isDark;
       };

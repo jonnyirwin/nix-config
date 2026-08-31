@@ -262,6 +262,14 @@ in
             "${mod}+p" = "exec ${cfg.pomodoro.package}/bin/pomodoro-menu";
             "${mod}+o" = "exec ${lib.getExe' pkgs.psmisc "killall"} -SIGUSR1 waybar";
 
+            # Put the most recently expired notification back on screen. mako
+            # keeps max-history of them (desktop/mako.nix).
+            "${mod}+Shift+comma" = "exec ${lib.getExe s.notification-replay}";
+
+            # The command menu is on trial alongside the bindings above, not in
+            # place of them — see the comment on command-menu in scripts.nix.
+            "${mod}+Ctrl+space" = "exec ${lib.getExe s.command-menu}";
+
             # Clipboard history
             "${mod}+c" = "exec ${lib.getExe pkgs.cliphist} list | rofi -dmenu -p 'Clipboard' | ${lib.getExe pkgs.cliphist} decode | ${lib.getExe' pkgs.wl-clipboard "wl-copy"}";
             # Paste PRIMARY (middle-click alternative)
@@ -272,6 +280,7 @@ in
             "${mod}+Shift+s" = "exec ${lib.getExe s.screenshot-annotate}";
             "${mod}+period" = "exec ${lib.getExe s.emoji-picker}";
             "${mod}+Shift+o" = "exec ${lib.getExe s.ocr-region}";
+            "${mod}+Shift+g" = "exec ${lib.getExe s.qr-decode}";
             "${mod}+Shift+p" = "exec ${lib.getExe s.color-picker}";
             "${mod}+Shift+r" = "exec ${lib.getExe s.record-toggle}";
 
@@ -284,8 +293,11 @@ in
             "${mod}+Mod1+space" = "exec ${lib.getExe pkgs.playerctl} play-pause";
 
             # ---- Brightness ----
-            "${mod}+Mod1+l" = "exec ${lib.getExe pkgs.brightnessctl} set 5%+";
-            "${mod}+Mod1+h" = "exec ${lib.getExe pkgs.brightnessctl} set 5%-";
+            # Not brightnessctl directly: the script falls through to DDC/CI
+            # when there is no internal panel, which is every host here but
+            # mac and precision.
+            "${mod}+Mod1+l" = "exec ${lib.getExe s.brightness} up";
+            "${mod}+Mod1+h" = "exec ${lib.getExe s.brightness} down";
 
             # ---- Layout ----
             "${mod}+b" = "splith";

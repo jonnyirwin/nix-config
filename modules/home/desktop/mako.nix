@@ -28,6 +28,11 @@ in
         layer = "overlay";
         default-timeout = 5000;
 
+        # Dismissed notifications stay recoverable with `makoctl restore`,
+        # bound to Mod+Shift+, in the sway config. mako's default of 5 is
+        # short enough that a busy minute loses the thing you meant to read.
+        max-history = 20;
+
         icons = true;
         max-icon-size = 48;
         markup = true;

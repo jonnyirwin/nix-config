@@ -348,11 +348,14 @@ let
 
     # ---- Session ----
     lock-screen = {
-      runtimeInputs = with pkgs; [ swaylock findutils coreutils ];
+      runtimeInputs = with pkgs; [ swaylock coreutils ];
       text = ''
-        wallpaper=$(find ${lib.escapeShellArg wallpaperDir} -type f \
-          \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' \) 2>/dev/null \
-          | shuf -n 1 || true)
+        # Through wallpaper-pool, not a find of its own: the lock screen honours
+        # jonny.desktop.wallpaper.sources like everything else, so switching a
+        # collection off takes it off the lock screen too. Still a shuffle
+        # rather than the picture currently on the desktop — the point of the
+        # lock screen is that the desktop is not what you are looking at.
+        wallpaper=$(${lib.getExe scripts.wallpaper-pool} | shuf -z -n 1 | tr -d '\0' || true)
 
         if [ -n "$wallpaper" ]; then
           exec swaylock -f --indicator-idle-visible -i "$wallpaper"
@@ -360,6 +363,32 @@ let
 
         # No wallpapers yet — swaylock still locks, using its configured colours.
         exec swaylock -f --indicator-idle-visible
+      '';
+    };
+
+    # The one place that knows what is in the rotation. Sources switched off in
+    # jonny.desktop.wallpaper.sources are pruned here — deleted from the walk,
+    # never from the disk, so switching one back on restores its archive rather
+    # than starting from an empty directory. Anything you put in the pool
+    # yourself is untouched: only the sources' own directories are named.
+    #
+    # Both readers go through this rather than each running its own find: the
+    # rotation below, and lock-screen. They had drifted once already — the lock
+    # screen was still showing APOD pictures from a collection the desktop had
+    # been told to stop using.
+    #
+    # NUL-delimited and sorted: a space in a filename is ordinary and a newline
+    # is at least possible, and a stable order is the whole point of cycling
+    # rather than shuffling.
+    wallpaper-pool = {
+      runtimeInputs = with pkgs; [ findutils coreutils ];
+      text = ''
+        dir="''${1:-${wallpaperDir}}"
+        prune=( ${lib.concatMapStringsSep " " (name: ''-path "$dir/${name}" -prune -o'') disabledSources} )
+
+        find "$dir" "''${prune[@]}" -type f \
+          \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' -o -iname '*.jxl' \) \
+          -print0 2>/dev/null | sort -z
       '';
     };
 
@@ -381,22 +410,8 @@ let
         state="''${XDG_STATE_HOME:-$HOME/.local/state}/wallpaper"
         mkdir -p "$(dirname "$state")"
 
-        # Sources switched off in jonny.desktop.wallpaper.sources are pruned
-        # from the walk rather than deleted, so switching one back on restores
-        # its archive instead of starting from an empty directory. Anything you
-        # put in the pool yourself is untouched by this: only the sources'
-        # own directories are named here.
-        prune=( ${lib.concatMapStringsSep " " (name: ''-path "$dir/${name}" -prune -o'') disabledSources} )
-
-        # NUL-delimited throughout: a space in a filename is ordinary and a
-        # newline is at least possible, and `sort -z` keeps the order stable,
-        # which is the whole point of cycling rather than shuffling.
         read_pool() {
-          mapfile -d "" -t files < <(
-            find "$dir" "''${prune[@]}" -type f \
-              \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' -o -iname '*.jxl' \) \
-              -print0 2>/dev/null | sort -z
-          )
+          mapfile -d "" -t files < <(${lib.getExe scripts.wallpaper-pool} "$dir")
         }
 
         read_pool

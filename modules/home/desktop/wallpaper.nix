@@ -4,9 +4,9 @@
 # modules/home/desktop/scripts.nix fills ~/Pictures/Wallpapers: bing-wallpaper
 # takes Bing's daily photograph, nasa-wallpaper takes NASA's Astronomy Picture
 # of the Day. This timer runs the ones that are switched on, once a day, and
-# then advances the rotation. The lock screen picks up the same directory on
-# its own (see scripts.nix's lock-screen script), so no separate wiring is
-# needed there.
+# then advances the rotation. The lock screen draws from the same pool, through
+# the shared wallpaper-pool script, so a source switched off here disappears
+# from the lock screen too.
 #
 # Deliberately not called wallpaper.service: that name belongs to the transient
 # unit `wallpaper` starts for swaybg, and reusing it would have this oneshot

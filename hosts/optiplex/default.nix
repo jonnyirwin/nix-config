@@ -43,13 +43,12 @@
       enable = true;
       compositor = "sway";
 
-      # The panel is mounted portrait. SDDM runs before Home Manager, so the
-      # greeter rotation is set here to match the session's transform in
-      # hosts/optiplex/home.nix (jonny.desktop.outputs."DP-1".transform).
-      greeter = {
-        output = "DP-1";
-        transform = "90";
-      };
+      # No greeter block: the panel is landscape now, so there is no rotation
+      # to keep in step with hosts/optiplex/home.nix. Leaving greeter.output
+      # null is what keeps SDDM on its stock weston command and keeps the
+      # `video=DP-1:rotate=…` console parameter out of the kernel command line
+      # (modules/nixos/desktop/plymouth.nix), rather than setting each of them
+      # to a "normal" that means the same as absent.
 
       steam.enable = true;
       printing.enable = true;

@@ -4,7 +4,19 @@ let
   cfg = config.jonny.desktop;
   p = config.jonny.theme.palette;
   s = cfg.scripts;
+  k = cfg.keys;
 
+  myLib = import ../../../../lib { inherit lib; };
+
+  # jonny.desktop.keys speaks "Mod+Shift+S"; sway wants "Mod4+Shift+s". Every
+  # hand-chosen binding below goes through here, so the declaration in
+  # actions.nix is the only place a key is written down — the command menu and
+  # the cheatsheet read the same one.
+  bind = myLib.swayBinding;
+
+  # Still needed for the generated families below — focus, window movement,
+  # workspace switching — which are built from a direction or a number rather
+  # than from a named action.
   mod = "Mod4"; # Super
   term = lib.getExe pkgs.kitty;
 
@@ -17,26 +29,14 @@ let
 
   scratchpad = lib.getExe s.scratchpad-toggle;
 
-  # Every scratchpad follows the same shape: an app_id, a size, and the command
-  # that creates it if it is not already running. The window rules in
-  # `window.commands` below key off the same app_id.
-  # `respawn` wraps the command in a loop so quitting the program inside the
-  # scratchpad leaves the window there rather than destroying it.
-  # A command that exits immediately would spin this loop into a fork bomb, so
-  # anything that ran for less than a second earns a pause before the retry.
-  respawn = cmd: "${lib.getExe pkgs.bash} -c 'while true; do start=$SECONDS; ${cmd} || true; if [ $((SECONDS - start)) -lt 1 ]; then sleep 1; fi; done'";
-
-  scratchpads = {
-    "${mod}+m" = { id = "float-mixer"; w = 900; h = 500; cmd = "${term} --class=float-mixer ${lib.getExe pkgs.pulsemixer}"; };
-    "${mod}+t" = { id = "float-btop"; w = 1200; h = 900; cmd = "${term} --class=float-btop ${respawn (lib.getExe pkgs.btop)}"; };
-    "${mod}+n" = { id = "float-notes"; w = 1000; h = 700; cmd = "${term} --class=float-notes nvim ${config.home.homeDirectory}/notes/scratch.md"; };
-    "${mod}+y" = { id = "float-yazi"; w = 1200; h = 800; cmd = "${term} --class=float-yazi ${lib.getExe pkgs.yazi}"; };
-    "${mod}+question" = { id = "float-cheatsheet"; w = 960; h = 640; cmd = "${term} --class=float-cheatsheet ${respawn (lib.getExe s.cheatsheet)}"; };
-  };
-
-  scratchpadBindings = lib.mapAttrs
-    (_: v: "exec ${scratchpad} ${v.id} ${toString v.w} ${toString v.h} ${v.cmd}")
-    scratchpads;
+  # The definitions — app_id, size, and the command that creates the window if
+  # it is not already running — live in jonny.desktop.scratchpads, because the
+  # command menu summons the same windows and should not carry a second copy of
+  # how. The window rules in `window.commands` below key off the same app_ids.
+  scratchpadBindings = lib.mapAttrs'
+    (_: sp: lib.nameValuePair (bind sp.key)
+      "exec ${scratchpad} ${sp.id} ${toString sp.width} ${toString sp.height} ${sp.command}")
+    cfg.scratchpads;
 
   # Mod+1..0 → workspace N, Mod+Shift+1..0 → move container to workspace N.
   workspaceKeys = [ "1" "2" "3" "4" "5" "6" "7" "8" "9" "0" ];
@@ -209,7 +209,9 @@ in
           # Not `always` — a reload should not yank you back to 1.
           { command = "${lib.getExe' pkgs.sway "swaymsg"} workspace number 1"; }
 
-          { command = lib.getExe s.random-wallpaper; always = true; }
+          # `current`, not `next`: a config reload should put the wallpaper
+          # back, not step past it.
+          { command = "${lib.getExe s.wallpaper} current"; always = true; }
           { command = lib.getExe s.clipboard-sync; }
           { command = "${lib.getExe' pkgs.wl-clipboard "wl-paste"} --watch ${lib.getExe pkgs.cliphist} store"; }
 
@@ -247,93 +249,95 @@ in
 
         # This replaces the HM module's default keybinding set outright rather
         # than merging with it — the map below is the complete binding surface.
+        # Names come from jonny.desktop.keys through `bind`, so a rebind is one
+        # edit in actions.nix and the cheatsheet and command menu follow.
         keybindings =
           {
             # ---- Basics ----
-            "${mod}+Return" = "exec ${term}";
-            "${mod}+Shift+q" = "kill";
-            "${mod}+d" = "exec ${menu}";
-            "${mod}+Shift+c" = "reload";
-            "${mod}+Shift+e" = "exec ${lib.getExe s.power-menu}";
-            "${mod}+Shift+x" = "exec ${lib.getExe s.lock-screen}";
-            "${mod}+Tab" = "exec ${lib.getExe s.window-switcher}";
-            "${mod}+Shift+n" = "exec ${lib.getExe s.network-menu}";
-            "${mod}+i" = "exec ${lib.getExe s.idle-inhibitor-toggle}";
-            "${mod}+p" = "exec ${cfg.pomodoro.package}/bin/pomodoro-menu";
-            "${mod}+o" = "exec ${lib.getExe' pkgs.psmisc "killall"} -SIGUSR1 waybar";
+            "${bind k.terminal}" = "exec ${term}";
+            "${bind k.kill}" = "kill";
+            "${bind k.launcher}" = "exec ${menu}";
+            "${bind k.reload}" = "reload";
+            "${bind k.powerMenu}" = "exec ${lib.getExe s.power-menu}";
+            "${bind k.lockScreen}" = "exec ${lib.getExe s.lock-screen}";
+            "${bind k.windowSwitcher}" = "exec ${lib.getExe s.window-switcher}";
+            "${bind k.networkMenu}" = "exec ${lib.getExe s.network-menu}";
+            "${bind k.idleInhibitor}" = "exec ${lib.getExe s.idle-inhibitor-toggle}";
+            "${bind k.pomodoro}" = "exec ${cfg.pomodoro.package}/bin/pomodoro-menu";
+            "${bind k.toggleBar}" = "exec ${lib.getExe' pkgs.psmisc "killall"} -SIGUSR1 waybar";
 
             # Put the most recently expired notification back on screen. mako
             # keeps max-history of them (desktop/mako.nix).
-            "${mod}+Shift+comma" = "exec ${lib.getExe s.notification-replay}";
+            "${bind k.notificationReplay}" = "exec ${lib.getExe s.notification-replay}";
 
             # The command menu is on trial alongside the bindings above, not in
-            # place of them — see the comment on command-menu in scripts.nix.
-            "${mod}+Ctrl+space" = "exec ${lib.getExe s.command-menu}";
+            # place of them — see the comment in desktop/command-menu.nix.
+            "${bind k.commandMenu}" = "exec ${lib.getExe cfg.commandMenu}";
 
             # Clipboard history
-            "${mod}+c" = "exec ${lib.getExe pkgs.cliphist} list | rofi -dmenu -p 'Clipboard' | ${lib.getExe pkgs.cliphist} decode | ${lib.getExe' pkgs.wl-clipboard "wl-copy"}";
+            "${bind k.clipboardHistory}" = "exec ${lib.getExe pkgs.cliphist} list | rofi -dmenu -p 'Clipboard' | ${lib.getExe pkgs.cliphist} decode | ${lib.getExe' pkgs.wl-clipboard "wl-copy"}";
             # Paste PRIMARY (middle-click alternative)
-            "${mod}+Shift+v" = "exec ${lib.getExe' pkgs.wl-clipboard "wl-paste"} -p | ${lib.getExe pkgs.wtype} -";
+            "${bind k.pastePrimary}" = "exec ${lib.getExe' pkgs.wl-clipboard "wl-paste"} -p | ${lib.getExe pkgs.wtype} -";
 
             # ---- Capture and pickers ----
-            "${mod}+s" = "exec ${lib.getExe s.screenshot-region}";
-            "${mod}+Shift+s" = "exec ${lib.getExe s.screenshot-annotate}";
-            "${mod}+period" = "exec ${lib.getExe s.emoji-picker}";
-            "${mod}+Shift+o" = "exec ${lib.getExe s.ocr-region}";
-            "${mod}+Shift+g" = "exec ${lib.getExe s.qr-decode}";
-            "${mod}+Shift+p" = "exec ${lib.getExe s.color-picker}";
-            "${mod}+Shift+r" = "exec ${lib.getExe s.record-toggle}";
+            "${bind k.screenshotRegion}" = "exec ${lib.getExe s.screenshot-region}";
+            "${bind k.screenshotAnnotate}" = "exec ${lib.getExe s.screenshot-annotate}";
+            "${bind k.emojiPicker}" = "exec ${lib.getExe s.emoji-picker}";
+            "${bind k.ocrRegion}" = "exec ${lib.getExe s.ocr-region}";
+            "${bind k.qrDecode}" = "exec ${lib.getExe s.qr-decode}";
+            "${bind k.colorPicker}" = "exec ${lib.getExe s.color-picker}";
+            "${bind k.recordToggle}" = "exec ${lib.getExe s.record-toggle}";
 
             # ---- Audio and media ----
-            "${mod}+Mod1+k" = "exec ${lib.getExe' pkgs.wireplumber "wpctl"} set-volume @DEFAULT_AUDIO_SINK@ 5%+";
-            "${mod}+Mod1+j" = "exec ${lib.getExe' pkgs.wireplumber "wpctl"} set-volume @DEFAULT_AUDIO_SINK@ 5%-";
-            "${mod}+Mod1+m" = "exec ${lib.getExe' pkgs.wireplumber "wpctl"} set-mute @DEFAULT_AUDIO_SINK@ toggle";
-            "${mod}+Mod1+period" = "exec ${lib.getExe pkgs.playerctl} next";
-            "${mod}+Mod1+comma" = "exec ${lib.getExe pkgs.playerctl} previous";
-            "${mod}+Mod1+space" = "exec ${lib.getExe pkgs.playerctl} play-pause";
+            "${bind k.volumeUp}" = "exec ${lib.getExe' pkgs.wireplumber "wpctl"} set-volume @DEFAULT_AUDIO_SINK@ 5%+";
+            "${bind k.volumeDown}" = "exec ${lib.getExe' pkgs.wireplumber "wpctl"} set-volume @DEFAULT_AUDIO_SINK@ 5%-";
+            "${bind k.volumeMute}" = "exec ${lib.getExe' pkgs.wireplumber "wpctl"} set-mute @DEFAULT_AUDIO_SINK@ toggle";
+            "${bind k.mediaNext}" = "exec ${lib.getExe pkgs.playerctl} next";
+            "${bind k.mediaPrevious}" = "exec ${lib.getExe pkgs.playerctl} previous";
+            "${bind k.mediaPlayPause}" = "exec ${lib.getExe pkgs.playerctl} play-pause";
 
             # ---- Brightness ----
             # Not brightnessctl directly: the script falls through to DDC/CI
             # when there is no internal panel, which is every host here but
             # mac and precision.
-            "${mod}+Mod1+l" = "exec ${lib.getExe s.brightness} up";
-            "${mod}+Mod1+h" = "exec ${lib.getExe s.brightness} down";
+            "${bind k.brightnessUp}" = "exec ${lib.getExe s.brightness} up";
+            "${bind k.brightnessDown}" = "exec ${lib.getExe s.brightness} down";
 
             # ---- Layout ----
-            "${mod}+b" = "splith";
-            "${mod}+v" = "splitv";
-            "${mod}+e" = "layout toggle split";
-            "${mod}+f" = "fullscreen";
-            "${mod}+Shift+space" = "floating toggle";
-            "${mod}+space" = "focus mode_toggle";
-            "${mod}+a" = "focus parent";
-            "${mod}+Ctrl+a" = "focus child";
-            "${mod}+r" = "mode resize";
+            "${bind k.splitHorizontal}" = "splith";
+            "${bind k.splitVertical}" = "splitv";
+            "${bind k.toggleSplit}" = "layout toggle split";
+            "${bind k.fullscreen}" = "fullscreen";
+            "${bind k.floatingToggle}" = "floating toggle";
+            "${bind k.focusModeToggle}" = "focus mode_toggle";
+            "${bind k.focusParent}" = "focus parent";
+            "${bind k.focusChild}" = "focus child";
+            "${bind k.resizeMode}" = "mode resize";
 
             # ---- Scratchpad ----
-            "${mod}+Shift+minus" = "move scratchpad";
-            "${mod}+minus" = "scratchpad show";
+            "${bind k.scratchpadMove}" = "move scratchpad";
+            "${bind k.scratchpadShow}" = "scratchpad show";
 
             # ---- Workspaces ----
-            "${mod}+grave" = "workspace back_and_forth";
+            "${bind k.workspaceBackAndForth}" = "workspace back_and_forth";
 
             # ---- Display layout ----
             # Replaces the old resolution-switcher.sh: permanent layout belongs
             # in `jonny.desktop.outputs`, ad-hoc changes go through wdisplays.
-            "${mod}+Shift+d" = "exec ${lib.getExe pkgs.wdisplays}";
+            "${bind k.displayLayout}" = "exec ${lib.getExe pkgs.wdisplays}";
             # Quick rotate of the focused output via a rofi menu. Ephemeral —
             # the permanent default lives in jonny.desktop.outputs.
-            "${mod}+Ctrl+r" = "exec ${lib.getExe s.screen-rotate}";
+            "${bind k.screenRotate}" = "exec ${lib.getExe s.screen-rotate}";
 
             # ---- Wallpaper ----
-            # Re-roll from ~/Pictures/Wallpapers without waiting for the daily
-            # timer. Picks from the whole pool, NASA archive included.
-            "${mod}+w" = "exec ${lib.getExe s.random-wallpaper}";
+            # Step through ~/Pictures/Wallpapers in order, without waiting for
+            # the daily timer.
+            "${bind k.wallpaper}" = "exec ${lib.getExe s.wallpaper} next";
 
             # ---- External ----
             # whisper.cpp lives outside this flake; the binding is a no-op until
             # that checkout exists.
-            "${mod}+semicolon" = "exec ${config.home.homeDirectory}/git/whisper.cpp/voice-input-toggle.sh";
+            "${bind k.voiceInput}" = "exec ${config.home.homeDirectory}/git/whisper.cpp/voice-input-toggle.sh";
           }
           // focusBindings
           // moveBindings

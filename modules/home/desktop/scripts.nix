@@ -8,10 +8,28 @@
 # keybinding that silently does nothing.
 #
 # Reference them from sway/waybar with `lib.getExe`, never by path.
+#
+# Convention: a script that was *cancelled* — Escape out of its rofi, Escape
+# out of slurp's region drag — exits non-zero, the same as rofi and slurp
+# themselves do. Sway ignores the status of an `exec` binding, so this costs
+# nothing there, but command-menu reads it to tell "you changed your mind"
+# from "that is done", and so knows whether to stay open.
 
 let
   cfg = config.jonny.desktop;
   p = config.jonny.theme.palette;
+
+  # The cheatsheet prints these rather than restating them; jonny.desktop.keys
+  # is the same declaration the compositor binds. See modules/home/desktop/
+  # actions.nix.
+  k = cfg.keys;
+
+  # A wallpaper source is named after both its fetcher script
+  # (<name>-wallpaper) and its subdirectory of wallpaperDir, so the toggles in
+  # jonny.desktop.wallpaper.sources are read through without a second table
+  # mapping one to the other. See modules/home/desktop/wallpaper.nix.
+  enabledSources = lib.attrNames (lib.filterAttrs (_: on: on) cfg.wallpaper.sources);
+  disabledSources = lib.attrNames (lib.filterAttrs (_: on: !on) cfg.wallpaper.sources);
 
   wallpaperDir = "${config.home.homeDirectory}/Pictures/Wallpapers";
 
@@ -174,9 +192,11 @@ let
           | jq -r 'recurse(.nodes[]?, .floating_nodes[]?) | select(.pid? and .name?) | "\(.id)\t\(.app_id // .window_properties.class // "unknown")\t\(.name)"' \
           | rofi -dmenu -i -p "Window" -format 's')
 
-        if [ -n "$selected" ]; then
-          swaymsg "[con_id=$(echo "$selected" | cut -f1)]" focus
-        fi
+        # Non-zero on an empty pick, i.e. Escape. See the convention at the
+        # top of this file.
+        [ -n "$selected" ] || exit 1
+
+        swaymsg "[con_id=$(echo "$selected" | cut -f1)]" focus
       '';
     };
 
@@ -197,7 +217,7 @@ let
 
         choice=$(printf '%s\n' "''${options[@]}" \
           | rofi -dmenu -i -p "Rotate screen" -theme-str 'window {width: 300px;}')
-        [ -n "$choice" ] || exit 0
+        [ -n "$choice" ] || exit 1
 
         # "Landscape (flipped)" must be tested before the bare "Landscape" glob.
         case "$choice" in
@@ -205,7 +225,7 @@ let
           *"Portrait (right)"*)    transform="90" ;;
           *"Portrait (left)"*)     transform="270" ;;
           *Landscape*)             transform="normal" ;;
-          *)                       exit 0 ;;
+          *)                       exit 1 ;;
         esac
 
         # Rotate the focused output; fall back to the first active one.
@@ -240,7 +260,9 @@ let
           "💤 Suspend")  systemctl suspend ;;
           "🔄 Reboot")   systemctl reboot ;;
           "⏻ Shutdown") systemctl poweroff ;;
-          *)             exit 0 ;;
+          # Cancel — the explicit entry, or Escape. Non-zero so a caller can
+          # tell it apart from having actually done something.
+          *)             exit 1 ;;
         esac
       '';
     };
@@ -318,7 +340,8 @@ let
             nmcli device wifi connect "$ssid" \
               || notify-send -u critical "Wi-Fi" "Could not connect to $ssid"
             ;;
-          *) exit 0 ;;
+          # Cancelled, or an empty pick. See the convention at the top.
+          *) exit 1 ;;
         esac
       '';
     };
@@ -340,18 +363,43 @@ let
       '';
     };
 
-    random-wallpaper = {
-      runtimeInputs = with pkgs; [ findutils coreutils procps systemd ];
+    # Walks the pool in filename order rather than picking at random. Random
+    # meant the same picture twice in a row often enough to be irritating, and
+    # no way to go back to the one you just skipped past.
+    #
+    #   wallpaper next     the binding, and the daily timer
+    #   wallpaper prev     the one you just went past
+    #   wallpaper current  re-apply without advancing, for sway's startup
+    wallpaper = {
+      runtimeInputs = with pkgs; [ findutils coreutils procps systemd imagemagick sway jq ];
       text = ''
-        dir="''${1:-${wallpaperDir}}"
+        mode="''${1:-next}"
+        dir="''${2:-${wallpaperDir}}"
 
-        pick_one() {
-          find "$dir" -type f \
-            \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' -o -iname '*.jxl' \) -print0 2>/dev/null \
-            | shuf -z -n 1 | tr -d '\0' || true
+        # Which picture is showing outlives the session, so a reboot carries on
+        # through the pool rather than starting from the top every time.
+        state="''${XDG_STATE_HOME:-$HOME/.local/state}/wallpaper"
+        mkdir -p "$(dirname "$state")"
+
+        # Sources switched off in jonny.desktop.wallpaper.sources are pruned
+        # from the walk rather than deleted, so switching one back on restores
+        # its archive instead of starting from an empty directory. Anything you
+        # put in the pool yourself is untouched by this: only the sources'
+        # own directories are named here.
+        prune=( ${lib.concatMapStringsSep " " (name: ''-path "$dir/${name}" -prune -o'') disabledSources} )
+
+        # NUL-delimited throughout: a space in a filename is ordinary and a
+        # newline is at least possible, and `sort -z` keeps the order stable,
+        # which is the whole point of cycling rather than shuffling.
+        read_pool() {
+          mapfile -d "" -t files < <(
+            find "$dir" "''${prune[@]}" -type f \
+              \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' -o -iname '*.jxl' \) \
+              -print0 2>/dev/null | sort -z
+          )
         }
 
-        pick=$(pick_one)
+        read_pool
 
         # An empty directory used to mean no wallpaper until the next timer
         # firing at 06:00 UTC — on a fresh install, or after the 30-day prune
@@ -360,17 +408,79 @@ let
         # at login on machines that are offline then, where a failed fetch must
         # not take the whole script down with it under `set -e`.
         #
-        # Only for the default directory: nasa-wallpaper writes into
-        # wallpaperDir/nasa regardless of what was asked for here, so
-        # bootstrapping an explicitly-passed directory would fetch a picture
-        # that the re-pick below could not see.
-        if [ -z "$pick" ] && [ "$dir" = ${lib.escapeShellArg wallpaperDir} ]; then
-          ${lib.getExe scripts.nasa-wallpaper} || true
-          pick=$(pick_one)
+        # Only for the default directory: a fetcher writes into its own
+        # subdirectory of wallpaperDir regardless of what was asked for here,
+        # so bootstrapping an explicitly-passed directory would fetch a picture
+        # that the re-read below could not see.
+        if [ ''${#files[@]} -eq 0 ] && [ "$dir" = ${lib.escapeShellArg wallpaperDir} ]; then
+          ${if enabledSources == [ ]
+            then ": # every source is switched off; nothing to fetch"
+            else lib.concatMapStringsSep "\n          "
+              (name: "${lib.getExe scripts."${name}-wallpaper"} || true")
+              enabledSources}
+          read_pool
         fi
 
         # Still nothing; leave whatever swaybg is already doing alone.
-        [ -n "$pick" ] || exit 0
+        [ ''${#files[@]} -gt 0 ] || exit 0
+
+        count=''${#files[@]}
+        current=$(cat "$state" 2>/dev/null || true)
+
+        # By path, not by a stored index: adding or deleting a file shifts
+        # every index after it, and the pool changes under us daily.
+        index=-1
+        for i in "''${!files[@]}"; do
+          if [ "''${files[$i]}" = "$current" ]; then
+            index=$i
+            break
+          fi
+        done
+
+        if [ "$index" -lt 0 ]; then
+          # Nothing showing yet, or the file that was went away.
+          case "$mode" in
+            prev) target=$((count - 1)) ;;
+            *)    target=0 ;;
+          esac
+        else
+          case "$mode" in
+            current) target=$index ;;
+            next)    target=$(( (index + 1) % count )) ;;
+            prev)    target=$(( (index - 1 + count) % count )) ;;
+            *)       echo "usage: wallpaper [next|prev|current] [dir]" >&2; exit 2 ;;
+          esac
+        fi
+
+        pick="''${files[$target]}"
+        printf '%s' "$pick" > "$state"
+
+        # swaybg's `fill` scales until the image covers the output and crops
+        # whatever hangs over. That is right when the two shapes roughly agree
+        # and badly wrong when they do not: this panel is rotated into portrait,
+        # so a 16:9 photograph filled onto it shows about a third of its width
+        # — which is how a good picture ends up looking like a bad one.
+        #
+        # So: fill when the orientations agree, fit when they disagree, on a
+        # background drawn from the palette so the bars read as framing rather
+        # than as something having gone wrong. Either measurement failing just
+        # falls back to the old behaviour.
+        fit=fill
+        read -r img_w img_h < <(identify -format '%w %h' "''${pick}[0]" 2>/dev/null) || true
+        read -r out_w out_h < <(
+          swaymsg -t get_outputs 2>/dev/null | jq -r '
+            map(select(.active))[0]
+            | if (.transform // "normal") | test("^(90|270)")
+              then "\(.current_mode.height) \(.current_mode.width)"
+              else "\(.current_mode.width) \(.current_mode.height)"
+              end' 2>/dev/null
+        ) || true
+
+        if [ -n "''${img_w:-}" ] && [ -n "''${out_w:-}" ] && [ "''${out_w:-0}" -gt 0 ]; then
+          img_landscape=$([ "$img_w" -ge "$img_h" ] && echo yes || echo no)
+          out_landscape=$([ "$out_w" -ge "$out_h" ] && echo yes || echo no)
+          if [ "$img_landscape" != "$out_landscape" ]; then fit=fit; fi
+        fi
 
         # swaybg has to outlive whoever started it, and `swaybg & disown` does
         # not achieve that: disown clears the shell's job table but leaves the
@@ -382,8 +492,8 @@ let
         # because sway's exec puts swaybg in the long-lived session scope.
         #
         # A transient unit is owned by the user manager rather than by us, so
-        # it survives its launcher no matter which of the three callers
-        # (sway startup, Mod+w, the timer) started it.
+        # it survives its launcher no matter which of the callers (sway
+        # startup, Mod+w, the menu, the timer) started it.
         #
         # An absolute path, not runtimeInputs: the command is executed by the
         # systemd user manager, which does not inherit this script's PATH.
@@ -402,7 +512,7 @@ let
         # config.startup — so at first login this script runs while the
         # manager's environment is still empty, and a transient unit would
         # inherit no WAYLAND_DISPLAY and fail to connect. Our *own* environment
-        # always has it, whichever of the three callers we are.
+        # always has it, whichever of the callers we are.
         #
         # Not `[ -n ... ] && setenv+=(...)`: under `set -e` a false test on the
         # last command of the script would exit nonzero.
@@ -416,7 +526,7 @@ let
 
         systemd-run --user --quiet --collect --unit=wallpaper \
           "''${setenv[@]}" \
-          ${lib.getExe pkgs.swaybg} -i "$pick" -m fill
+          ${lib.getExe pkgs.swaybg} -i "$pick" -m "$fit" -c ${lib.escapeShellArg (lib.removePrefix "#" p.bg)}
       '';
     };
 
@@ -424,8 +534,39 @@ let
     # this with random-wallpaper), so this script stays a plain producer that
     # both the desktop background and lock-screen pickers above pick up on
     # their own since it drops the image straight into wallpaperDir.
-    nasa-wallpaper = {
+    # Bing's daily photograph. A better wallpaper source than APOD by some
+    # distance: it is chosen as a picture rather than as astronomy, it needs no
+    # API key, and `_UHD` is 3840x2160 every day rather than whatever the
+    # telescope happened to produce.
+    bing-wallpaper = {
       runtimeInputs = with pkgs; [ curl jq findutils coreutils ];
+      text = ''
+        dir=${lib.escapeShellArg "${wallpaperDir}/bing"}
+        mkdir -p "$dir"
+
+        # Eight days is as far back as the archive goes. Fetching the lot and
+        # skipping what is already here means a machine that was off for a week
+        # catches up instead of losing those days for good.
+        json=$(curl -fsS 'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=8&mkt=en-GB')
+
+        printf '%s' "$json" \
+          | jq -r '.images[] | "\(.enddate)\t\(.urlbase)"' \
+          | while IFS=$'\t' read -r date urlbase; do
+              dest="$dir/bing-$date.jpg"
+              if [ -e "$dest" ]; then continue; fi
+
+              # A partial download would otherwise sit there forever looking
+              # like a file we already have.
+              curl -fsSL "https://www.bing.com''${urlbase}_UHD.jpg" -o "$dest" || rm -f "$dest"
+            done
+
+        # Same month of history as the APOD directory, for the same reason.
+        find "$dir" -type f -name 'bing-*.jpg' -mtime +30 -delete
+      '';
+    };
+
+    nasa-wallpaper = {
+      runtimeInputs = with pkgs; [ curl jq findutils coreutils imagemagick ];
       text = ''
         dir=${lib.escapeShellArg "${wallpaperDir}/nasa"}
         mkdir -p "$dir"
@@ -449,6 +590,30 @@ let
 
         url=$(printf '%s' "$json" | jq -r '.hdurl // .url')
         curl -fsSL "$url" -o "$dest"
+
+        # APOD is an astronomy feed, not a wallpaper feed. Plenty of days are
+        # diagrams or thousand-pixel crops that a panel this size can only
+        # upscale into mush — nine of the twenty-two already downloaded are
+        # below the floor below. Measure what arrived and throw away what will
+        # not hold up, rather than leaving it to turn up in the rotation.
+        #
+        # By long and short edge rather than a single number in both: the
+        # picture is scaled to the screen's long edge or its short one
+        # depending on which way round the two are, so a 2048x1152 photograph
+        # is perfectly good here and a flat 1400-in-both-directions floor
+        # would have thrown it out along with the genuinely small ones.
+        read -r width height < <(identify -format '%w %h' "''${dest}[0]" 2>/dev/null) || true
+        long=''${width:-0}
+        short=''${height:-0}
+        if [ "$short" -gt "$long" ]; then
+          long=''${height:-0}
+          short=''${width:-0}
+        fi
+
+        if [ "$long" -lt 1920 ] || [ "$short" -lt 1080 ]; then
+          rm -f "$dest"
+          exit 0
+        fi
 
         # APOD updates once a day; a month of history is plenty of rotation
         # variety without the directory growing forever.
@@ -531,7 +696,7 @@ let
         selection=$(printf '%s\n' "$sinks" \
           | rofi -dmenu -i -p "Audio Output" -theme-str 'window {width: 400px;}')
 
-        [ -n "$selection" ] || exit 0
+        [ -n "$selection" ] || exit 1
 
         id=''${selection%%:*}
         name=''${selection#*: }
@@ -548,17 +713,21 @@ let
     # i2c bus behind the video cable; ddcutil speaks it. Needs the i2c group
     # and the i2c-dev module, both from modules/nixos/desktop/ddc.nix.
     brightness = {
-      runtimeInputs = with pkgs; [ brightnessctl ddcutil gnused libnotify coreutils ];
+      runtimeInputs = with pkgs; [ brightnessctl ddcutil gnused gawk libnotify coreutils procps util-linux ];
       text = ''
         case "''${1:-up}" in
-          up)   sign="+" ;;
-          down) sign="-" ;;
+          up)   sign="+"; delta=1 ;;
+          down) sign="-"; delta=-1 ;;
           *)    echo "usage: brightness up|down [step]" >&2; exit 2 ;;
         esac
-        step=''${2:-5}
+        # 10, not 5: a DDC round trip is slow enough that fine-grained steps
+        # are no pleasure to hold down, and ten points is a visible change on
+        # a single press.
+        step=''${2:-10}
 
         # An internal panel is both the likelier target and the instant one, so
-        # it wins when the machine has one.
+        # it wins when the machine has one. waybar's built-in backlight module
+        # follows the sysfs device, so nothing needs telling.
         for panel in /sys/class/backlight/*; do
           if [ -e "$panel" ]; then
             brightnessctl set "''${step}%''${sign}" >/dev/null
@@ -566,26 +735,144 @@ let
           fi
         done
 
+        run="''${XDG_RUNTIME_DIR:-/tmp}"
+        buses="$run/ddc-buses"
+        level="$run/ddc-brightness"
+        pending="$run/ddc-brightness.pending"
+
         # `ddcutil detect` probes every i2c bus and takes the better part of a
         # second — far too slow for a key held down — so the buses are resolved
         # once per session. Delete the cache after plugging a monitor in.
-        cache="''${XDG_RUNTIME_DIR:-/tmp}/ddc-buses"
-        if [ ! -s "$cache" ]; then
+        if [ ! -s "$buses" ]; then
           ddcutil detect --brief 2>/dev/null \
-            | sed -n 's|.*/dev/i2c-\([0-9][0-9]*\).*|\1|p' > "$cache" || true
+            | sed -n 's|.*/dev/i2c-\([0-9][0-9]*\).*|\1|p' > "$buses" || true
         fi
 
-        if [ ! -s "$cache" ]; then
+        if [ ! -s "$buses" ]; then
           notify-send "Brightness" "No internal panel, and no DDC/CI display responded"
           exit 1
         fi
 
-        # --noverify skips the read-back after the write, halving the round
-        # trips. A monitor that ignores VCP 10 is skipped rather than fatal:
-        # the others should still move.
-        while read -r bus; do
-          ddcutil --bus "$bus" --noverify setvcp 10 "$sign" "$step" >/dev/null 2>&1 || true
-        done < "$cache"
+        # A DDC round trip takes long enough that pressing the key twice starts
+        # the second process before the first has finished. Each one used to
+        # read the cached level, add its own step and write the result back, so
+        # presses raced: two would read the same starting value and one would
+        # overwrite the other, and because the writes landed out of order the
+        # level wandered upward as readily as down however the key was held.
+        #
+        # Presses are queued as a signed number of points instead, and exactly
+        # one process applies them. That fixes the race and collapses a flurry
+        # of presses into a single write, which is also the only way holding
+        # the key can keep up with a bus this slow.
+        exec 9>"$run/ddc-brightness.queue.lock"
+        exec 8>"$run/ddc-brightness.apply.lock"
+
+        queue_add() {
+          local queued
+          flock 9
+          queued=$(cat "$pending" 2>/dev/null || echo 0)
+          printf '%s\n' "$((queued + $1))" > "$pending"
+          flock -u 9
+        }
+
+        queue_take() {
+          local queued
+          flock 9
+          queued=$(cat "$pending" 2>/dev/null || echo 0)
+          printf '0\n' > "$pending"
+          flock -u 9
+          printf '%s' "$queued"
+        }
+
+        queue_add "$((delta * step))"
+
+        # Losing this race is not a failure: whoever holds the lock re-reads the
+        # queue after every write, so the step just added is already accounted
+        # for and this press can simply leave.
+        flock -n 8 || exit 0
+
+        while true; do
+          amount=$(queue_take)
+          if [ "$amount" -eq 0 ]; then break; fi
+
+          # Reading the level back over i2c is as slow as detection, so the
+          # current value is cached and only the first press after a login pays
+          # for the read. Setting an absolute value rather than stepping
+          # relatively is what keeps that cache honest — and what lets the bar
+          # show a number at all.
+          if [ -s "$level" ]; then
+            current=$(cat "$level")
+          else
+            current=$(ddcutil --bus "$(head -1 "$buses")" getvcp 10 --brief 2>/dev/null \
+              | awk '{print $4}') || true
+            [ -n "''${current:-}" ] || current=50
+          fi
+
+          new=$((current + amount))
+          if [ "$new" -gt 100 ]; then new=100; fi
+          if [ "$new" -lt 0 ]; then new=0; fi
+          if [ "$new" -eq "$current" ]; then continue; fi
+
+          # Verification (a read-back after the write) is left on deliberately,
+          # at the cost of a second round trip. Plenty of monitors advertise
+          # feature 10 in their capabilities and then quietly decline to act on
+          # it — anything with an eco or dynamic-contrast mode engaged, for one
+          # — and without the check the level cached below would drift away
+          # from what the screen is actually doing, putting a number on the bar
+          # that is simply untrue.
+          took=0
+          while read -r bus; do
+            if ddcutil --bus "$bus" setvcp 10 "$new" >/dev/null 2>&1; then
+              took=1
+            fi
+          done < "$buses"
+
+          if [ "$took" = 0 ]; then
+            notify-send "Brightness" "Display would not accept $new% over DDC/CI"
+            exit 1
+          fi
+
+          printf '%s\n' "$new" > "$level"
+
+          # Nudge the bar rather than making it poll a bus this slow.
+          pkill -RTMIN+11 waybar || true
+        done
+      '';
+    };
+
+    # The bar's brightness pill, for displays that only answer over DDC/CI.
+    # Silent — and so hidden, waybar drops a custom module whose text is empty
+    # — on a machine with an internal panel, where the built-in backlight
+    # module has it covered instead.
+    brightness-status = {
+      runtimeInputs = with pkgs; [ ddcutil gnused gawk coreutils ];
+      text = ''
+        for panel in /sys/class/backlight/*; do
+          if [ -e "$panel" ]; then exit 0; fi
+        done
+
+        buses="''${XDG_RUNTIME_DIR:-/tmp}/ddc-buses"
+        level="''${XDG_RUNTIME_DIR:-/tmp}/ddc-brightness"
+
+        if [ ! -s "$buses" ]; then
+          ddcutil detect --brief 2>/dev/null \
+            | sed -n 's|.*/dev/i2c-\([0-9][0-9]*\).*|\1|p' > "$buses" || true
+        fi
+
+        # No DDC display either: this host has no brightness to show.
+        [ -s "$buses" ] || exit 0
+
+        if [ -s "$level" ]; then
+          value=$(cat "$level")
+        else
+          value=$(ddcutil --bus "$(head -1 "$buses")" getvcp 10 --brief 2>/dev/null \
+            | awk '{print $4}') || true
+          [ -n "''${value:-}" ] || exit 0
+          printf '%s\n' "$value" > "$level"
+        fi
+
+        printf '{"text":"%s","percentage":%s,"tooltip":"Brightness %s%%"}\n' \
+          "$value" "$value" "$value"
       '';
     };
 
@@ -672,7 +959,9 @@ let
           # %b (not %s) for the colour variables: they hold literal \033[…
           # escapes that need interpreting. Keeping them out of the format
           # string itself is what satisfies shellcheck's SC2059.
-          key()    { printf '  %b%b%-22s%b' "$LAVENDER" "$BOLD" "$1" "$RESET"; }
+          # 24, not 22: the composite rows now spell both keys out in full
+          # ("Mod+Alt+K / Mod+Alt+J") rather than abbreviating the second.
+          key()    { printf '  %b%b%-24s%b' "$LAVENDER" "$BOLD" "$1" "$RESET"; }
           desc()   { printf '%b%s%b\n' "$TEXT" "$1" "$RESET"; }
           sep()    { printf '%b  %-40s%b\n' "$SURFACE" "$(printf '─%.0s' {1..44})" "$RESET"; }
           header() { printf '\n%b%b  %s%b\n' "$ACCENT" "$BOLD" "$1" "$RESET"; sep; }
@@ -681,60 +970,60 @@ let
           printf '%b%b  Sway Keybindings%b  %b(Mod = Super)%b\n' "$BLUE" "$BOLD" "$RESET" "$SUBTEXT" "$RESET"
 
           header "Basics"
-          key "Mod+Return"      ; desc "Terminal"
-          key "Mod+Shift+Q"     ; desc "Kill window"
-          key "Mod+D"           ; desc "App launcher"
-          key "Mod+Tab"         ; desc "Window switcher"
-          key "Mod+C"           ; desc "Clipboard history"
-          key "Mod+;"           ; desc "Voice input toggle"
-          key "Mod+Shift+V"     ; desc "Paste PRIMARY selection"
-          key "Mod+Shift+C"     ; desc "Reload config"
-          key "Mod+Shift+E"     ; desc "Power menu"
-          key "Mod+Shift+N"     ; desc "Network menu"
-          key "Mod+Shift+X"     ; desc "Lock screen"
-          key "Mod+I"           ; desc "Idle inhibitor toggle"
-          key "Mod+O"           ; desc "Toggle waybar"
+          key '${k.terminal}'      ; desc "Terminal"
+          key '${k.kill}'     ; desc "Kill window"
+          key '${k.launcher}'           ; desc "App launcher"
+          key '${k.windowSwitcher}'         ; desc "Window switcher"
+          key '${k.clipboardHistory}'           ; desc "Clipboard history"
+          key '${k.voiceInput}'           ; desc "Voice input toggle"
+          key '${k.pastePrimary}'     ; desc "Paste PRIMARY selection"
+          key '${k.reload}'     ; desc "Reload config"
+          key '${k.powerMenu}'     ; desc "Power menu"
+          key '${k.networkMenu}'     ; desc "Network menu"
+          key '${k.lockScreen}'     ; desc "Lock screen"
+          key '${k.idleInhibitor}'           ; desc "Idle inhibitor toggle"
+          key '${k.toggleBar}'           ; desc "Toggle waybar"
 
           header "Apps & Scripts"
-          key "Mod+P"           ; desc "Pomodoro timer"
-          key "Mod+."           ; desc "Emoji picker"
-          key "Mod+Shift+O"     ; desc "OCR region → clipboard"
-          key "Mod+Shift+P"     ; desc "Colour picker → clipboard"
-          key "Mod+S"           ; desc "Screenshot region → clipboard"
-          key "Mod+Shift+S"     ; desc "Screenshot (flameshot + annotations)"
-          key "Mod+Shift+R"     ; desc "Toggle screen recording"
-          key "Mod+Shift+D"     ; desc "Display layout (wdisplays)"
-          key "Mod+Ctrl+R"      ; desc "Rotate screen (rofi menu)"
-          key "Mod+W"           ; desc "Random wallpaper"
-          key "Mod+Shift+G"     ; desc "Scan QR code → clipboard"
-          key "Mod+Shift+,"     ; desc "Replay last notification"
-          key "Mod+Ctrl+Space"  ; desc "Command menu (everything, nested)"
+          key '${k.pomodoro}'           ; desc "Pomodoro timer"
+          key '${k.emojiPicker}'           ; desc "Emoji picker"
+          key '${k.ocrRegion}'     ; desc "OCR region → clipboard"
+          key '${k.colorPicker}'     ; desc "Colour picker → clipboard"
+          key '${k.screenshotRegion}'           ; desc "Screenshot region → clipboard"
+          key '${k.screenshotAnnotate}'     ; desc "Screenshot (flameshot + annotations)"
+          key '${k.recordToggle}'     ; desc "Toggle screen recording"
+          key '${k.displayLayout}'     ; desc "Display layout (wdisplays)"
+          key '${k.screenRotate}'      ; desc "Rotate screen (rofi menu)"
+          key '${k.wallpaper}'           ; desc "Next wallpaper"
+          key '${k.qrDecode}'     ; desc "Scan QR code → clipboard"
+          key '${k.notificationReplay}'     ; desc "Replay last notification"
+          key '${k.commandMenu}'  ; desc "Command menu (everything, nested)"
 
           header "Scratchpads"
-          key "Mod+M"           ; desc "Pulsemixer (audio mixer)"
-          key "Mod+T"           ; desc "btop (system monitor)"
-          key "Mod+N"           ; desc "Scratch notes"
-          key "Mod+Y"           ; desc "Yazi (file manager)"
-          key "Mod+?"           ; desc "This cheatsheet"
-          key "Mod+-"           ; desc "Cycle scratchpad windows"
-          key "Mod+Shift+-"     ; desc "Send window to scratchpad"
+          key '${k.scratchpadMixer}'           ; desc "Pulsemixer (audio mixer)"
+          key '${k.scratchpadBtop}'           ; desc "btop (system monitor)"
+          key '${k.scratchpadNotes}'           ; desc "Scratch notes"
+          key '${k.scratchpadYazi}'           ; desc "Yazi (file manager)"
+          key '${k.scratchpadCheatsheet}'           ; desc "This cheatsheet"
+          key '${k.scratchpadShow}'           ; desc "Cycle scratchpad windows"
+          key '${k.scratchpadMove}'     ; desc "Send window to scratchpad"
 
           header "Audio"
-          key "Mod+Alt+K / J"   ; desc "Volume up / down"
-          key "Mod+Alt+M"       ; desc "Mute toggle"
-          key "Mod+Alt+."       ; desc "Next track"
-          key "Mod+Alt+,"       ; desc "Previous track"
-          key "Mod+Alt+Space"   ; desc "Play / pause"
+          key '${k.volumeUp} / ${k.volumeDown}'   ; desc "Volume up / down"
+          key '${k.volumeMute}'       ; desc "Mute toggle"
+          key '${k.mediaNext}'       ; desc "Next track"
+          key '${k.mediaPrevious}'       ; desc "Previous track"
+          key '${k.mediaPlayPause}'   ; desc "Play / pause"
 
           header "Brightness"
-          key "Mod+Alt+L / H"   ; desc "Brightness up / down"
+          key '${k.brightnessUp} / ${k.brightnessDown}'   ; desc "Brightness up / down"
 
           header "Focus"
           key "Mod+H/J/K/L"     ; desc "Focus left / down / up / right"
           key "Mod+Arrows"      ; desc "Focus (arrow keys)"
-          key "Mod+A"           ; desc "Focus parent container"
-          key "Mod+Ctrl+A"      ; desc "Focus child container"
-          key "Mod+Space"       ; desc "Toggle focus: tiling ↔ floating"
+          key '${k.focusParent}'           ; desc "Focus parent container"
+          key '${k.focusChild}'      ; desc "Focus child container"
+          key '${k.focusModeToggle}'       ; desc "Toggle focus: tiling ↔ floating"
 
           header "Move Windows"
           key "Mod+Shift+H/J/K/L" ; desc "Move window"
@@ -743,136 +1032,31 @@ let
           header "Workspaces"
           key "Mod+1–0"         ; desc "Switch to workspace"
           key "Mod+Shift+1–0"   ; desc "Move window to workspace"
-          key "Mod+\`"          ; desc "Back and forth"
+          key '${k.workspaceBackAndForth}'          ; desc "Back and forth"
 
           header "Layout"
-          key "Mod+F"           ; desc "Fullscreen"
-          key "Mod+Shift+Space" ; desc "Toggle floating"
-          key "Mod+B"           ; desc "Split horizontal"
-          key "Mod+V"           ; desc "Split vertical"
-          key "Mod+E"           ; desc "Toggle split"
-          key "Mod+R"           ; desc "Resize mode  (then H/J/K/L or arrows)"
+          key '${k.fullscreen}'           ; desc "Fullscreen"
+          key '${k.floatingToggle}' ; desc "Toggle floating"
+          key '${k.splitHorizontal}'           ; desc "Split horizontal"
+          key '${k.splitVertical}'           ; desc "Split vertical"
+          key '${k.toggleSplit}'           ; desc "Toggle split"
+          key '${k.resizeMode}'           ; desc "Resize mode  (then H/J/K/L or arrows)"
 
           printf '\n%b  Q to close%b\n\n' "$SUBTEXT" "$RESET"
           } | less -R
         '';
     };
   };
-  # ---- Command menu ----
-  # Omarchy 4's one idea worth borrowing wholesale: a single entry point that
-  # nests every desktop command, instead of a keybinding per action and a
-  # cheatsheet to remember them by.
-  #
-  # Deliberately additive. Every binding this fronts still works on its own
-  # key, and the launcher, power menu and network menu are untouched — this is
-  # a second door on the same rooms, kept separate so it can be dropped by
-  # deleting one keybinding if it does not earn its place.
-  #
-  # Defined out here rather than inside `scripts` because it refers to the
-  # other scripts by store path, which would be a cycle in there.
-  commandMenu = mkScript "command-menu" {
-    runtimeInputs = with pkgs; [ rofi cliphist wl-clipboard pavucontrol wdisplays coreutils ];
-    text = ''
-      # -no-custom: every entry is a known command, so a typo should filter to
-      # nothing rather than run itself.
-      pick() {
-        rofi -dmenu -i -no-custom -p "$1" -theme-str 'window {width: 520px;}'
-      }
-
-      # Escape at any level leaves entirely; "Back" is the way up one.
-      while true; do
-        case "$(printf '%s\n' \
-          Apps Windows Clipboard Capture Audio Display \
-          Network Notifications Wallpaper Power | pick Command)" in
-
-          Apps)    exec rofi -show drun -show-icons ;;
-          Windows) exec ${lib.getExe scripts.window-switcher} ;;
-          Network) exec ${lib.getExe scripts.network-menu} ;;
-
-          Clipboard)
-            entry=$(cliphist list | rofi -dmenu -i -p Clipboard) || exit 0
-            printf '%s' "$entry" | cliphist decode | wl-copy
-            exit 0
-            ;;
-
-          Capture)
-            case "$(printf '%s\n' \
-              'Screenshot to clipboard' 'Screenshot and annotate' \
-              'Toggle screen recording' 'OCR region' 'Scan QR code' \
-              'Pick colour' 'Emoji' Back | pick Capture)" in
-              'Screenshot to clipboard')  exec ${lib.getExe scripts.screenshot-region} ;;
-              'Screenshot and annotate')  exec ${lib.getExe scripts.screenshot-annotate} ;;
-              'Toggle screen recording')  exec ${lib.getExe scripts.record-toggle} ;;
-              'OCR region')               exec ${lib.getExe scripts.ocr-region} ;;
-              'Scan QR code')             exec ${lib.getExe scripts.qr-decode} ;;
-              'Pick colour')              exec ${lib.getExe scripts.color-picker} ;;
-              Emoji)                      exec ${lib.getExe scripts.emoji-picker} ;;
-              *)                          continue ;;
-            esac
-            ;;
-
-          Audio)
-            case "$(printf '%s\n' 'Output device' Mixer Back | pick Audio)" in
-              'Output device') exec ${lib.getExe scripts.audio-switch} ;;
-              Mixer)           exec pavucontrol ;;
-              *)               continue ;;
-            esac
-            ;;
-
-          Display)
-            case "$(printf '%s\n' \
-              'Arrange outputs' 'Rotate output' \
-              'Brightness up' 'Brightness down' Back | pick Display)" in
-              'Arrange outputs')  exec wdisplays ;;
-              'Rotate output')    exec ${lib.getExe scripts.screen-rotate} ;;
-              'Brightness up')    exec ${lib.getExe scripts.brightness} up ;;
-              'Brightness down')  exec ${lib.getExe scripts.brightness} down ;;
-              *)                  continue ;;
-            esac
-            ;;
-
-          Notifications)
-            case "$(printf '%s\n' 'Replay last' 'Replay last ten' Back | pick Notifications)" in
-              'Replay last')      exec ${lib.getExe scripts.notification-replay} ;;
-              'Replay last ten')  exec ${lib.getExe scripts.notification-replay} 10 ;;
-              *)                  continue ;;
-            esac
-            ;;
-
-          Wallpaper)
-            case "$(printf '%s\n' Random 'NASA picture of the day' Back | pick Wallpaper)" in
-              Random)                     exec ${lib.getExe scripts.random-wallpaper} ;;
-              'NASA picture of the day')  exec ${lib.getExe scripts.nasa-wallpaper} ;;
-              *)                          continue ;;
-            esac
-            ;;
-
-          Power)
-            case "$(printf '%s\n' 'Power menu' 'Lock screen' 'Idle inhibitor' Back | pick Power)" in
-              'Power menu')      exec ${lib.getExe scripts.power-menu} ;;
-              'Lock screen')     exec ${lib.getExe scripts.lock-screen} ;;
-              'Idle inhibitor')  exec ${lib.getExe scripts.idle-inhibitor-toggle} ;;
-              *)                 continue ;;
-            esac
-            ;;
-
-          *) exit 0 ;;
-        esac
-      done
-    '';
-  };
-
-  allScripts = scripts // { command-menu = commandMenu; };
 in
 {
   options.jonny.desktop.scripts = lib.mkOption {
     type = lib.types.attrsOf lib.types.package;
     readOnly = true;
-    default = allScripts;
+    default = scripts;
     description = "Desktop helper scripts, referenced by sway and waybar via lib.getExe.";
   };
 
   config = lib.mkIf cfg.enable {
-    home.packages = lib.attrValues allScripts;
+    home.packages = lib.attrValues scripts;
   };
 }

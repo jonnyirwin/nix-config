@@ -55,4 +55,47 @@ rec {
 
   # "#cba6f7" -> "cba6f7". swaylock and a few others reject the leading hash.
   stripHash = lib.removePrefix "#";
+
+  # A keybinding written the way it is spoken — "Mod+Shift+S" — rendered into
+  # the form sway's bindsym wants: "Mod4+Shift+s". Each binding is declared
+  # once in jonny.desktop.keys and read from there by the sway config, the
+  # command menu and the cheatsheet, so a rebind moves all three together
+  # instead of leaving two of them lying about the old key.
+  swayBinding =
+    let
+      modifiers = {
+        Mod = "Mod4";
+        Super = "Mod4";
+        Shift = "Shift";
+        Ctrl = "Ctrl";
+        Alt = "Mod1";
+      };
+
+      # sway names punctuation by its X keysym. Letters must be lower case:
+      # "Mod4+Shift+S" is a different binding from "Mod4+Shift+s" — it means
+      # Shift plus an already-shifted S — and it is not the one any of these
+      # are describing.
+      keysyms = {
+        "." = "period";
+        "," = "comma";
+        ";" = "semicolon";
+        ":" = "colon";
+        "?" = "question";
+        "-" = "minus";
+        "=" = "equal";
+        "/" = "slash";
+        "`" = "grave";
+        "'" = "apostrophe";
+        "Space" = "space";
+      };
+    in
+    binding:
+    let
+      parts = lib.splitString "+" binding;
+      key = lib.last parts;
+      render = m: modifiers.${m} or (throw "swayBinding: unknown modifier '${m}' in '${binding}'");
+      keysym = keysyms.${key}
+        or (if lib.stringLength key == 1 then lib.toLower key else key);
+    in
+    lib.concatStringsSep "+" (map render (lib.init parts) ++ [ keysym ]);
 }

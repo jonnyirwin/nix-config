@@ -25,6 +25,11 @@ let
   # being spelled out in this CSS.
   fontStack = lib.concatMapStringsSep ", " (f: ''"${f}"'')
     ([ fonts.ui.family ] ++ fonts.fallback) + ", monospace";
+
+  # Shared by the built-in backlight module and the DDC/CI one below, so a
+  # host shows the same three glyphs whichever of them it ends up using.
+  # Copied bytes, never retyped: these are Private Use Area codepoints.
+  brightnessIcons = [ "" "" "" ];
 in
 {
   config = lib.mkIf cfg.enable {
@@ -52,6 +57,7 @@ in
           "custom/audio-output"
           "pulseaudio"
           "backlight"
+          "custom/brightness"
           "battery"
           "custom/idle-inhibitor"
           "clock"
@@ -99,9 +105,33 @@ in
 
         backlight = {
           format = "{icon} {percent:>3}%";
-          format-icons = [ "" "" "" ];
+          format-icons = brightnessIcons;
           on-scroll-up = "${lib.getExe pkgs.brightnessctl} set 1%+";
           on-scroll-down = "${lib.getExe pkgs.brightnessctl} set 1%-";
+        };
+
+        # Brightness for a display that only answers over DDC/CI, which is
+        # every monitor that is not a laptop panel. The built-in `backlight`
+        # module above reads /sys/class/backlight and finds nothing on those
+        # hosts, so it stays blank and this one fills in â and on a laptop the
+        # positions are reversed, because brightness-status prints nothing when
+        # there is an internal panel and waybar hides a custom module whose
+        # text is empty.
+        #
+        # `once`, not an interval: reading a level back over i2c takes the
+        # better part of a second, so the script keeps a cached value and the
+        # `brightness` script raises RTMIN+11 after changing it.
+        "custom/brightness" = {
+          format = "{icon} {percentage:>3}%";
+          format-icons = brightnessIcons;
+          return-type = "json";
+          interval = "once";
+          signal = 11;
+          exec = lib.getExe s.brightness-status;
+          # No explicit step: the wheel moves in the same increments the keys
+          # do, so brightness means one thing whichever way you reach for it.
+          on-scroll-up = "${lib.getExe s.brightness} up";
+          on-scroll-down = "${lib.getExe s.brightness} down";
         };
 
         battery = {
@@ -227,6 +257,7 @@ in
         #custom-pomodoro,
         #tray,
         #backlight,
+        #custom-brightness,
         #clock,
         #battery,
         #cpu,
@@ -260,7 +291,8 @@ in
         #battery.warning:not(.charging) { color: ${p.warning}; }
         #battery.critical:not(.charging) { color: ${p.error}; }
 
-        #backlight { color: ${p.warning}; }
+        #backlight,
+        #custom-brightness { color: ${p.warning}; }
 
         #pulseaudio,
         #custom-audio-output { color: ${p.hues.blue}; }

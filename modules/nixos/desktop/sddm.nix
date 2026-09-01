@@ -41,14 +41,21 @@ let
     "270" = "rotate-90";
   };
   westonTransform = swayToWeston.${greeter.transform};
-  westonIni = (pkgs.formats.ini { }).generate "weston.ini" {
+
+  # The keymap is unconditional; the output block is not. These used to be one
+  # attrset behind a single `greeter.output != null` gate, which quietly tied
+  # the keyboard layout to whether a rotation happened to be configured — drop
+  # the rotation and the greeter's password prompt silently reverted to
+  # weston's stock US, while the session stayed on GB.
+  westonIni = (pkgs.formats.ini { }).generate "weston.ini" ({
     # Keep the greeter's password prompt on the same keymap as the session.
     keyboard.keymap_layout = "gb";
+  } // lib.optionalAttrs (greeter.output != null) {
     output = {
       name = greeter.output;
       transform = westonTransform;
     };
-  };
+  });
   compositorCommand = "${lib.getExe pkgs.weston} --shell=kiosk -c ${westonIni}";
 in
 {
@@ -81,9 +88,9 @@ in
       # so the greeter itself needs to run under Wayland too.
       wayland.enable = true;
 
-      # Only override weston's command when a rotation is actually requested;
-      # otherwise leave the module's stock compositor command untouched.
-      wayland.compositorCommand = lib.mkIf (greeter.output != null) compositorCommand;
+      # Always ours: the generated weston.ini carries the greeter's keymap
+      # whether or not there is a rotation to apply (see westonIni above).
+      wayland.compositorCommand = compositorCommand;
     };
 
     catppuccin = lib.mkIf (catppuccinFlavor != null) {

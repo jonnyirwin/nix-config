@@ -11,7 +11,9 @@ in
 {
   imports = [
     # ---- Compositor-agnostic ----
+    ./actions.nix
     ./scripts.nix
+    ./command-menu.nix
     ./pomodoro.nix
     ./waybar.nix
     ./rofi.nix

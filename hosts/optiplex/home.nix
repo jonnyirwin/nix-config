@@ -8,11 +8,13 @@
     # Only the parts with no system-level counterpart are set here.
     desktop = {
       # Was config.d/display-settings.conf, rewritten at runtime by
-      # resolution-switcher.sh. Portrait 1440p on the sole DisplayPort output.
-      outputs."DP-1" = {
-        resolution = "2560x1440";
-        transform = "90";
-      };
+      # resolution-switcher.sh. Landscape 1440p on the sole DisplayPort output.
+      #
+      # No transform: the panel used to be mounted portrait and everything
+      # downstream had to be told about it — the greeter in default.nix, and
+      # the console through it. Leaving the key out rather than writing
+      # `transform = "normal"` is what lets those fall away too.
+      outputs."DP-1".resolution = "2560x1440";
     };
 
     backup = {

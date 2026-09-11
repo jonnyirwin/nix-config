@@ -43,7 +43,9 @@ rec {
   # Syntax-highlighting theme per scheme, for programs carrying their own named
   # theme sets rather than accepting raw colours — bat, and delta through it.
   # bat ships Nord and gruvbox-dark; the Catppuccin ones come from
-  # catppuccin.bat.enable.
+  # catppuccin.bat.enable. bat has no bundled theme for Tokyo Night,
+  # Everforest or Kanagawa, so those fall back to the closest bundled theme by
+  # feel (structure/mood, not exact hex) rather than leaving delta unthemed.
   batThemes = {
     catppuccin-latte = "Catppuccin Latte";
     catppuccin-frappe = "Catppuccin Frappe";
@@ -51,6 +53,9 @@ rec {
     catppuccin-mocha = "Catppuccin Mocha";
     gruvbox-dark = "gruvbox-dark";
     nord = "Nord";
+    tokyo-night = "TwoDark"; # closest bundled: dark blue-grey, restrained accents
+    everforest = "gruvbox-dark"; # Everforest is commonly described as "a greener Gruvbox"
+    kanagawa = "Nord"; # closest bundled: moody dark navy
   };
 
   # "#cba6f7" -> "cba6f7". swaylock and a few others reject the leading hash.

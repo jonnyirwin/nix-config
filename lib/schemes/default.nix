@@ -63,4 +63,7 @@ lib.mapAttrs (_: withAnsi) {
 
   gruvbox-dark = import ./gruvbox-dark.nix;
   nord = import ./nord.nix;
+  tokyo-night = import ./tokyo-night.nix;
+  everforest = import ./everforest.nix;
+  kanagawa = import ./kanagawa.nix;
 }

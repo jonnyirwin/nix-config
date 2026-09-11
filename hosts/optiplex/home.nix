@@ -1,6 +1,6 @@
 # Home Manager config specific to optiplex. Shared user config lives in
 # modules/home; this file should stay small enough to read at a glance.
-{ pkgs, ... }:
+_:
 {
   jonny = {
     # desktop.enable, desktop.compositor and the whole of jonny.theme are
@@ -52,29 +52,6 @@
       # the checkout only exists on this machine; the phone is the other end.
       enable = true;
       path = "/home/jonny/git/Second-Brain";
-    };
-
-    # Trying JetBrains Mono here before it becomes the shared default in
-    # modules/home/theme/default.nix. Has its own package, so no substitute
-    # fallback is needed.
-    #
-    # ui is deliberately not the same family as mono: a monospace font is
-    # built to align characters in a grid, not to read as prose at a glance,
-    # which is what bar/notification/launcher text actually is. Inter is
-    # what most non-Apple "looks like San Francisco" UIs actually use — SF
-    # Pro itself is Apple-proprietary and isn't in nixpkgs.
-    theme.fonts = {
-      mono = {
-        family = "JetBrains Mono";
-        package = pkgs.jetbrains-mono;
-        size = 16;
-      };
-      ui = {
-        family = "Inter";
-        package = pkgs.inter;
-        size = 14;
-      };
-      substitute = null;
     };
   };
 

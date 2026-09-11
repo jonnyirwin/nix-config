@@ -45,14 +45,14 @@ let
   # backgrounds, fgMuted for inactive text, bgInset for text-on-accent,
   # hues.* for the per-module decorative colours).
   useCatppuccin = config.catppuccin.enable;
-  thmSurface0 = if useCatppuccin then "${thmSurface0}" else p.surface;
-  thmOverlay1 = if useCatppuccin then "${thmOverlay1}" else p.fgMuted;
-  thmCrust = if useCatppuccin then "${thmCrust}" else p.bgInset;
-  thmYellow = if useCatppuccin then "${thmYellow}" else p.hues.yellow;
-  thmPeach = if useCatppuccin then "${thmPeach}" else p.hues.orange;
-  thmBlue = if useCatppuccin then "${thmBlue}" else p.hues.blue;
-  thmTeal = if useCatppuccin then "${thmTeal}" else p.hues.cyan;
-  thmAccent = if useCatppuccin then "${thmAccent}" else p.accent;
+  thmSurface0 = if useCatppuccin then "#{@thm_surface_0}" else p.surface;
+  thmOverlay1 = if useCatppuccin then "#{@thm_overlay_1}" else p.fgMuted;
+  thmCrust = if useCatppuccin then "#{@thm_crust}" else p.bgInset;
+  thmYellow = if useCatppuccin then "#{@thm_yellow}" else p.hues.yellow;
+  thmPeach = if useCatppuccin then "#{@thm_peach}" else p.hues.orange;
+  thmBlue = if useCatppuccin then "#{@thm_blue}" else p.hues.blue;
+  thmTeal = if useCatppuccin then "#{@thm_teal}" else p.hues.cyan;
+  thmAccent = if useCatppuccin then "#{@thm_accent}" else p.accent;
 
   # Clipboard shim used by copy-mode bindings and `copy-command`.
   # Prefers Wayland, then X11, and otherwise consumes stdin so the pipeline

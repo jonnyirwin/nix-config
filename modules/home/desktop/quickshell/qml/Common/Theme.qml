@@ -36,11 +36,11 @@ QtObject {
         readonly property color magenta: "#f5c2e7"
     }
 
-    // Qt substitutes missing glyphs (the Nerd Font icons Dank Mono doesn't
-    // have) from the system fontconfig fallback chain automatically — no
+    // Qt substitutes missing glyphs (the Nerd Font icons Inter doesn't have)
+    // from the system fontconfig fallback chain automatically — no
     // font.families list needed, and Text.font.family only takes one string
     // in this Qt build anyway.
-    readonly property string fontFamily: "Dank Mono"
+    readonly property string fontFamily: "Inter"
     readonly property int fontSize: 14
 
     // Geometry — the one shared vocabulary every module below borrows from,

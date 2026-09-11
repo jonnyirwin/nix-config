@@ -130,8 +130,8 @@ in
         type = fontType;
         apply = scaled;
         default = {
-          family = "Dank Mono";
-          package = null;
+          family = "Inter";
+          package = pkgs.inter;
           size = 14;
         };
         description = "Bar, notification and launcher font.";

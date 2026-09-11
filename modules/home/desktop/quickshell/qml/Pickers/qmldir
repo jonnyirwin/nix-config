@@ -1,0 +1,9 @@
+module qs.Pickers
+WindowSwitcher 1.0 WindowSwitcher.qml
+NetworkMenu 1.0 NetworkMenu.qml
+AudioSwitcher 1.0 AudioSwitcher.qml
+ClipboardHistory 1.0 ClipboardHistory.qml
+ScreenRotate 1.0 ScreenRotate.qml
+PowerMenu 1.0 PowerMenu.qml
+CommandMenu 1.0 CommandMenu.qml
+PomodoroMenu 1.0 PomodoroMenu.qml

@@ -18,6 +18,7 @@ in
     ./waybar.nix
     ./rofi.nix
     ./mako.nix
+    ./quickshell
     ./fonts.nix
     ./gtk.nix
     ./qt.nix
@@ -59,6 +60,25 @@ in
         compositor-specific — bar, launcher, notifications, theme, fonts,
         scripts — is shared, so switching this should not require touching
         anything else.
+      '';
+    };
+
+    shell = lib.mkOption {
+      type = lib.types.enum [ "waybar" "quickshell" ];
+      default = "waybar";
+      description = ''
+        Which UI stack owns the bar, app launcher and notifications.
+
+        "waybar" is waybar.nix + rofi's drun mode + mako — the stable,
+        long-running setup. "quickshell" is the experimental replacement in
+        ./quickshell: a from-scratch QML shell (bar, launcher, notification
+        toasts, volume/brightness OSD, quick-settings panel), themed from
+        the same jonny.theme.palette.
+
+        waybar.nix and mako.nix gate their own `config` on this so the two
+        never both try to own the top bar or the notification bus at once;
+        rofi.nix does not, since scripts.nix uses plain rofi -dmenu as a
+        generic picker independently of which shell owns app launching.
       '';
     };
 

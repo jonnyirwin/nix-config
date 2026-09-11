@@ -928,8 +928,12 @@ let
           notify-send -t 2000 "Idle inhibitor" "On — screen will stay awake"
         fi
 
-        # Refresh the waybar custom/idle-inhibitor module.
+        # Refresh the waybar custom/idle-inhibitor module — and quickshell's
+        # equivalent pill (modules/home/desktop/quickshell), when that's the
+        # active shell instead. Harmless either way when the other isn't
+        # running.
         pkill -RTMIN+10 waybar || true
+        ${lib.getExe pkgs.quickshell} ipc -c jonny call status refreshIdle >/dev/null 2>&1 || true
       '';
     };
 

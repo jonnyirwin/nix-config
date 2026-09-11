@@ -25,7 +25,18 @@ let
   up = "k";
   right = "l";
 
-  menu = "rofi -show drun -show-icons -lines 5";
+  # App launcher, bar toggle and notification replay switch with
+  # jonny.desktop.shell — see modules/home/desktop/quickshell for the QML
+  # side. "-c jonny" names the quickshell instance by the config name it was
+  # launched under (../quickshell/default.nix's programs.quickshell.
+  # activeConfig), so this stays correct even alongside an unrelated
+  # quickshell instance.
+  quickshellIpc = target: fn: "${lib.getExe pkgs.quickshell} ipc -c jonny call ${target} ${fn}";
+
+  menu =
+    if cfg.shell == "quickshell"
+    then quickshellIpc "launcher" "toggle"
+    else "rofi -show drun -show-icons -lines 5";
 
   scratchpad = lib.getExe s.scratchpad-toggle;
 
@@ -258,24 +269,50 @@ in
             "${bind k.kill}" = "kill";
             "${bind k.launcher}" = "exec ${menu}";
             "${bind k.reload}" = "reload";
-            "${bind k.powerMenu}" = "exec ${lib.getExe s.power-menu}";
+            "${bind k.powerMenu}" =
+              if cfg.shell == "quickshell"
+              then "exec ${quickshellIpc "powerMenu" "toggle"}"
+              else "exec ${lib.getExe s.power-menu}";
             "${bind k.lockScreen}" = "exec ${lib.getExe s.lock-screen}";
-            "${bind k.windowSwitcher}" = "exec ${lib.getExe s.window-switcher}";
-            "${bind k.networkMenu}" = "exec ${lib.getExe s.network-menu}";
+            "${bind k.windowSwitcher}" =
+              if cfg.shell == "quickshell"
+              then "exec ${quickshellIpc "windowSwitcher" "toggle"}"
+              else "exec ${lib.getExe s.window-switcher}";
+            "${bind k.networkMenu}" =
+              if cfg.shell == "quickshell"
+              then "exec ${quickshellIpc "networkMenu" "toggle"}"
+              else "exec ${lib.getExe s.network-menu}";
             "${bind k.idleInhibitor}" = "exec ${lib.getExe s.idle-inhibitor-toggle}";
-            "${bind k.pomodoro}" = "exec ${cfg.pomodoro.package}/bin/pomodoro-menu";
-            "${bind k.toggleBar}" = "exec ${lib.getExe' pkgs.psmisc "killall"} -SIGUSR1 waybar";
+            "${bind k.pomodoro}" =
+              if cfg.shell == "quickshell"
+              then "exec ${quickshellIpc "pomodoroMenu" "toggle"}"
+              else "exec ${cfg.pomodoro.package}/bin/pomodoro-menu";
+            "${bind k.toggleBar}" =
+              if cfg.shell == "quickshell"
+              then "exec ${quickshellIpc "bar" "toggle"}"
+              else "exec ${lib.getExe' pkgs.psmisc "killall"} -SIGUSR1 waybar";
 
-            # Put the most recently expired notification back on screen. mako
-            # keeps max-history of them (desktop/mako.nix).
-            "${bind k.notificationReplay}" = "exec ${lib.getExe s.notification-replay}";
+            # Put the most recently expired notification back on screen.
+            # mako keeps max-history of them (desktop/mako.nix) under
+            # "waybar"; under "quickshell" it's Notifs.history instead
+            # (quickshell/qml/Services/Notifs.qml).
+            "${bind k.notificationReplay}" =
+              if cfg.shell == "quickshell"
+              then "exec ${quickshellIpc "notifications" "restoreLast 1"}"
+              else "exec ${lib.getExe s.notification-replay}";
 
             # The command menu is on trial alongside the bindings above, not in
             # place of them — see the comment in desktop/command-menu.nix.
-            "${bind k.commandMenu}" = "exec ${lib.getExe cfg.commandMenu}";
+            "${bind k.commandMenu}" =
+              if cfg.shell == "quickshell"
+              then "exec ${quickshellIpc "commandMenu" "toggle"}"
+              else "exec ${lib.getExe cfg.commandMenu}";
 
             # Clipboard history
-            "${bind k.clipboardHistory}" = "exec ${lib.getExe pkgs.cliphist} list | rofi -dmenu -p 'Clipboard' | ${lib.getExe pkgs.cliphist} decode | ${lib.getExe' pkgs.wl-clipboard "wl-copy"}";
+            "${bind k.clipboardHistory}" =
+              if cfg.shell == "quickshell"
+              then "exec ${quickshellIpc "clipboardHistory" "toggle"}"
+              else "exec ${lib.getExe pkgs.cliphist} list | rofi -dmenu -p 'Clipboard' | ${lib.getExe pkgs.cliphist} decode | ${lib.getExe' pkgs.wl-clipboard "wl-copy"}";
             # Paste PRIMARY (middle-click alternative)
             "${bind k.pastePrimary}" = "exec ${lib.getExe' pkgs.wl-clipboard "wl-paste"} -p | ${lib.getExe pkgs.wtype} -";
 
@@ -327,7 +364,10 @@ in
             "${bind k.displayLayout}" = "exec ${lib.getExe pkgs.wdisplays}";
             # Quick rotate of the focused output via a rofi menu. Ephemeral —
             # the permanent default lives in jonny.desktop.outputs.
-            "${bind k.screenRotate}" = "exec ${lib.getExe s.screen-rotate}";
+            "${bind k.screenRotate}" =
+              if cfg.shell == "quickshell"
+              then "exec ${quickshellIpc "screenRotate" "toggle"}"
+              else "exec ${lib.getExe s.screen-rotate}";
 
             # ---- Wallpaper ----
             # Step through ~/Pictures/Wallpapers in order, without waiting for
@@ -354,11 +394,21 @@ in
         titlebar_padding 0
 
         # Idle: lock at 5 min, blank displays at 10, and lock before sleep.
+        #
+        # after-resume restarts quickshell: it doesn't recover from a real
+        # suspend cleanly on its own — the PanelWindow's screen reference
+        # goes stale ("attempted to use dangling screen object" in its log),
+        # which silently breaks bar clicks/scroll until restarted by hand.
+        # Harmless under "waybar": restarting a unit that was never enabled
+        # this generation is a no-op systemctl error, not a crash.
         exec ${lib.getExe pkgs.swayidle} -w \
           timeout 300 '${lib.getExe s.lock-screen}' \
           timeout 600 'swaymsg "output * power off"' \
             resume 'swaymsg "output * power on"' \
-          before-sleep '${lib.getExe s.lock-screen}'
+          before-sleep '${lib.getExe s.lock-screen}'${
+            lib.optionalString (cfg.shell == "quickshell")
+              " \\\n          after-resume 'systemctl --user restart quickshell.service'"
+          }
       '';
     };
   };

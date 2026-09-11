@@ -1,0 +1,5 @@
+module qs.Services
+singleton Workspaces 1.0 Workspaces.qml
+singleton Notifs 1.0 Notifs.qml
+singleton Status 1.0 Status.qml
+singleton Apps 1.0 Apps.qml

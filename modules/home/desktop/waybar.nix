@@ -32,7 +32,9 @@ let
   brightnessIcons = [ "" "" "" ];
 in
 {
-  config = lib.mkIf cfg.enable {
+  # Gated on jonny.desktop.shell as well as .enable so waybar and the
+  # quickshell alternative (./quickshell) never both try to own the bar.
+  config = lib.mkIf (cfg.enable && cfg.shell == "waybar") {
     programs.waybar = {
       enable = true;
 

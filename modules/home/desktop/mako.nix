@@ -6,7 +6,10 @@ let
   fonts = config.jonny.theme.fonts;
 in
 {
-  config = lib.mkIf cfg.enable {
+  # Gated on jonny.desktop.shell as well as .enable: quickshell's own
+  # NotificationServer (./quickshell) claims org.freedesktop.Notifications
+  # too, and only one daemon can hold that D-Bus name at a time.
+  config = lib.mkIf (cfg.enable && cfg.shell == "waybar") {
     services.mako = {
       enable = true;
 

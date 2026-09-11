@@ -18,6 +18,12 @@ let
 
   scratchpad = sp:
     "${lib.getExe s.scratchpad-toggle} ${sp.id} ${toString sp.width} ${toString sp.height} ${sp.command}";
+
+  # Same helper as sway.nix's — duplicated rather than shared because it's
+  # one line and pulling it into lib/ for two call sites isn't worth the
+  # indirection yet.
+  quickshellIpc = target: fn: "${lib.getExe pkgs.quickshell} ipc -c jonny call ${target} ${fn}";
+  quickshell = cfg.shell == "quickshell";
 in
 {
   # Omarchy 4's one idea worth borrowing wholesale: a single entry point that
@@ -122,7 +128,7 @@ in
             case "$( { ${plainRow "Output device"}
                        ${row "Mixer" cfg.scratchpads.mixer.key}
                        ${plainRow "Back"}; } | pick Audio)" in
-              'Output device') run ${lib.getExe s.audio-switch} ;;
+              'Output device') run ${if quickshell then quickshellIpc "audioSwitcher" "toggle" else lib.getExe s.audio-switch} ;;
               # The same pulsemixer scratchpad the key summons, not a second
               # mixer of its own: one window, wherever you ask for it from.
               Mixer)           exec ${scratchpad cfg.scratchpads.mixer} ;;
@@ -141,7 +147,7 @@ in
               # wdisplays is a window, not a picker: there is no cancelling
               # back out of it, so hand the session over and go.
               'Arrange outputs')  exec wdisplays ;;
-              'Rotate output')    run ${lib.getExe s.screen-rotate} ;;
+              'Rotate output')    run ${if quickshell then quickshellIpc "screenRotate" "toggle" else lib.getExe s.screen-rotate} ;;
               # Not `run`: brightness is the one thing here you want to repeat,
               # so a successful step redraws this menu instead of closing it.
               'Brightness up')    ${lib.getExe s.brightness} up || true ;;
@@ -156,8 +162,8 @@ in
             case "$( { ${row "Replay last" k.notificationReplay}
                        ${plainRow "Replay last ten"}
                        ${plainRow "Back"}; } | pick Notifications)" in
-              'Replay last')      run ${lib.getExe s.notification-replay} ;;
-              'Replay last ten')  run ${lib.getExe s.notification-replay} 10 ;;
+              'Replay last')      run ${if quickshell then quickshellIpc "notifications" "restoreLast 1" else lib.getExe s.notification-replay} ;;
+              'Replay last ten')  run ${if quickshell then quickshellIpc "notifications" "restoreLast 10" else "${lib.getExe s.notification-replay} 10"} ;;
               *)                  return 0 ;;
             esac
           done
@@ -190,7 +196,7 @@ in
                        ${row "Lock screen" k.lockScreen}
                        ${row "Idle inhibitor" k.idleInhibitor}
                        ${plainRow "Back"}; } | pick Power)" in
-              'Power menu')      run ${lib.getExe s.power-menu} ;;
+              'Power menu')      run ${if quickshell then quickshellIpc "powerMenu" "toggle" else lib.getExe s.power-menu} ;;
               'Lock screen')     run ${lib.getExe s.lock-screen} ;;
               'Idle inhibitor')  run ${lib.getExe s.idle-inhibitor-toggle} ;;
               *)                 return 0 ;;
@@ -213,10 +219,10 @@ in
                      ${plainRow "Wallpaper"}
                      ${plainRow "Power"}; } | pick Command)" in
 
-            Apps)          run rofi -show drun -show-icons ;;
-            Windows)       run ${lib.getExe s.window-switcher} ;;
-            Clipboard)     run clipboard_paste ;;
-            Network)       run ${lib.getExe s.network-menu} ;;
+            Apps)          run ${if quickshell then quickshellIpc "launcher" "toggle" else "rofi -show drun -show-icons"} ;;
+            Windows)       run ${if quickshell then quickshellIpc "windowSwitcher" "toggle" else lib.getExe s.window-switcher} ;;
+            Clipboard)     run ${if quickshell then quickshellIpc "clipboardHistory" "toggle" else "clipboard_paste"} ;;
+            Network)       run ${if quickshell then quickshellIpc "networkMenu" "toggle" else lib.getExe s.network-menu} ;;
 
             Capture)       capture_menu ;;
             Audio)         audio_menu ;;

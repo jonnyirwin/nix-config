@@ -32,6 +32,28 @@ let
   p = config.jonny.theme.palette;
   accentHex = p.accent;
 
+  # `catppuccin.enable` is the same top-level switch theme/default.nix sets
+  # for every other program (true only when jonny.theme.scheme actually is a
+  # Catppuccin flavour). This file used to hardcode catppuccin.tmux.enable to
+  # true regardless, so under any other scheme (gruvbox-dark, nord) tmux's
+  # plugin had no flavor to follow and silently fell back to its own default
+  # (mocha) — meaning tmux kept rendering actual Catppuccin Mocha no matter
+  # what the rest of the desktop was themed as. These tokens are the fix:
+  # the catppuccin plugin's own runtime variables when it's genuinely
+  # active, or the equivalent literal hex from the palette otherwise — same
+  # role-to-colour choices waybar.nix already makes (surface for pill
+  # backgrounds, fgMuted for inactive text, bgInset for text-on-accent,
+  # hues.* for the per-module decorative colours).
+  useCatppuccin = config.catppuccin.enable;
+  thmSurface0 = if useCatppuccin then "${thmSurface0}" else p.surface;
+  thmOverlay1 = if useCatppuccin then "${thmOverlay1}" else p.fgMuted;
+  thmCrust = if useCatppuccin then "${thmCrust}" else p.bgInset;
+  thmYellow = if useCatppuccin then "${thmYellow}" else p.hues.yellow;
+  thmPeach = if useCatppuccin then "${thmPeach}" else p.hues.orange;
+  thmBlue = if useCatppuccin then "${thmBlue}" else p.hues.blue;
+  thmTeal = if useCatppuccin then "${thmTeal}" else p.hues.cyan;
+  thmAccent = if useCatppuccin then "${thmAccent}" else p.accent;
+
   # Clipboard shim used by copy-mode bindings and `copy-command`.
   # Prefers Wayland, then X11, and otherwise consumes stdin so the pipeline
   # still succeeds — tmux's `set-clipboard on` will already have emitted OSC 52,
@@ -78,7 +100,7 @@ in
 
   # Catppuccin via the flake module rather than a tpm plugin. It appends the
   # themed plugin to programs.tmux.plugins and passes through the global flavor.
-  catppuccin.tmux.enable = true;
+  catppuccin.tmux.enable = useCatppuccin;
 
   programs.tmux = {
     enable = true;
@@ -174,17 +196,26 @@ in
       # tmux clears window_bell_flag the instant the attached client renders the
       # window you're on, so a current-pill highlight could never actually paint
       # (verified — attachment, not focus, is the gate).
+      #
+      # Catppuccin's plugin also sets the overall status-style itself
+      # (currently a good look, going by "perfect with mocha" — left alone
+      # here); everything else falls back to tmux's own factory default,
+      # which is a jarring green — the gap this filled. bgAlt, not bg: same
+      # choice waybar.nix makes for its own bar background (`#waybar {
+      # background: ${p.bgAlt}; }`), a shade distinct from the pane
+      # background (kitty's own bg, ≈ p.bg) rather than blending into it.
+      ${lib.optionalString (!useCatppuccin) ''set -g status-style "bg=${p.bgAlt},fg=${p.fg}"''}
       set -g window-status-bell-style "default"
       set -g window-status-separator " "
-      set -g window-status-format "#[fg=#{@thm_surface_0},bg=default]#[fg=#{?window_bell_flag,#{@thm_yellow},#{@thm_overlay_1}},bg=#{@thm_surface_0}] #I:#W#{?@ai_window_tool, 󰚩,} #[fg=#{@thm_surface_0},bg=default]"
-      set -g window-status-current-format "#[fg=#{@thm_accent},bg=default]#[fg=#{@thm_crust},bg=#{@thm_accent}] #I:#W#{?@ai_window_tool, 󰚩,} #[fg=#{@thm_accent},bg=default]"
+      set -g window-status-format "#[fg=${thmSurface0},bg=default]#[fg=#{?window_bell_flag,${thmYellow},${thmOverlay1}},bg=${thmSurface0}] #I:#W#{?@ai_window_tool, 󰚩,} #[fg=${thmSurface0},bg=default]"
+      set -g window-status-current-format "#[fg=${thmAccent},bg=default]#[fg=${thmCrust},bg=${thmAccent}] #I:#W#{?@ai_window_tool, 󰚩,} #[fg=${thmAccent},bg=default]"
 
       # Right-side modules: flat surface0 pills with accent icon+text, waybar-style.
-      set -g "@catppuccin_status_application" "#[fg=#{@thm_surface_0},bg=default]#[fg=#{@thm_accent},bg=#{@thm_surface_0}]󰆍 #{pane_current_command} #[fg=#{@thm_surface_0},bg=default]"
-      set -g "@catppuccin_status_date"        "#[fg=#{@thm_surface_0},bg=default]#[fg=#{@thm_peach},bg=#{@thm_surface_0}] 󰃭 %Y-%m-%d #[fg=#{@thm_surface_0},bg=default]"
-      set -g "@catppuccin_status_time"        "#[fg=#{@thm_surface_0},bg=default]#[fg=#{@thm_blue},bg=#{@thm_surface_0}] 󰥔 %H:%M #[fg=#{@thm_surface_0},bg=default]"
-      set -g "@catppuccin_status_ai"          "#[fg=#{@thm_surface_0},bg=default]#[fg=#{@thm_accent},bg=#{@thm_surface_0}] 󰚩 #{@ai_total} #[fg=#{@thm_surface_0},bg=default]"
-      set -g "@catppuccin_status_session"     "#[fg=#{@thm_surface_0},bg=default]#[fg=#{@thm_teal},bg=#{@thm_surface_0}] ⊞ #S #[fg=#{@thm_surface_0},bg=default]"
+      set -g "@catppuccin_status_application" "#[fg=${thmSurface0},bg=default]#[fg=${thmAccent},bg=${thmSurface0}]󰆍 #{pane_current_command} #[fg=${thmSurface0},bg=default]"
+      set -g "@catppuccin_status_date"        "#[fg=${thmSurface0},bg=default]#[fg=${thmPeach},bg=${thmSurface0}] 󰃭 %Y-%m-%d #[fg=${thmSurface0},bg=default]"
+      set -g "@catppuccin_status_time"        "#[fg=${thmSurface0},bg=default]#[fg=${thmBlue},bg=${thmSurface0}] 󰥔 %H:%M #[fg=${thmSurface0},bg=default]"
+      set -g "@catppuccin_status_ai"          "#[fg=${thmSurface0},bg=default]#[fg=${thmAccent},bg=${thmSurface0}] 󰚩 #{@ai_total} #[fg=${thmSurface0},bg=default]"
+      set -g "@catppuccin_status_session"     "#[fg=${thmSurface0},bg=default]#[fg=${thmTeal},bg=${thmSurface0}] ⊞ #S #[fg=${thmSurface0},bg=default]"
 
       set -g status-left ""
       set -g status-left-length 100
@@ -193,7 +224,7 @@ in
 
       # Pane borders: subtle grey + accent focus, matching waybar.
       set -g pane-border-style "fg=${p.surfaceAlt}"
-      set -g pane-active-border-style "fg=#{@thm_accent}"
+      set -g pane-active-border-style "fg=${thmAccent}"
       set -g pane-border-lines single
 
       # Per-pane pill on the top border — same vocabulary as window tabs and the
@@ -202,7 +233,7 @@ in
       # Title chip ("· name") only shows if the pane title differs from the host
       # default, so an un-named pane stays clean.
       set -g pane-border-status top
-      set -g pane-border-format "#[align=right]#{?pane_active,#[fg=#{@thm_accent}#,bg=default]#[fg=#{@thm_crust}#,bg=#{@thm_accent}] #P #{pane_current_command}#{?#{!=:#{pane_title},#{host_short}}, · #{pane_title},} #[fg=#{@thm_accent}#,bg=default]#[bg=default],#[fg=#{@thm_surface_0}#,bg=default]#[fg=#{@thm_overlay_1}#,bg=#{@thm_surface_0}] #P #{pane_current_command}#{?#{!=:#{pane_title},#{host_short}}, · #{pane_title},} #[fg=#{@thm_surface_0}#,bg=default]#[bg=default]}#{?@ai_pane_tool, #[fg=#{@thm_accent}#,bg=default]󰚩,}"
+      set -g pane-border-format "#[align=right]#{?pane_active,#[fg=${thmAccent}#,bg=default]#[fg=${thmCrust}#,bg=${thmAccent}] #P #{pane_current_command}#{?#{!=:#{pane_title},#{host_short}}, · #{pane_title},} #[fg=${thmAccent}#,bg=default]#[bg=default],#[fg=${thmSurface0}#,bg=default]#[fg=${thmOverlay1}#,bg=${thmSurface0}] #P #{pane_current_command}#{?#{!=:#{pane_title},#{host_short}}, · #{pane_title},} #[fg=${thmSurface0}#,bg=default]#[bg=default]}#{?@ai_pane_tool, #[fg=${thmAccent}#,bg=default]󰚩,}"
     '';
   };
 }

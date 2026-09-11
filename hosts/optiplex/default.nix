@@ -63,7 +63,7 @@
     # schemes: "purple" is Catppuccin's mauve, Gruvbox's bright purple, Nord's
     # nord15.
     theme = {
-      scheme = "catppuccin-mocha";
+      scheme = "gruvbox-dark";
       accent = "purple";
     };
 

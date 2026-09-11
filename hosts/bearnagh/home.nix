@@ -10,6 +10,13 @@
     # is the only output this machine has most of the time, and sway picks its
     # native 1920x1080 on its own. Add an entry when there is a docked layout
     # worth making permanent — wdisplays (Mod+Shift+D) for ad-hoc changes.
+    desktop = {
+      # Same quickshell trial as optiplex (modules/home/desktop/quickshell),
+      # in place of waybar + rofi's drun + mako. Flip back to "waybar" to
+      # revert — nothing else here changes either way.
+      shell = "quickshell";
+    };
+
     backup = {
       # Must not be left at the default, which is "backup/optiplex" — two
       # machines pointing at one remote directory would interleave their

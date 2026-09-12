@@ -17,6 +17,19 @@ Item {
     readonly property bool expanded: showMedia || showPomodoro
     readonly property real targetWidth: expanded ? (showMedia ? 260 : 150) : 0
 
+    // pomodoro.sh's own text carries an icon, a "MM:SS" remaining-time, an
+    // ASCII progress bar and a trailing percentage all in one string (e.g.
+    // "󰄉 12:34 ████░░░░ 45%") — built for a waybar tooltip, not this pill.
+    // Pull just the time out for the centred label and the percentage out
+    // to drive the fill below, same idea as SliderPill's displayValue but
+    // sourced from text instead of a number. IDLE's "Start" text matches
+    // neither pattern, so both fall back sanely (full text, 0% fill).
+    readonly property string _pomodoroStripped: Status.pomodoroText.replace(/^\S+\s+/, "")
+    readonly property var _pomodoroTimeMatch: root._pomodoroStripped.match(/^(\d{1,2}:\d{2})/)
+    readonly property var _pomodoroPctMatch: root._pomodoroStripped.match(/(\d+)%\s*$/)
+    readonly property string pomodoroDisplayText: root._pomodoroTimeMatch ? root._pomodoroTimeMatch[1] : root._pomodoroStripped
+    readonly property real pomodoroProgress: root._pomodoroPctMatch ? parseInt(root._pomodoroPctMatch[1]) : 0
+
     property real animW: targetWidth
     onTargetWidthChanged: animW = targetWidth
     Behavior on animW { NumberAnimation { duration: Theme.animBounce; easing.type: Easing.OutBack } }
@@ -27,6 +40,7 @@ Item {
     visible: animW > 1
 
     Rectangle {
+        id: background
         anchors.fill: parent
         radius: height / 2
         color: Theme.surface
@@ -117,6 +131,36 @@ Item {
     }
 
     // ---- Pomodoro ----
+    //
+    // Same visual language as SliderPill (volume/brightness): a fill that
+    // shows how far through the bar you are, with the label centred on top.
+    // Unlike those, this fill is a passive readout, not a control — there's
+    // nothing to drag or click-to-set, so it just stays visible rather than
+    // fading in only while pressed.
+    //
+    // Tried masking a flat-edged fill against `background` via
+    // `layer.effect: MultiEffect { maskEnabled: true; maskSource: ... }` to
+    // clip it exactly to the pill's silhouette — rendered nothing at all in
+    // this Quickshell/Qt build (no QML error, just an invisible layer), so
+    // back to SliderPill's own approach: radius matching the pill on all
+    // four corners. At low progress this rounds the fill's leading edge too
+    // (a cap floating mid-pill rather than a flat cut), same accepted quirk
+    // SliderPill's own comment already calls out — visible and correct at
+    // the one edge that matters (hugging the pill's true left corner) beats
+    // an invisible "correct" fill.
+    Rectangle {
+        anchors.left: parent.left
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        visible: root.showPomodoro
+        width: parent.width * Math.max(0, Math.min(100, root.pomodoroProgress)) / 100
+        radius: parent.height / 2
+        color: Status.pomodoroClass === "break" ? Theme.hues.orange : Theme.success
+        opacity: root.showPomodoro ? 0.45 : 0
+        Behavior on opacity { NumberAnimation { duration: Theme.animFast } }
+        Behavior on width { NumberAnimation { duration: Theme.animFast } }
+    }
+
     Row {
         anchors.centerIn: parent
         visible: root.showPomodoro
@@ -131,10 +175,7 @@ Item {
             font.pixelSize: Theme.fontSize
         }
         Text {
-            // pomodoro.sh's own text already leads with an icon
-            // ("󰄉 12:34 ████░░░░ 45%") — strip it so there's only the one
-            // icon, ours, which also tells break from focus by colour.
-            text: Status.pomodoroText.replace(/^\S+\s+/, "")
+            text: root.pomodoroDisplayText
             color: Theme.fg
             font.family: Theme.fontFamily
             font.pixelSize: Theme.fontSize - 1

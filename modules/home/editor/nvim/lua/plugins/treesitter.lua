@@ -7,7 +7,16 @@ return {
         -- The old runtime install (`build = ":TSUpdate"` plus an
         -- ensure_installed loop) compiled 24 grammars on first launch and
         -- needed a C toolchain present; keep the two lists in sync instead.
-        config = function()
+        config = function(plugin)
+            -- On the `main` branch, highlight/indent/etc. queries live under
+            -- runtime/queries/, not the repo root, and are normally exposed
+            -- by `:TSInstall` copying them into stdpath("data")/site/queries.
+            -- We skip that install step (see above), so nothing ever put
+            -- this on the runtimepath — without it, vim.treesitter.start()
+            -- "succeeds" but finds no highlights query, and every language
+            -- silently renders with zero syntax highlighting.
+            vim.opt.rtp:append(plugin.dir .. "/runtime")
+
             vim.api.nvim_create_autocmd('FileType', {
                 callback = function()
                     pcall(vim.treesitter.start)

@@ -1,6 +1,12 @@
 return {
     'nvim-telescope/telescope.nvim',
-    tag = '0.1.8',
+    -- v0.2.0+ rewrote treesitter-based preview highlighting to use only
+    -- core Nvim `vim.treesitter` APIs, dropping the hard dependency on
+    -- nvim-treesitter's legacy (master-branch) `parsers`/`configs` module.
+    -- We track nvim-treesitter on `main` (see plugins/treesitter.lua),
+    -- which doesn't have that module, so anything before 0.2.0 crashes
+    -- telescope's file previewer.
+    tag = 'v0.2.2',
     event = "VeryLazy",  -- Load at same time as which-key
     dependencies = {
         'nvim-lua/plenary.nvim',
@@ -17,7 +23,7 @@ return {
 
             telescope.setup {
                 defaults = {
-                    file_ignore_patterns = { 
+                    file_ignore_patterns = {
                         'node_modules/.*', 
                         '%.git/.*',  -- Only ignore .git directory contents, not .gitignore etc
                         '%.DS_Store',

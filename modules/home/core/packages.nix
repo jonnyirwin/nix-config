@@ -47,8 +47,5 @@
     # ---- Archives ----
     unzip
     p7zip
-
-    # ---- Applications ----
-    claude-code
   ];
 }

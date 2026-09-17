@@ -9,13 +9,24 @@ _:
     # Only the parts with no system-level counterpart are set here.
     desktop = {
       # Was config.d/display-settings.conf, rewritten at runtime by
-      # resolution-switcher.sh. Landscape 1440p on the sole DisplayPort output.
+      # resolution-switcher.sh. The sole DisplayPort output, landscape.
+      #
+      # Native mode with scale 1.5, not `res 2560x1440` at scale 1: both give
+      # a 2560x1440 logical desktop, but the mode switch made the monitor
+      # upscale a 1440p signal across its 2160p panel, so everything was
+      # interpolated. At native mode the panel is 1:1 and only XWayland
+      # clients — which render at scale 1 and get scaled up by sway — are
+      # soft. Raising this to 2.0 would sharpen those too, at the cost of a
+      # 1920x1080 logical desktop.
       #
       # No transform: the panel used to be mounted portrait and everything
       # downstream had to be told about it — the greeter in default.nix, and
       # the console through it. Leaving the key out rather than writing
       # `transform = "normal"` is what lets those fall away too.
-      outputs."DP-1".resolution = "2560x1440";
+      outputs."DP-1" = {
+        resolution = "3840x2160@59.997Hz";
+        scale = "1.5";
+      };
 
       # Trying the quickshell alternative (modules/home/desktop/quickshell)
       # in place of waybar + rofi's drun + mako. Flip back to "waybar" to

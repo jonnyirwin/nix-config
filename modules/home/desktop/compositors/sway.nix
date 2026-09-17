@@ -202,7 +202,6 @@ in
             # Dialogs and utilities float.
             { criteria.window_role = "pop-up"; command = "floating enable"; }
             { criteria.window_type = "dialog"; command = "floating enable"; }
-            { criteria.app_id = "pavucontrol"; command = "floating enable"; }
             { criteria.app_id = "nm-connection-editor"; command = "floating enable"; }
             { criteria.window_role = "GtkFileChooserDialog"; command = "floating enable, resize set 800 600"; }
 

@@ -30,6 +30,11 @@ let
   # host shows the same three glyphs whichever of them it ends up using.
   # Copied bytes, never retyped: these are Private Use Area codepoints.
   brightnessIcons = [ "" "" "" ];
+
+  # Same helper as command-menu.nix's: clicking the volume pill summons the
+  # very scratchpad Mod+M does, rather than opening a second mixer of its own.
+  scratchpad = sp:
+    "${lib.getExe s.scratchpad-toggle} ${sp.id} ${toString sp.width} ${toString sp.height} ${sp.command}";
 in
 {
   # Gated on jonny.desktop.shell as well as .enable so waybar and the
@@ -178,7 +183,7 @@ in
           format = "{icon} {volume:>3}%";
           format-muted = "󰸈 ---%";
           format-icons.default = [ "󰕿" "󰖀" "󰕾" ];
-          on-click = lib.getExe pkgs.pavucontrol;
+          on-click = scratchpad cfg.scratchpads.mixer;
           on-click-right = lib.getExe s.audio-switch;
         };
 

@@ -22,7 +22,6 @@ in
 
       # ---- Audio ----
       pulsemixer
-      pavucontrol
       playerctl
       # pactl, for anything that speaks the PulseAudio protocol to PipeWire's shim
       pulseaudio

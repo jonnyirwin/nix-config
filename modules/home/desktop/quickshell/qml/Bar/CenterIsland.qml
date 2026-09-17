@@ -142,23 +142,28 @@ Item {
     // `layer.effect: MultiEffect { maskEnabled: true; maskSource: ... }` to
     // clip it exactly to the pill's silhouette — rendered nothing at all in
     // this Quickshell/Qt build (no QML error, just an invisible layer), so
-    // back to SliderPill's own approach: radius matching the pill on all
-    // four corners. At low progress this rounds the fill's leading edge too
-    // (a cap floating mid-pill rather than a flat cut), same accepted quirk
-    // SliderPill's own comment already calls out — visible and correct at
-    // the one edge that matters (hugging the pill's true left corner) beats
-    // an invisible "correct" fill.
-    Rectangle {
+    // it takes SliderPill's approach instead: a full-width rounded fill
+    // revealed through a clipping window, which keeps the left cap at the
+    // pill's own radius however little progress there is (a Rectangle that
+    // shrinks below 2*radius has its radius clamped by Qt and changes shape
+    // as it goes) and cuts the leading edge off square.
+    Item {
         anchors.left: parent.left
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         visible: root.showPomodoro
         width: parent.width * Math.max(0, Math.min(100, root.pomodoroProgress)) / 100
-        radius: parent.height / 2
-        color: Status.pomodoroClass === "break" ? Theme.hues.orange : Theme.success
+        clip: true
         opacity: root.showPomodoro ? 0.45 : 0
         Behavior on opacity { NumberAnimation { duration: Theme.animFast } }
         Behavior on width { NumberAnimation { duration: Theme.animFast } }
+
+        Rectangle {
+            width: root.width
+            height: parent.height
+            radius: height / 2
+            color: Status.pomodoroClass === "break" ? Theme.hues.orange : Theme.success
+        }
     }
 
     Row {

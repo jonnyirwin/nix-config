@@ -74,20 +74,29 @@ Rectangle {
     // when you're not actively setting it) and only faded in while pressed
     // or dragging, as the live feedback for where you're setting it to.
     //
-    // Radius matches root on all four corners rather than just the left
-    // cap: at low values that rounds both ends of the fill itself (reads as
-    // a small rounded bar, not a bug), but it's what makes the right edge
-    // properly rounded once the fill nears full width instead of showing a
-    // flat cut just short of the pill's actual rounded edge.
-    Rectangle {
+    // It's a full-width pill revealed through a clipping window, not a
+    // Rectangle whose own width shrinks: Qt clamps a Rectangle's radius to
+    // half its width, so a shrinking one re-rounds its left cap into an
+    // ever-tighter curve below ~2*radius — the fill visibly changes shape
+    // as you drag through the low end. Clipping keeps the left cap at the
+    // pill's own radius at every value and just cuts the fill off square on
+    // the right, while still rounding the right edge as the fill nears full
+    // width (that corner simply comes inside the window).
+    Item {
         anchors.left: parent.left
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         width: parent.width * Math.max(0, Math.min(100, root.displayValue)) / 100
-        radius: root.radius
-        color: root.fillColor
+        clip: true
         opacity: root.pressed ? 0.5 : 0
         Behavior on opacity { NumberAnimation { duration: Theme.animFast } }
+
+        Rectangle {
+            width: root.width
+            height: parent.height
+            radius: root.radius
+            color: root.fillColor
+        }
     }
 
     TapHandler {

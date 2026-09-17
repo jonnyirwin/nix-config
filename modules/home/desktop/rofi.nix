@@ -10,11 +10,10 @@ in
     programs.rofi = {
       enable = true;
       package = pkgs.rofi; # Wayland support is built in since rofi-wayland merged
-      terminal = lib.getExe pkgs.kitty;
+      settings = {
+        terminal = lib.getExe pkgs.kitty;
+        modes = [ "run" "drun" "window" ];
 
-      modes = [ "run" "drun" "window" ];
-
-      extraConfig = {
         show-icons = true;
         drun-display-format = "{icon} {name}";
         location = 0;

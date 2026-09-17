@@ -42,7 +42,14 @@ in
       tab_bar_style = "powerline";
       tab_powerline_style = "slanted";
 
-      shell_integration = "enabled";
+      # ---- Shell integration ----
+      # Deliberately not set here. Home Manager owns shell_integration via
+      # programs.kitty.shellIntegration.mode (default "no-rc") and wires fish up
+      # itself: it exports KITTY_SHELL_INTEGRATION and sources the vendor script
+      # from config.fish. Setting it in `settings` appends a second
+      # shell_integration line that wins under last-value-wins, silently
+      # re-enabling kitty's own rc injection on top of HM's. To change modes,
+      # set programs.kitty.shellIntegration.mode instead.
 
       # ---- URLs ----
       open_url_with = "default";

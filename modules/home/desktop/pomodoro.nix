@@ -82,17 +82,17 @@ in
 
     workMinutes = lib.mkOption {
       type = lib.types.int;
-      default = 50;
+      default = 25;
     };
 
     shortBreakMinutes = lib.mkOption {
       type = lib.types.int;
-      default = 10;
+      default = 5;
     };
 
     longBreakMinutes = lib.mkOption {
       type = lib.types.int;
-      default = 30;
+      default = 15;
     };
 
     sessionsBeforeLongBreak = lib.mkOption {

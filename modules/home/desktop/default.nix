@@ -30,6 +30,7 @@ in
     ./kitty.nix
     ./zathura.nix
     ./storage.nix
+    ./gammastep.nix
 
     # ---- Compositor-specific ----
     # Each gates itself on jonny.desktop.compositor, so adding a second one is

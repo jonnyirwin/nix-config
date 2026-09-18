@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, lib, ... }:
 
 let
   p = config.jonny.theme.palette;
@@ -28,4 +28,11 @@ in
       "--color=spinner:${p.accent},info:${p.surfaceActive},header:${p.info}"
     ];
   };
+
+  # HM exports FZF_DEFAULT_OPTS as a session variable, which is read once at
+  # login and inherited from then on — a theme switch would not reach fzf
+  # until the next login. Re-exporting per shell picks it up on a new terminal.
+  programs.fish.interactiveShellInit = ''
+    set -gx FZF_DEFAULT_OPTS ${lib.escapeShellArg config.home.sessionVariables.FZF_DEFAULT_OPTS}
+  '';
 }

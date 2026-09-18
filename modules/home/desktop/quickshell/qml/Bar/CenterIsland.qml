@@ -174,12 +174,14 @@ Item {
         Behavior on opacity { NumberAnimation { duration: Theme.animFast } }
 
         Text {
+            anchors.verticalCenter: parent.verticalCenter
             text: Status.pomodoroClass === "break" ? "󰅶" : "󰄉"
             color: Status.pomodoroClass === "break" ? Theme.hues.orange : Theme.success
             font.family: Theme.fontFamily
             font.pixelSize: Theme.fontSize
         }
         Text {
+            anchors.verticalCenter: parent.verticalCenter
             text: root.pomodoroDisplayText
             color: Theme.fg
             font.family: Theme.fontFamily

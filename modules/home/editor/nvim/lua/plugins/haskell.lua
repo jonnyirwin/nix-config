@@ -1,7 +1,7 @@
 return {
     {
         "mrcjkb/haskell-tools.nvim",
-        version = "^4",
+        version = "^10",
         ft = { "haskell", "lhaskell", "cabal", "cabalproject" },
         dependencies = {
             "nvim-lua/plenary.nvim",

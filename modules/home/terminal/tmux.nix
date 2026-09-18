@@ -53,6 +53,7 @@ let
   thmBlue = if useCatppuccin then "#{@thm_blue}" else p.hues.blue;
   thmTeal = if useCatppuccin then "#{@thm_teal}" else p.hues.cyan;
   thmAccent = if useCatppuccin then "#{@thm_accent}" else p.accent;
+  thmMantle = if useCatppuccin then "#{@thm_mantle}" else p.bgAlt;
 
   # Clipboard shim used by copy-mode bindings and `copy-command`.
   # Prefers Wayland, then X11, and otherwise consumes stdin so the pipeline
@@ -233,6 +234,20 @@ in
       set -g status-left-length 100
       set -g status-right-length 100
       set -g status-right "#{E:@catppuccin_status_application} #{E:@catppuccin_status_date} #{E:@catppuccin_status_time} #{?@ai_total,#{E:@catppuccin_status_ai} ,}#{E:@catppuccin_status_session}"
+
+      # Command prompt / messages (prefix+:, rename prompts, display).
+      # Catppuccin sets these to align=centre with bg=default, which under
+      # tmux 3.6+'s message-format centres the prompt (typed input and cursor
+      # drift as you type) and swaps the bar's mantle for the terminal bg.
+      # Instead, left-aligned: the prompt fills the whole bar in surface0 so it
+      # reads as an input field; plain messages stay a surface0 chip on the
+      # normal bar background. Two tmux 3.7 gotchas: the prompt path reads
+      # these styles without format expansion (hence -F, baking in hex), and
+      # the prompt is drawn over a copy of the status line, so without fill=
+      # the right-side pills show through.
+      set -gF message-style "fg=${thmTeal},bg=${thmMantle},fill=${thmMantle},align=left"
+      set -gF message-command-style "fg=${thmAccent},bg=${thmSurface0},fill=${thmSurface0},align=left"
+      set -g message-format "#[#{?#{command_prompt},#{E:message-command-style},#{E:message-style}}]#{?#{command_prompt},,#[bg=${thmSurface0}] }#{message}#{?#{command_prompt},, #[bg=${thmMantle}]}"
 
       # Pane borders: subtle grey + accent focus, matching waybar.
       set -g pane-border-style "fg=${p.surfaceAlt}"

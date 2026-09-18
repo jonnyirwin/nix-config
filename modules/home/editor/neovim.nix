@@ -113,6 +113,16 @@ in
       # Markdown
       markdownlint-cli
 
+      # Haskell fallback for files outside a project devshell. extraPackages
+      # are suffixed onto PATH, so a devshell's GHC/HLS (loaded via direnv)
+      # still wins. Keep the GHC in step with devshells/haskell.nix: HLS only
+      # works against the GHC it was built for.
+      haskell.packages.ghc967.ghc
+      haskell.packages.ghc967.haskell-language-server
+      haskell.packages.ghc967.fourmolu
+      cabal-install
+      hlint
+
       # Plugin runtime deps
       ripgrep # telescope live grep
       fd # telescope file finder

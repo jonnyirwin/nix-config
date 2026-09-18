@@ -45,12 +45,9 @@ in
 
       # ---- Design / engineering ----
       kicad # PCB design
-      # `openscad-unstable` carries the Manifold geometry backend, which is far
-      # faster on CSG-heavy models than the 2021.01 release this attr pins. It
-      # is off for now: the nightly fails to link under LTO — lld rejects a
-      # malformed .debug_gdb_scripts section — and there is no cache hit, so it
-      # builds from source and fails. Switch back once that clears upstream.
-      openscad # programmatic CAD
+      # The nightly rather than `openscad`: it carries the Manifold geometry
+      # backend, far faster on CSG-heavy models than the 2021.01 release.
+      openscad-unstable # programmatic CAD
       inkscape # vector graphics
 
       # ---- Embedded ----

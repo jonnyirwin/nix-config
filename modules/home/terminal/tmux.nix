@@ -107,8 +107,9 @@ in
 
     prefix = "C-a";
     baseIndex = 1;
-    escapeTime = 100;
+    escapeTime = 10;
     focusEvents = true;
+    historyLimit = 50000;
     mouse = true;
 
     # The copy-mode-vi bindings below only take effect with vi mode-keys.
@@ -144,6 +145,12 @@ in
       # baseIndex above only covers windows.
       set -g pane-base-index 1
 
+      # ---- Windows / sessions ----
+      # Close gaps in window numbers so prefix+N stays predictable.
+      set -g renumber-windows on
+      # Killing a session's last window hops to another session instead of detaching.
+      set -g detach-on-destroy off
+
       # ---- Terminal capabilities ----
       # True colour plus italics, which tmux-256color alone doesn't advertise.
       set -as terminal-overrides ',*:Tc,*:sitm=\E[3m,*:ritm=\E[23m'
@@ -160,8 +167,13 @@ in
       # ---- Bindings ----
       bind r source-file ${config.xdg.configHome}/tmux/tmux.conf \; display "Reloaded tmux config."
 
-      bind | split-window -h
-      bind - split-window -v
+      # Splits and new windows open in the current pane's directory.
+      bind | split-window -h -c "#{pane_current_path}"
+      bind - split-window -v -c "#{pane_current_path}"
+      bind c new-window -c "#{pane_current_path}"
+
+      # Floating lazygit in the current directory; closes when lazygit exits.
+      bind g display-popup -E -w 90% -h 90% -d "#{pane_current_path}" ${lib.getExe config.programs.lazygit.package}
 
       bind -r H resize-pane -L 5
       bind -r J resize-pane -D 5

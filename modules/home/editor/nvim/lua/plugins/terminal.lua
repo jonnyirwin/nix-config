@@ -160,13 +160,6 @@ return {
             vim.keymap.set("n", "<leader>ixs", "<cmd>lua _phoenix_server_toggle()<CR>", { desc = "Phoenix server" })
             vim.keymap.set("n", "<leader>ixt", "<cmd>lua _mix_test_toggle()<CR>", { desc = "Mix test (stale)" })
             vim.keymap.set("n", "<leader>ixl", "<cmd>lua _livebook_toggle()<CR>", { desc = "LiveBook server" })
-
-            -- Terminal mode keybindings
-            vim.keymap.set("t", "<esc>", [[<C-\><C-n>]], { desc = "Exit terminal mode" })
-            vim.keymap.set("t", "<C-h>", [[<Cmd>wincmd h<CR>]], { desc = "Navigate left" })
-            vim.keymap.set("t", "<C-j>", [[<Cmd>wincmd j<CR>]], { desc = "Navigate down" })
-            vim.keymap.set("t", "<C-k>", [[<Cmd>wincmd k<CR>]], { desc = "Navigate up" })
-            vim.keymap.set("t", "<C-l>", [[<Cmd>wincmd l<CR>]], { desc = "Navigate right" })
         end,
     },
 }

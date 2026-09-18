@@ -14,6 +14,14 @@ keymap.set("n", "<leader>wx", ":close<CR>", { desc = "Close current split" })
 -- Navigation between windows/tmux panes is handled by vim-tmux-navigator
 -- The keybindings <C-h>, <C-j>, <C-k>, <C-l> work automatically
 
+-- Terminal mode (toggleterm, the haskell-tools REPL, :term). Set here rather
+-- than in toggleterm's config so they exist before it lazy-loads.
+keymap.set("t", "<esc>", [[<C-\><C-n>]], { desc = "Exit terminal mode" })
+keymap.set("t", "<C-h>", [[<Cmd>wincmd h<CR>]], { desc = "Navigate left" })
+keymap.set("t", "<C-j>", [[<Cmd>wincmd j<CR>]], { desc = "Navigate down" })
+keymap.set("t", "<C-k>", [[<Cmd>wincmd k<CR>]], { desc = "Navigate up" })
+keymap.set("t", "<C-l>", [[<Cmd>wincmd l<CR>]], { desc = "Navigate right" })
+
 -- Tab management
 keymap.set("n", "<leader>ao", ":tabnew<CR>", { desc = "Open new tab" })
 keymap.set("n", "<leader>ax", ":tabclose<CR>", { desc = "Close current tab" })

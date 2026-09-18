@@ -227,8 +227,17 @@ in
     };
 
     # ---- Non-interactive init ----
+    # HM sources its session variables only once per login: the guard is
+    # exported, so every later shell inherits the login's values and skips
+    # the file. After a rebuild that changes one (a theme switch rewrites
+    # FZF_DEFAULT_OPTS, LG_CONFIG_FILE, XCURSOR_THEME...) new terminals would
+    # keep the stale value until the next login. Clearing the guard and
+    # re-sourcing makes each new shell read the current generation.
     shellInit = ''
       set fish_greeting ""
+
+      set -e __HM_SESS_VARS_SOURCED
+      source ${config.programs.fish.sessionVariablesPackage}/etc/profile.d/hm-session-vars.fish
     '';
 
     # ---- Interactive init (was the tail of config.fish) ----

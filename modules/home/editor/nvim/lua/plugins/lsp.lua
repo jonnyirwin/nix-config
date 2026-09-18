@@ -139,8 +139,8 @@ return {
             vim.keymap.set("n", "<leader>lr", vim.lsp.buf.references, { desc = "References" })
             vim.keymap.set("n", "<leader>lc", vim.lsp.buf.rename, { desc = "Rename" })
             vim.keymap.set("n", "<leader>la", vim.lsp.buf.code_action, { desc = "Code Action" })
-            vim.keymap.set("n", "<leader>lj", vim.diagnostic.goto_next, { desc = "Next diagnostic" })
-            vim.keymap.set("n", "<leader>lk", vim.diagnostic.goto_prev, { desc = "Prev diagnostic" })
+            vim.keymap.set("n", "<leader>lj", function() vim.diagnostic.jump({ count = 1, float = true }) end, { desc = "Next diagnostic" })
+            vim.keymap.set("n", "<leader>lk", function() vim.diagnostic.jump({ count = -1, float = true }) end, { desc = "Prev diagnostic" })
 
             -- Type hierarchy (experimental feature)
             vim.keymap.set("n", "<leader>lt", function()
@@ -220,7 +220,7 @@ return {
 
                 -- Test lockfile parsing
                 local function lockfile_has_gem(lock_path, gem)
-                    local stat = vim.loop.fs_stat(lock_path)
+                    local stat = vim.uv.fs_stat(lock_path)
                     if not stat then return false end
                     local ok, lines = pcall(vim.fn.readfile, lock_path)
                     if not ok then return false end

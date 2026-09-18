@@ -66,8 +66,7 @@
         swap = {
           # Matches optiplex rather than bearnagh's zram: this is a desktop
           # with a spinning archive disk attached, not a laptop trying to
-          # spare an ageing SSD. Roughly the 12.3 GB Debian ran with, rounded
-          # up to RAM size.
+          # spare an ageing SSD. Sized to match RAM.
           size = "16G";
           content = {
             type = "swap";

@@ -6,8 +6,8 @@ import qs.Common
 import qs.Services
 import qs.Widgets
 
-// Replaces command-menu.nix's rofi hub: the "everything nested" menu,
-// Omarchy's one idea worth copying wholesale. Same shape (categories that
+// Replaces command-menu.nix's rofi hub: the "everything nested" menu.
+// Same shape (categories that
 // open submenus, Escape goes up one level rather than closing outright) —
 // just native QML instead of a bash script driving repeated rofi -dmenu
 // calls, so it can actually look like the rest of this shell instead of

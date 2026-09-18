@@ -3,10 +3,8 @@
 # Toshiba THNSNH256GBST, 256 GB SATA. Referenced by stable by-id path — never
 # /dev/sda, which is allocation-order dependent.
 #
-# Shape: ESP + a single LUKS container holding an LVM volume group. The disk
-# is unencrypted under EndeavourOS today; this encrypts it, which is the one
-# deliberate departure from "replicate what works". It is a laptop, and the
-# rest of the fleet is encrypted.
+# Shape: ESP + a single LUKS container holding an LVM volume group. Encrypted
+# because it is a laptop, and the rest of the fleet is encrypted.
 #
 # Unlike bearnagh there IS a swap LV, because this machine hibernates — see
 # boot.resumeDevice in ../default.nix.
@@ -65,11 +63,8 @@
       lvs = {
         swap = {
           # 18 GB against 16 GB of RAM. Sized for hibernation, which needs a
-          # real swap device at least as large as memory — the machine runs
-          # with `resume=` set today and this keeps that working. The old
-          # layout used a bare 17.1 GB partition; here it is an LV inside the
-          # LUKS container, so the hibernation image is encrypted too, which
-          # it previously was not.
+          # real swap device at least as large as memory. It is an LV inside
+          # the LUKS container, so the hibernation image is encrypted too.
           size = "18G";
           content = {
             type = "swap";

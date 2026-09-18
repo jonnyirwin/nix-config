@@ -26,8 +26,7 @@ let
   quickshell = cfg.shell == "quickshell";
 in
 {
-  # Omarchy 4's one idea worth borrowing wholesale: a single entry point that
-  # nests every desktop command, instead of a keybinding per action and a
+  # A single entry point that nests every desktop command, instead of a keybinding per action and a
   # cheatsheet to remember them by.
   #
   # Deliberately additive. Every binding this fronts still works on its own

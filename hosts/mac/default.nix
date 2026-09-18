@@ -7,9 +7,8 @@
 # AMD Radeon HD 6750M). Encrypted (LUKS) root, hibernates to an encrypted swap
 # LV.
 #
-# This machine is old and particular, so the guiding rule here is to reproduce
-# the arrangement that already works under EndeavourOS rather than to improve
-# on it. Where something looks odd below, it is because the hardware is.
+# This machine is old and particular, so the guiding rule here is to stick to
+# arrangements known to work on this hardware rather than to improve on them. Where something looks odd below, it is because the hardware is.
 {
   imports = [
     # Disks. ./disks declares the partition layout, and disko derives
@@ -85,21 +84,20 @@
     # cannot simply be switched off; the display goes with it.
     #
     # `radeon.runpm=0` disables runtime power management for that card. It is
-    # what the working EndeavourOS install boots with, and it is the standard
-    # fix for this generation of MacBook Pro, where letting the kernel power
+    # the standard fix for this generation of MacBook Pro, where letting the kernel power
     # the Radeon down and back up hangs the machine.
     #
     # Deliberately NOT attempting to force integrated-only graphics. It is
     # possible (the gpu-switch EFI-variable trick), and on a model whose
     # discrete GPU is famous for failing it is tempting, but it is a change to
-    # firmware state rather than to this config, it can leave the machine
-    # without display output, and it is not what is running today.
+    # firmware state rather than to this config, and it can leave the machine
+    # without display output.
     kernelParams = [ "radeon.runpm=0" ];
 
     # ── Keyboard ─────────────────────────────────────────────
     # Apple keyboards expose F-keys and media keys on the same row, and which
-    # one you get without holding Fn is a module parameter. 3 is what the
-    # machine runs today; it is set explicitly because the kernel default for
+    # one you get without holding Fn is a module parameter. It is pinned
+    # to 3 explicitly because the kernel default for
     # this has changed over time and a silent flip is an annoying thing to
     # debug later.
     extraModprobeConfig = ''
@@ -107,9 +105,8 @@
     '';
 
     # ── Hibernation ──────────────────────────────────────────
-    # The machine hibernates today (`resume=` is on its current kernel command
-    # line), so it keeps a real swap device rather than bearnagh's zram. The
-    # LV lives inside the LUKS container, so unlike the old layout the
+    # The machine hibernates, so it keeps a real swap device rather than
+    # bearnagh's zram. The LV lives inside the LUKS container, so the
     # hibernation image — a verbatim copy of RAM — is encrypted at rest.
     resumeDevice = "/dev/pool/swap";
 

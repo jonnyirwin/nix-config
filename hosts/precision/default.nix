@@ -117,10 +117,7 @@
       "uid=1000"
       "gid=100"
       "umask=0022"
-      # Never block boot on the archive disk. Debian mounted this at
-      # /mnt/sdb1, which was already a misnomer — it is the first partition
-      # of what Debian called sda — so it is renamed here to something that
-      # says what it holds rather than where it happened to enumerate.
+      # Never block boot on the archive disk.
       "nofail"
       "x-systemd.device-timeout=10s"
     ];

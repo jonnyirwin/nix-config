@@ -73,9 +73,8 @@
   };
 
   # ── Swap ───────────────────────────────────────────────────
-  # Compressed RAM rather than a swap LV, which is what Fedora ran on this
-  # machine and what a 2013-era SandForce SSD would rather not be doing. It
-  # also keeps the whole 222 GB available on a disk that has none to spare.
+  # Compressed RAM rather than a swap LV: a 2013-era SandForce SSD would
+  # rather not be taking swap writes. It also keeps the whole 222 GB available on a disk that has none to spare.
   #
   # The cost is hibernation: suspend-to-disk needs a real swap device at least
   # the size of RAM. If you want it, add a 16 GB `swap` LV to ./disks

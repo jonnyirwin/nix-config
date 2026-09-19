@@ -42,12 +42,15 @@
       # mounted portrait and SDDM has to be told; the built-in display here is
       # eDP-1 in its native orientation, which is already what SDDM assumes.
 
-      # Deliberately off, unlike optiplex:
-      #   steam    — HD 520 integrated graphics is not what this machine is for
-      #   printing — the declared ENVY queue is optiplex's LAN, not something
-      #              a laptop should carry around
-      #   scanning — same
-      # Turn any of them on here if that stops being true.
+      # Same ENVY printer and scanner as optiplex (the queue is declared in
+      # modules/nixos/desktop/printing.nix). Away from home the pinned queue
+      # just sits unreachable, and mDNS still finds whatever printer is local.
+      printing.enable = true;
+      scanning.enable = true;
+
+      # Deliberately off, unlike optiplex: HD 520 integrated graphics is not
+      # what this machine is for.
+      #   steam
     };
 
     # Deliberately not optiplex's theme, so the laptop is recognisable at a

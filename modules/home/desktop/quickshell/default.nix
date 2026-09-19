@@ -88,6 +88,12 @@ let
     builtins.readFile ./scripts/list-apps.py
   );
 
+  # Stands in for UPower's percentage when the battery's fuel gauge
+  # freezes — see the docstring in the script.
+  batteryStatus = pkgs.writers.writePython3Bin "quickshell-battery-status" { } (
+    builtins.readFile ./scripts/battery-status.py
+  );
+
   # Mirrors waybar's built-in `network` module (modules/home/desktop/
   # waybar.nix) so the two bars show the same thing — nmcli rather than
   # netlink directly, since this only needs to be polled every few seconds
@@ -133,7 +139,7 @@ let
 in
 {
   config = lib.mkIf (cfg.enable && cfg.shell == "quickshell") {
-    home.packages = [ listApps networkStatus ];
+    home.packages = [ listApps networkStatus batteryStatus ];
 
     programs.quickshell = {
       enable = true;

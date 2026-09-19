@@ -201,7 +201,7 @@ PanelWindow {
                     }
                     Text {
                         anchors.verticalCenter: parent.verticalCenter
-                        text: Status.batteryPercent + "%"
+                        text: (Status.batteryEstimated ? "~" : "") + Status.batteryPercent + "%"
                         color: Theme.fg
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSize - 1

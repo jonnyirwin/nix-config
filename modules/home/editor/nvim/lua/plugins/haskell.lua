@@ -126,7 +126,9 @@ return {
                                         crossModule = true,
                                     },
                                 },
-                                retrie = { globalOn = true },
+                                -- Off: throws an internal error on code-action
+                                -- requests, and HLS drops it from GHC 9.10 on
+                                retrie = { globalOn = false },
                                 semanticTokens = { globalOn = true },
                                 splice = { globalOn = true },
                                 tactics = {

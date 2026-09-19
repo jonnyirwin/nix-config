@@ -93,16 +93,21 @@ in
       wayland.compositorCommand = compositorCommand;
     };
 
-    catppuccin = lib.mkIf (catppuccinFlavor != null) {
+    catppuccin = {
       # sddm.nix's own gate is `catppuccin.enable && catppuccin.sddm.enable`,
       # so the global switch has to be on — but leaving autoEnable at its
       # default would auto-theme every other catppuccin/nix NixOS module too
       # (tty console colours, grub, gtk...). Opt in to just sddm.
-      enable = true;
+      #
+      # autoEnable is set even on non-catppuccin schemes: catppuccin/nix warns
+      # ("will soon auto enroll ports") whenever it is left unset, regardless
+      # of `enable`. Same pattern as modules/home/theme/default.nix.
+      enable = catppuccinFlavor != null;
       autoEnable = false;
+      sddm.enable = true;
+    } // lib.optionalAttrs (catppuccinFlavor != null) {
       flavor = catppuccinFlavor;
       accent = myLib.catppuccinAccents.${themeCfg.accent};
-      sddm.enable = true;
     };
   };
 }

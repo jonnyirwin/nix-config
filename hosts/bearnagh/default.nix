@@ -50,13 +50,14 @@
       # Turn any of them on here if that stops being true.
     };
 
-    # Same theme as optiplex so the two machines look like one system. Change
-    # either line to re-theme everything: SDDM reads it directly, and the Home
-    # Manager side defaults from it, so the greeter and the session cannot
-    # drift apart. Schemes: catppuccin-{latte,frappe,macchiato,mocha},
-    # gruvbox-dark, nord — see lib/schemes/.
+    # Deliberately not optiplex's theme, so the laptop is recognisable at a
+    # glance. Change either line to re-theme everything: SDDM reads it
+    # directly, and the Home Manager side defaults from it, so the greeter and
+    # the session cannot drift apart. Schemes: catppuccin-{latte,frappe,
+    # macchiato,mocha}, gruvbox-dark, nord, tokyo-night, everforest, kanagawa
+    # — see lib/schemes/.
     theme = {
-      scheme = "catppuccin-mocha";
+      scheme = "tokyo-night";
       accent = "purple";
     };
 

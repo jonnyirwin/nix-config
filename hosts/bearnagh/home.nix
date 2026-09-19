@@ -1,5 +1,6 @@
 # Home Manager config specific to bearnagh. Shared user config lives in
 # modules/home; this file should stay small enough to read at a glance.
+{ pkgs, ... }:
 {
   jonny = {
     # desktop.enable, desktop.compositor and the whole of jonny.theme are
@@ -15,6 +16,18 @@
       # in place of waybar + rofi's drun + mako. Flip back to "waybar" to
       # revert — nothing else here changes either way.
       shell = "quickshell";
+    };
+
+    # Intel One Mono as the real mono font rather than Dank Mono's stand-in,
+    # so the substitute alias has nothing to do. The UI font stays Inter (the
+    # default).
+    theme.fonts = {
+      mono = {
+        family = "Intel One Mono";
+        package = pkgs.intel-one-mono;
+        size = 16;
+      };
+      substitute = null;
     };
 
     backup = {

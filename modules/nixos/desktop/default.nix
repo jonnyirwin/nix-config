@@ -47,5 +47,10 @@ in
     # SDDM launches this; kept as an option so it stays in step with the
     # compositor rather than being spelled out in the greeter command.
     services.displayManager.defaultSession = lib.mkDefault cfg.compositor;
+
+    # The quickshell bar reads battery state from UPower over D-Bus rather than
+    # sysfs, so without the daemon its battery pill never appears. Harmless on
+    # a desktop: no battery device, pill stays hidden.
+    services.upower.enable = true;
   };
 }

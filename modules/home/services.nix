@@ -31,7 +31,4 @@
       use-agent = true;
     };
   };
-
-  # Peer-to-peer file sync; web UI on http://localhost:8384.
-  services.syncthing.enable = true;
 }

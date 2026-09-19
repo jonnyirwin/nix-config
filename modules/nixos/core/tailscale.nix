@@ -53,5 +53,10 @@ in
 
     networking.firewall.trustedInterfaces =
       lib.mkIf cfg.trustTailnet [ config.services.tailscale.interfaceName ];
+
+    # Syncthing (modules/home/syncthing.nix) peers only over the tailnet, so
+    # its listening port is opened on tailscale0 alone rather than everywhere.
+    networking.firewall.interfaces.${config.services.tailscale.interfaceName}.allowedTCPPorts =
+      [ 22000 ];
   };
 }

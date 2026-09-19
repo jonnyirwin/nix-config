@@ -5,9 +5,11 @@ A worn pack's gauge can freeze: energy_now sticks at energy_full ("100%")
 while the machine discharges at ~10 W until it cuts out with no warning.
 power_now and voltage_now keep updating live, so while the gauge is frozen
 this counts energy down from the last value it reported, integrating
-power_now between calls. The running total lives in $XDG_STATE_HOME so a
-restart of the shell (it restarts after every resume) doesn't reset it to
-the frozen "100%".
+power_now between calls — and back up again while charging, since the
+gauge stays frozen then too. The running total lives in $XDG_STATE_HOME so
+a restart of the shell (it restarts after every resume) doesn't reset it
+to the frozen "100%". Only the gauge actually moving resets it: plugging
+in flickers through "Not charging" first, which must not.
 
 Polled every 30s: `quickshell-battery-status | jq`.
 """
@@ -24,6 +26,8 @@ STALE_AFTER = 180
 # down); count it at a suspend-ish draw rather than the last live reading.
 MAX_GAP = 180
 SUSPEND_UW = 500_000
+# Share of power_now going in while charging that ends up stored.
+CHARGE_EFFICIENCY = 0.9
 # Below this per-cell voltage under load a Li-ion pack is nearly empty,
 # whatever the gauge claims.
 CRITICAL_CELL_V = 3.45
@@ -85,23 +89,21 @@ def main():
     now = time.time()
     state = load_state()
 
-    fresh = (
-        state is None
-        or bat["status"] != "Discharging"
-        or state.get("energy") != bat["now"]
-    )
-    if fresh:
+    if state is None or state.get("energy") != bat["now"]:
         state = {"energy": bat["now"], "changed_at": now, "used": 0}
     else:
         dt = max(0.0, now - state.get("last_ts", now))
-        uw = bat["power"] if dt <= MAX_GAP else SUSPEND_UW
-        state["used"] += uw * dt / 3600
+        if bat["status"] == "Discharging":
+            uw = bat["power"] if dt <= MAX_GAP else SUSPEND_UW
+            state["used"] += uw * dt / 3600
+        elif bat["status"] == "Charging" and dt <= MAX_GAP:
+            stored = bat["power"] * CHARGE_EFFICIENCY * dt / 3600
+            state["used"] = max(0.0, state["used"] - stored)
     state["last_ts"] = now
     save_state(state)
 
     stale = (
-        bat["status"] == "Discharging"
-        and now - state["changed_at"] >= STALE_AFTER
+        now - state["changed_at"] >= STALE_AFTER
         and state["used"] > 0
     )
     energy = max(0.0, bat["now"] - state["used"]) if stale else bat["now"]

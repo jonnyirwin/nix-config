@@ -17,7 +17,8 @@ in
         Off by default, because it is a bigger grant than it looks: it exposes
         *every* listening service on this machine to every device on the
         tailnet, not just the ones with an open port. Reaching SSH over the
-        tailnet does not need it — `services.openssh` already opens 22 — so
+        tailnet does not need it — modules/nixos/core/openssh.nix opens 22 on
+        the Tailscale interface itself — so
         turn it on only when you want the tailnet treated as a LAN, and
         remember that a phone with the Tailscale app counts as a tailnet
         device.

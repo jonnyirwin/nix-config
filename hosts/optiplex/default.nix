@@ -67,7 +67,12 @@
       accent = "purple";
     };
 
-    services.openssh.enable = true;
+    services.openssh = {
+      enable = true;
+      # Tailnet plus the home LAN. IPv6 by link-local only: LAN peers' global
+      # addresses share the ISP's rotating prefix, so there's no stable range.
+      lanSubnets = [ "192.168.1.0/24" "fe80::/10" ];
+    };
     services.tailscale.enable = true;
     secrets.enable = true;
     security.passwordlessSudo = true;

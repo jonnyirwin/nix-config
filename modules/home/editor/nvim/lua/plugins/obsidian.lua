@@ -8,11 +8,16 @@ local function read_accent_hex()
 end
 local accent = read_accent_hex()
 
+-- The vault checkout only exists on hosts with jonny.vaultSync enabled; elsewhere
+-- obsidian.nvim's setup throws FileNotFoundError on every markdown buffer.
+local vault = "~/git/Second-Brain"
+
 return {
     "epwalsh/obsidian.nvim",
     version = "*",
     lazy = true,
     ft = "markdown",
+    cond = vim.fn.isdirectory(vim.fn.expand(vault)) == 1,
     dependencies = {
         "nvim-lua/plenary.nvim",
         "nvim-telescope/telescope.nvim",
@@ -21,7 +26,7 @@ return {
         workspaces = {
             {
                 name = "Second-Brain",
-                path = "~/git/Second-Brain",
+                path = vault,
             },
         },
 

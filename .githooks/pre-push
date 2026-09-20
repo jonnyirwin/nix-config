@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+#
+# Runs the same command CI does (.github/workflows/check.yml) before a push,
+# so an unformatted file or a host that no longer evaluates is caught here
+# rather than in a red run on GitHub.
+#
+# Note this checks the *working tree*, not the exact commits being pushed —
+# that matches how you'd run `nix flake check` by hand, and it is what you
+# want in practice: a dirty tree that fails should not be pushed from.
+#
+# Enable with `git config core.hooksPath .githooks`; bypass once with
+# `git push --no-verify`.
+
+set -euo pipefail
+
+# Branch deletions (`git push origin :branch`) push nothing to check. stdin is
+# one "<local ref> <local sha> <remote ref> <remote sha>" line per ref, and a
+# deletion has the all-zero local sha.
+has_content=0
+while read -r _local_ref local_sha _remote_ref _remote_sha; do
+  if [[ "$local_sha" != *[!0]* ]]; then
+    continue
+  fi
+  has_content=1
+done
+
+if [[ "$has_content" -eq 0 ]]; then
+  exit 0
+fi
+
+echo "pre-push: nix flake check"
+
+if ! nix flake check --print-build-logs; then
+  echo
+  echo "pre-push: nix flake check failed — push aborted."
+  echo "  formatting:  nix fmt"
+  echo "  bypass:      git push --no-verify"
+  exit 1
+fi

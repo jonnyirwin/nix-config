@@ -119,3 +119,12 @@ formatting check over the tree. CI runs the same command on every push
 host that no longer evaluates fails there rather than at rebuild time.
 
 Format with `nix fmt`.
+
+A `pre-push` hook runs that same command before every push. It ships in
+`.githooks/`, so a fresh clone has to opt in once:
+
+```sh
+git config core.hooksPath .githooks
+```
+
+Bypass a single push with `git push --no-verify`.

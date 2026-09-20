@@ -58,16 +58,18 @@ in
         addresses = [ "tcp://${name}:22000" ];
       });
 
-      folders = lib.mapAttrs (_: f: {
-        inherit (f) path;
-        devices = lib.remove cfg.host f.devices;
-        # Replaced and deleted files go to .stversions/ rather than vanishing,
-        # thinned out over time and dropped after 30 days.
-        versioning = {
-          type = "staggered";
-          params.maxAge = toString (30 * 24 * 3600);
-        };
-      }) mine;
+      folders = lib.mapAttrs
+        (_: f: {
+          inherit (f) path;
+          devices = lib.remove cfg.host f.devices;
+          # Replaced and deleted files go to .stversions/ rather than vanishing,
+          # thinned out over time and dropped after 30 days.
+          versioning = {
+            type = "staggered";
+            params.maxAge = toString (30 * 24 * 3600);
+          };
+        })
+        mine;
 
       options = {
         urAccepted = -1; # no usage reporting, and no prompt asking about it

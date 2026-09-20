@@ -195,13 +195,13 @@ PanelWindow {
                     Text {
                         anchors.verticalCenter: parent.verticalCenter
                         text: Status.batteryCharging ? "󰂄" : "󰁹"
-                        color: Status.batteryState === "critical" ? Theme.error : (Status.batteryState === "warning" ? Theme.warning : Theme.success)
+                        color: Status.batteryCharging ? Theme.info : (Status.batteryState === "critical" ? Theme.error : (Status.batteryState === "warning" ? Theme.warning : Theme.success))
                         font.pixelSize: Theme.fontSize
                         font.family: Theme.fontFamily
                     }
                     Text {
                         anchors.verticalCenter: parent.verticalCenter
-                        text: Status.batteryPercent + "%"
+                        text: (Status.batteryEstimated ? "~" : "") + Status.batteryPercent + "%"
                         color: Theme.fg
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSize - 1

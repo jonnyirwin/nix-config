@@ -3,7 +3,7 @@
 # Tools wanted in every shell. Note what is deliberately NOT here:
 #   * LSPs, formatters, linters  → modules/home/editor/neovim.nix (extraPackages,
 #     so they are on nvim's PATH only, not polluting the global profile)
-#   * language runtimes          → devshells/ via direnv
+#   * language runtimes          → devshells/ via direnv (except GHC, below)
 #   * anything with an HM module → its own module, for theming/config
 {
   home.packages = with pkgs; [
@@ -28,6 +28,10 @@
     curl
     wget
     poppler-utils # pdftotext, pdfinfo
+    # A global `ghci` for scratch work outside any project. direnv prepends a
+    # devshell's PATH, so a project's own GHC still wins. Kept on the same
+    # version as devshells/haskell.nix and the Neovim fallback.
+    haskell.packages.ghc967.ghc
 
     # ---- Disk and process inspection ----
     dua # interactive disk usage; `dua i <dir>` to walk and delete

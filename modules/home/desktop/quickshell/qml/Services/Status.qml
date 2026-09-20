@@ -89,18 +89,57 @@ Singleton {
     readonly property var _batteries: UPower.devices.values.filter(d => d.isLaptopBattery && d.ready)
     readonly property bool hasBattery: root._batteries.length > 0
     readonly property var _battery: root.hasBattery ? root._batteries[0] : null
-    readonly property int batteryPercent: root._battery ? Math.round(root._battery.percentage * 100) : 0
+    // UPower only relays the fuel gauge, which can freeze at "100%" on a worn
+    // pack while it drains — battery-status counts down from the live power
+    // draw instead once it notices (scripts/battery-status.py).
+    property bool batteryEstimated: false
+    property int _estimatedPercent: 0
+    property bool _lowVoltage: false
+    readonly property int batteryPercent: {
+        if (!root._battery)
+            return 0;
+        if (root.batteryEstimated)
+            return root._estimatedPercent;
+        return Math.round(root._battery.percentage * 100);
+    }
     readonly property bool batteryCharging: root._battery ? root._battery.state === UPowerDeviceState.Charging : false
     readonly property string batteryState: {
         if (!root.hasBattery)
             return "none";
         if (root.batteryCharging)
             return "charging";
-        if (root.batteryPercent <= 15)
+        if (root._lowVoltage || root.batteryPercent <= 15)
             return "critical";
         if (root.batteryPercent <= 30)
             return "warning";
         return "normal";
+    }
+
+    Timer {
+        interval: 30000
+        running: root.hasBattery
+        repeat: true
+        triggeredOnStart: true
+        onTriggered: batteryPoll.running = true
+    }
+
+    Process {
+        id: batteryPoll
+        command: ["quickshell-battery-status"]
+        stdout: StdioCollector {
+            waitForEnd: true
+            onStreamFinished: {
+                try {
+                    const data = JSON.parse(text);
+                    root._estimatedPercent = data.percent;
+                    root._lowVoltage = data.lowVoltage;
+                    root.batteryEstimated = data.estimated;
+                } catch (e) {
+                    root.batteryEstimated = false;
+                    root._lowVoltage = false;
+                }
+            }
+        }
     }
 
     // ---- Brightness (DDC/CI or backlight — see scripts.nix `brightness`) ----

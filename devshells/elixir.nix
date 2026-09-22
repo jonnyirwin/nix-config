@@ -13,10 +13,11 @@
 #   - Multiple Elixir versions side-by-side (different devShells)
 # ============================================================
 let
-  # Select the Elixir version. nixpkgs often provides several:
-  # pkgs.elixir, pkgs.elixir_1_16, pkgs.elixir_1_17, etc.
-  # The default `pkgs.elixir` tracks the latest stable.
-  elixirPkg = pkgs.elixir;
+  # Select the Elixir version. nixpkgs provides several in the beamPackages
+  # set: beamPackages.elixir, beamPackages.elixir_1_16, etc.
+  # The default `beamPackages.elixir` tracks the latest stable.
+  # (The top-level `pkgs.elixir` alias is deprecated.)
+  elixirPkg = pkgs.beamPackages.elixir;
 in
 pkgs.mkShell {
   name = "elixir-dev";

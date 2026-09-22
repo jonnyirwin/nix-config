@@ -21,6 +21,10 @@
 let
   configPath = "${config.jonny.flakePath}/modules/home/editor/nvim";
 
+  # GHC/HLS pair for the Haskell fallback in extraPackages below. The version
+  # is shared with devshells/haskell.nix and core/packages.nix.
+  hpkgs = (import ../../../lib { inherit (pkgs) lib; }).haskellPackages pkgs;
+
   # Treesitter parsers, prebuilt from nixpkgs. This replaces the runtime
   # `require('nvim-treesitter').install(...)` block plus `build = ":TSUpdate"`
   # in lua/plugins/treesitter.lua, which compiled 24 grammars on first launch
@@ -115,11 +119,11 @@ in
 
       # Haskell fallback for files outside a project devshell. extraPackages
       # are suffixed onto PATH, so a devshell's GHC/HLS (loaded via direnv)
-      # still wins. Keep the GHC in step with devshells/haskell.nix and
-      # core/packages.nix: HLS only works against the GHC it was built for.
-      haskell.packages.ghc967.ghc
-      haskell.packages.ghc967.haskell-language-server
-      haskell.packages.ghc967.fourmolu
+      # still wins. hpkgs above pins the GHC once, in lib/default.nix: HLS
+      # only works against the GHC it was built for.
+      hpkgs.ghc
+      hpkgs.haskell-language-server
+      hpkgs.fourmolu
       cabal-install
       hlint
 

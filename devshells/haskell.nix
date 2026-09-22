@@ -3,23 +3,15 @@
 # ============================================================
 # Haskell development shell
 # ============================================================
-# Pins a specific GHC version and the MATCHING HLS build.
-# This solves the version-matching problem described in modules/dev/haskell.nix.
+# Provides a GHC and the MATCHING HLS build.
 #
-# nixpkgs ships HLS pre-built for each GHC it supports. We select
-# a GHC version by using `pkgs.haskell.packages.ghcXYZ` where XYZ is
-# the GHC major.minor version with dots removed (e.g. ghc966 = GHC 9.6.6).
-#
-# To list available GHC versions in your nixpkgs revision:
-#   nix repl '<nixpkgs>'
-#   :a pkgs.haskell.packages
-#   # tab-complete to see all ghcXYZ attrs
+# nixpkgs ships HLS pre-built for each GHC it supports, so taking both from
+# one `pkgs.haskell.packages.ghcXYZ` set guarantees the pair agrees. The
+# version itself lives in lib/default.nix, shared with the Neovim fallback
+# and the global ghci — change it there, not here.
 # ============================================================
 let
-  # Pin to a specific GHC. Change this to switch versions project-wide.
-  # GHC 9.6.x is the current stable LTS target.
-  ghcVersion = "ghc967";
-  hpkgs = pkgs.haskell.packages.${ghcVersion};
+  hpkgs = (import ../lib { inherit (pkgs) lib; }).haskellPackages pkgs;
 in
 pkgs.mkShell {
   name = "haskell-dev";

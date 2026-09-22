@@ -103,4 +103,23 @@ rec {
         or (if lib.stringLength key == 1 then lib.toLower key else key);
     in
     lib.concatStringsSep "+" (map render (lib.init parts) ++ [ keysym ]);
+
+  # The one GHC every Haskell toolchain in this config is built against. HLS
+  # is compiled for an exact GHC and will not load a project built by another,
+  # so devshells/haskell.nix, the Neovim fallback in
+  # modules/home/editor/neovim.nix and the global ghci in
+  # modules/home/core/packages.nix have to agree. They read this instead of
+  # each naming a version, because drift surfaces as HLS dying silently in the
+  # editor rather than as a build failure `nix flake check` would catch.
+  #
+  # To see what a nixpkgs revision offers:
+  #   nix repl nixpkgs
+  #   :a legacyPackages.x86_64-linux.haskell.packages
+  #   # tab-complete the ghcXYZ attrs (ghc967 = GHC 9.6.7)
+  ghcVersion = "ghc967";
+
+  # The matching package set: GHC, HLS, ghcid and the formatters built
+  # together. Callers hold `pkgs`, this file does not, so it is passed in:
+  #   hpkgs = (import ../lib { inherit (pkgs) lib; }).haskellPackages pkgs;
+  haskellPackages = pkgs: pkgs.haskell.packages.${ghcVersion};
 }

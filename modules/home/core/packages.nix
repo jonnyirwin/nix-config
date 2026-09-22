@@ -5,6 +5,11 @@
 #     so they are on nvim's PATH only, not polluting the global profile)
 #   * language runtimes          → devshells/ via direnv (except GHC, below)
 #   * anything with an HM module → its own module, for theming/config
+let
+  # GHC for the global ghci below; version shared with devshells/haskell.nix
+  # and the Neovim fallback via lib/default.nix.
+  hpkgs = (import ../../../lib { inherit (pkgs) lib; }).haskellPackages pkgs;
+in
 {
   home.packages = with pkgs; [
     # ---- Modern CLI replacements ----
@@ -29,9 +34,9 @@
     wget
     poppler-utils # pdftotext, pdfinfo
     # A global `ghci` for scratch work outside any project. direnv prepends a
-    # devshell's PATH, so a project's own GHC still wins. Kept on the same
-    # version as devshells/haskell.nix and the Neovim fallback.
-    haskell.packages.ghc967.ghc
+    # devshell's PATH, so a project's own GHC still wins. Same version as
+    # devshells/haskell.nix and the Neovim fallback, via lib/default.nix.
+    hpkgs.ghc
 
     # ---- Disk and process inspection ----
     dua # interactive disk usage; `dua i <dir>` to walk and delete

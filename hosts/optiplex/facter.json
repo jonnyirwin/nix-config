@@ -28,7 +28,7 @@
     "bluetooth": [
       {
         "index": 34,
-        "attached_to": 39,
+        "attached_to": 37,
         "class_list": [
           "usb",
           "bluetooth"
@@ -129,8 +129,8 @@
         "module_alias": "usb:v0489pE0C8d0100dcEFdsc02dp01icE0isc01ip01in02"
       },
       {
-        "index": 36,
-        "attached_to": 39,
+        "index": 35,
+        "attached_to": 37,
         "class_list": [
           "usb",
           "bluetooth"
@@ -231,8 +231,8 @@
         "module_alias": "usb:v0489pE0C8d0100dcEFdsc02dp01icE0isc01ip01in00"
       },
       {
-        "index": 40,
-        "attached_to": 39,
+        "index": 38,
+        "attached_to": 37,
         "class_list": [
           "usb",
           "bluetooth"
@@ -1097,7 +1097,7 @@
     ],
     "hub": [
       {
-        "index": 39,
+        "index": 37,
         "attached_to": 28,
         "class_list": [
           "usb",
@@ -1119,7 +1119,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.39 xhci-hcd",
+          "name": "Linux 6.18.53 xhci-hcd",
           "value": 7531
         },
         "device": {
@@ -1133,7 +1133,7 @@
           "value": 0
         },
         "serial": "0000:00:14.0",
-        "model": "Linux 6.18.39 xhci-hcd xHCI Host Controller",
+        "model": "Linux 6.18.53 xhci-hcd xHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-0:1.0",
         "sysfs_bus_id": "1-0:1.0",
         "resources": [
@@ -1184,7 +1184,7 @@
         "module_alias": "usb:v1D6Bp0002d0618dc09dsc00dp01ic09isc00ip00in00"
       },
       {
-        "index": 42,
+        "index": 41,
         "attached_to": 28,
         "class_list": [
           "usb",
@@ -1206,7 +1206,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.39 xhci-hcd",
+          "name": "Linux 6.18.53 xhci-hcd",
           "value": 7531
         },
         "device": {
@@ -1220,7 +1220,7 @@
           "value": 0
         },
         "serial": "0000:00:14.0",
-        "model": "Linux 6.18.39 xhci-hcd xHCI Host Controller",
+        "model": "Linux 6.18.53 xhci-hcd xHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb2/2-0:1.0",
         "sysfs_bus_id": "2-0:1.0",
         "detail": {
@@ -1282,7 +1282,7 @@
         "resources": [
           {
             "type": "phys_mem",
-            "range": 11811160064
+            "range": 34359738368
           }
         ]
       }
@@ -1522,116 +1522,8 @@
     ],
     "mouse": [
       {
-        "index": 37,
-        "attached_to": 39,
-        "class_list": [
-          "mouse",
-          "usb"
-        ],
-        "bus_type": {
-          "hex": "0086",
-          "name": "USB",
-          "value": 134
-        },
-        "slot": {
-          "bus": 0,
-          "number": 0
-        },
-        "base_class": {
-          "hex": "0105",
-          "name": "Mouse",
-          "value": 261
-        },
-        "sub_class": {
-          "hex": "0003",
-          "name": "USB Mouse",
-          "value": 3
-        },
-        "vendor": {
-          "hex": "047d",
-          "name": "Kensington",
-          "value": 1149
-        },
-        "device": {
-          "hex": "8002",
-          "name": "Orbit Wireless Mobile Trackball",
-          "value": 32770
-        },
-        "revision": {
-          "hex": "0000",
-          "name": "1.00",
-          "value": 0
-        },
-        "compat_vendor": "Unknown",
-        "compat_device": "Generic USB Mouse",
-        "model": "Kensington Orbit Wireless Mobile Trackball",
-        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-3/1-3:1.0",
-        "sysfs_bus_id": "1-3:1.0",
-        "unix_device_names": [
-          "/dev/input/mice"
-        ],
-        "unix_device_name2": "/dev/input/mouse0",
-        "resources": [
-          {
-            "type": "baud",
-            "speed": 12000000,
-            "bits": 0,
-            "stop_bits": 0,
-            "parity": 0,
-            "handshake": 0
-          }
-        ],
-        "detail": {
-          "device_class": {
-            "hex": "0000",
-            "name": "per_interface",
-            "value": 0
-          },
-          "device_subclass": {
-            "hex": "0000",
-            "name": "per_interface",
-            "value": 0
-          },
-          "device_protocol": 0,
-          "interface_class": {
-            "hex": "0003",
-            "name": "hid",
-            "value": 3
-          },
-          "interface_subclass": {
-            "hex": "0001",
-            "name": "audio",
-            "value": 1
-          },
-          "interface_protocol": 2,
-          "interface_number": 0,
-          "interface_alternate_setting": 0
-        },
-        "hotplug": "usb",
-        "driver": "usbhid",
-        "driver_module": "usbhid",
-        "drivers": [
-          "usbhid"
-        ],
-        "driver_modules": [
-          "usbhid"
-        ],
-        "driver_info": {
-          "type": "mouse",
-          "db_entry_0": [
-            "explorerps/2",
-            "exps2"
-          ],
-          "xf86": "explorerps/2",
-          "gpm": "exps2",
-          "buttons": -1,
-          "wheels": -1
-        },
-        "module_alias": "usb:v047Dp8002d0100dc00dsc00dp00ic03isc01ip02in00"
-      },
-      {
-        "index": 38,
-        "attached_to": 39,
+        "index": 39,
+        "attached_to": 37,
         "class_list": [
           "mouse",
           "usb"
@@ -1674,8 +1566,8 @@
         "compat_vendor": "Unknown",
         "compat_device": "Generic USB Mouse",
         "model": "ZMK Project Berylline",
-        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-4/1-4:1.2",
-        "sysfs_bus_id": "1-4:1.2",
+        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-5/1-5:1.2",
+        "sysfs_bus_id": "1-5:1.2",
         "unix_device_names": [
           "/dev/input/mice"
         ],
@@ -1737,6 +1629,114 @@
           "wheels": -1
         },
         "module_alias": "usb:v1D50p615Ed0401dcEFdsc02dp01ic03isc00ip00in02"
+      },
+      {
+        "index": 40,
+        "attached_to": 37,
+        "class_list": [
+          "mouse",
+          "usb"
+        ],
+        "bus_type": {
+          "hex": "0086",
+          "name": "USB",
+          "value": 134
+        },
+        "slot": {
+          "bus": 0,
+          "number": 0
+        },
+        "base_class": {
+          "hex": "0105",
+          "name": "Mouse",
+          "value": 261
+        },
+        "sub_class": {
+          "hex": "0003",
+          "name": "USB Mouse",
+          "value": 3
+        },
+        "vendor": {
+          "hex": "047d",
+          "name": "Kensington",
+          "value": 1149
+        },
+        "device": {
+          "hex": "8002",
+          "name": "Orbit Wireless Mobile Trackball",
+          "value": 32770
+        },
+        "revision": {
+          "hex": "0000",
+          "name": "1.00",
+          "value": 0
+        },
+        "compat_vendor": "Unknown",
+        "compat_device": "Generic USB Mouse",
+        "model": "Kensington Orbit Wireless Mobile Trackball",
+        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0",
+        "sysfs_bus_id": "1-1:1.0",
+        "unix_device_names": [
+          "/dev/input/mice"
+        ],
+        "unix_device_name2": "/dev/input/mouse0",
+        "resources": [
+          {
+            "type": "baud",
+            "speed": 12000000,
+            "bits": 0,
+            "stop_bits": 0,
+            "parity": 0,
+            "handshake": 0
+          }
+        ],
+        "detail": {
+          "device_class": {
+            "hex": "0000",
+            "name": "per_interface",
+            "value": 0
+          },
+          "device_subclass": {
+            "hex": "0000",
+            "name": "per_interface",
+            "value": 0
+          },
+          "device_protocol": 0,
+          "interface_class": {
+            "hex": "0003",
+            "name": "hid",
+            "value": 3
+          },
+          "interface_subclass": {
+            "hex": "0001",
+            "name": "audio",
+            "value": 1
+          },
+          "interface_protocol": 2,
+          "interface_number": 0,
+          "interface_alternate_setting": 0
+        },
+        "hotplug": "usb",
+        "driver": "usbhid",
+        "driver_module": "usbhid",
+        "drivers": [
+          "usbhid"
+        ],
+        "driver_modules": [
+          "usbhid"
+        ],
+        "driver_info": {
+          "type": "mouse",
+          "db_entry_0": [
+            "explorerps/2",
+            "exps2"
+          ],
+          "xf86": "explorerps/2",
+          "gpm": "exps2",
+          "buttons": -1,
+          "wheels": -1
+        },
+        "module_alias": "usb:v047Dp8002d0100dc00dsc00dp00ic03isc01ip02in00"
       }
     ],
     "network_controller": [
@@ -2029,7 +2029,7 @@
         ]
       },
       {
-        "index": 44,
+        "index": 45,
         "attached_to": 17,
         "class_list": [
           "network_interface"
@@ -2070,7 +2070,7 @@
         ]
       },
       {
-        "index": 45,
+        "index": 46,
         "attached_to": 0,
         "class_list": [
           "network_interface"
@@ -2763,8 +2763,8 @@
     ],
     "usb": [
       {
-        "index": 35,
-        "attached_to": 39,
+        "index": 36,
+        "attached_to": 37,
         "class_list": [
           "usb",
           "unknown"
@@ -2805,8 +2805,8 @@
         },
         "serial": "F141200B3BCD8BC9",
         "model": "ZMK Project Berylline",
-        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-4/1-4:1.1",
-        "sysfs_bus_id": "1-4:1.1",
+        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-5/1-5:1.1",
+        "sysfs_bus_id": "1-5:1.1",
         "resources": [
           {
             "type": "baud",
@@ -2870,8 +2870,8 @@
         "module_alias": "usb:v1D50p615Ed0401dcEFdsc02dp01ic0Aisc00ip00in01"
       },
       {
-        "index": 41,
-        "attached_to": 39,
+        "index": 42,
+        "attached_to": 37,
         "class_list": [
           "usb",
           "unknown"
@@ -2912,8 +2912,8 @@
         },
         "serial": "F141200B3BCD8BC9",
         "model": "ZMK Project Berylline",
-        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-4/1-4:1.0",
-        "sysfs_bus_id": "1-4:1.0",
+        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-5/1-5:1.0",
+        "sysfs_bus_id": "1-5:1.0",
         "resources": [
           {
             "type": "baud",
@@ -3358,7 +3358,7 @@
         "handle": 4864,
         "array_handle": 4096,
         "start_address": "0x0",
-        "end_address": "0x300000000",
+        "end_address": "0x800000000",
         "part_width": 2
       }
     ],
@@ -3367,13 +3367,13 @@
         "handle": 4354,
         "location": "DIMM1",
         "bank_location": "",
-        "manufacturer": "80AD000080AD",
-        "part_number": "HMAA1GS6CJR6N-XN",
+        "manufacturer": "802C0000802C",
+        "part_number": "16ATF2G64HZ-2G6H1",
         "array_handle": 4096,
         "error_handle": 65534,
         "width": 64,
         "ecc_bits": 0,
-        "size": 8388608,
+        "size": 16777216,
         "form_factor": {
           "hex": "000d",
           "name": "SODIMM",
@@ -3388,19 +3388,19 @@
         "memory_type_details": [
           "Synchronous"
         ],
-        "speed": 3200
+        "speed": 2667
       },
       {
         "handle": 4355,
         "location": "DIMM2",
         "bank_location": "",
         "manufacturer": "802C0000802C",
-        "part_number": "8ATF51264HZ-2G1B1",
+        "part_number": "16ATF2G64HZ-2G6H1",
         "array_handle": 4096,
         "error_handle": 65534,
         "width": 64,
         "ecc_bits": 0,
-        "size": 4194304,
+        "size": 16777216,
         "form_factor": {
           "hex": "000d",
           "name": "SODIMM",
@@ -3415,7 +3415,7 @@
         "memory_type_details": [
           "Synchronous"
         ],
-        "speed": 2133
+        "speed": 2667
       }
     ],
     "memory_device_mapped_address": [
@@ -3424,7 +3424,7 @@
         "memory_device_handle": 4354,
         "array_map_handle": 4864,
         "start_address": "0x0",
-        "end_address": "0x200000000",
+        "end_address": "0x400000000",
         "row_position": 255,
         "interleave_position": 255,
         "interleave_depth": 255
@@ -3433,8 +3433,8 @@
         "handle": 5121,
         "memory_device_handle": 4355,
         "array_map_handle": 4864,
-        "start_address": "0x200000000",
-        "end_address": "0x300000000",
+        "start_address": "0x400000000",
+        "end_address": "0x800000000",
         "row_position": 255,
         "interleave_position": 255,
         "interleave_depth": 255

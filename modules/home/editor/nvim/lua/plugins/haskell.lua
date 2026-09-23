@@ -9,6 +9,51 @@ return {
         config = function()
             local ht = require("haskell-tools")
 
+            -- haskell-tools' own `buf_eval_all` assumes every code lens arrives
+            -- with a `command` field. HLS sends them unresolved when the client
+            -- advertises codeLens resolveSupport (Neovim 0.12 does), so the
+            -- plugin errors with "attempt to index field 'command'".
+            -- Resolve the lenses here, then run the eval commands bottom-up so
+            -- inserted result lines don't shift the ranges still pending.
+            local function eval_all(bufnr)
+                bufnr = bufnr or vim.api.nvim_get_current_buf()
+                local client = vim.lsp.get_clients({ bufnr = bufnr, name = "haskell-tools.nvim" })[1]
+                if not client then
+                    vim.notify("No haskell-tools LSP client attached.", vim.log.levels.ERROR)
+                    return
+                end
+
+                local params = { textDocument = vim.lsp.util.make_text_document_params(bufnr) }
+                local res = client:request_sync("textDocument/codeLens", params, 10000, bufnr)
+                if not res or res.err or not res.result then
+                    vim.notify("Could not fetch code lenses from HLS.", vim.log.levels.ERROR)
+                    return
+                end
+
+                local evals = {}
+                for _, lens in ipairs(res.result) do
+                    if not lens.command then
+                        local resolved = client:request_sync("codeLens/resolve", lens, 10000, bufnr)
+                        lens = (resolved and not resolved.err and resolved.result) or lens
+                    end
+                    if lens.command and lens.command.command:match("evalCommand") then
+                        table.insert(evals, lens)
+                    end
+                end
+
+                if #evals == 0 then
+                    vim.notify("No evaluable code snippets found.", vim.log.levels.INFO)
+                    return
+                end
+
+                table.sort(evals, function(a, b)
+                    return a.range.start.line > b.range.start.line
+                end)
+                for _, lens in ipairs(evals) do
+                    client:request_sync("workspace/executeCommand", lens.command, 30000, bufnr)
+                end
+            end
+
             -- Ensure ghcup bin directory is in PATH for HLS
             local ghcup_bin = vim.fn.expand("~/.ghcup/bin")
             if vim.fn.isdirectory(ghcup_bin) == 1 then
@@ -55,7 +100,9 @@ return {
                         vim.keymap.set(
                             "n",
                             "<leader>he",
-                            ht.lsp.buf_eval_all,
+                            function()
+                                eval_all(bufnr)
+                            end,
                             { buffer = bufnr, desc = "Haskell: Evaluate all" }
                         )
 

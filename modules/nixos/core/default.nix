@@ -4,6 +4,7 @@
     ./networking.nix
     ./nix.nix
     ./nix-ld.nix
+    ./ollama.nix
     ./openssh.nix
     ./packages.nix
     ./secrets.nix

@@ -67,13 +67,26 @@
       accent = "purple";
     };
 
-    services.openssh = {
-      enable = true;
-      # Tailnet plus the home LAN. IPv6 by link-local only: LAN peers' global
-      # addresses share the ISP's rotating prefix, so there's no stable range.
-      lanSubnets = [ "192.168.1.0/24" "fe80::/10" ];
+    services = {
+      openssh = {
+        enable = true;
+        # Tailnet plus the home LAN. IPv6 by link-local only: LAN peers' global
+        # addresses share the ISP's rotating prefix, so there's no stable range.
+        lanSubnets = [ "192.168.1.0/24" "fe80::/10" ];
+      };
+      tailscale.enable = true;
+
+      # Local LLMs, CPU only. Sized for 32 GB of DDR4-2666: a ~15 GB 3-bit MoE
+      # leaves room for the desktop and a browser without touching swap. The
+      # weights go on /mnt/data — the NVMe's large volume — rather than root,
+      # which the Nix store also has to fit in.
+      ollama = {
+        enable = true;
+        modelsDir = "/mnt/data/ollama";
+        models = [ "hf.co/unsloth/Qwen3.6-35B-A3B-GGUF:UD-Q3_K_S" ];
+      };
     };
-    services.tailscale.enable = true;
+
     secrets.enable = true;
     security.passwordlessSudo = true;
   };

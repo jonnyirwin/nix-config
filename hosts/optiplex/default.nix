@@ -83,10 +83,7 @@
       ollama = {
         enable = true;
         modelsDir = "/mnt/data/ollama";
-        models = [
-          "hf.co/unsloth/Qwen3.6-35B-A3B-GGUF:UD-Q3_K_S"
-          "gemma4:12b-it-qat"
-        ];
+        models = [ "gemma4:12b-it-qat" ];
       };
     };
 

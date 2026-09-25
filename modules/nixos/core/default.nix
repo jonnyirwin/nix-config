@@ -5,6 +5,7 @@
     ./nix.nix
     ./nix-ld.nix
     ./ollama.nix
+    ./open-webui.nix
     ./openssh.nix
     ./packages.nix
     ./secrets.nix

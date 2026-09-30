@@ -97,6 +97,7 @@ return {
                         -- Haskell-specific LSP keybindings using <leader>h namespace
                         vim.keymap.set("n", "<leader>hf", vim.lsp.buf.format, bufopts)
                         vim.keymap.set("n", "<leader>hs", ht.hoogle.hoogle_signature, { desc = "Haskell: Hoogle signature" })
+                        vim.keymap.set("n", "<leader>hl", vim.lsp.codelens.run, { buffer = bufnr, desc = "Haskell: Run code lens" })
                         vim.keymap.set(
                             "n",
                             "<leader>he",

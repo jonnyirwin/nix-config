@@ -1,3 +1,5 @@
+//@ pragma UseQApplication
+// QApplication mode is required for tray menus (SystemTrayItem.display()).
 import QtQuick
 import Quickshell
 import Quickshell.Io

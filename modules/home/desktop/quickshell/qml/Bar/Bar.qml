@@ -139,7 +139,7 @@ PanelWindow {
                 Layout.alignment: Qt.AlignVCenter
                 spacing: 6
 
-                Tray { Layout.alignment: Qt.AlignVCenter }
+                Tray { window: root; Layout.alignment: Qt.AlignVCenter }
 
                 SliderPill {
                     id: volumeSlider

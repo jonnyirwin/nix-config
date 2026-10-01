@@ -12,10 +12,16 @@ Row {
     id: root
     spacing: 6
 
+    // The bar's PanelWindow, passed in rather than read from QsWindow so this
+    // file keeps importing nothing beyond SystemTray (see above). Menus are
+    // positioned relative to it.
+    required property var window
+
     Repeater {
         model: SystemTray.items.values
 
         Item {
+            id: trayItem
             required property var modelData
             anchors.verticalCenter: parent.verticalCenter
             width: 22
@@ -27,14 +33,26 @@ Row {
                 asynchronous: true
             }
 
+            function showMenu() {
+                const pos = trayItem.mapToItem(null, 0, trayItem.height);
+                modelData.display(root.window, pos.x, pos.y);
+            }
+
+            // Left: activate, unless the item is nothing but a menu
+            // (nm-applet), in which case open the menu instead.
             TapHandler {
                 acceptedButtons: Qt.LeftButton
-                onTapped: modelData.activate()
+                onTapped: modelData.onlyMenu ? trayItem.showMenu() : modelData.activate()
+            }
+
+            TapHandler {
+                acceptedButtons: Qt.MiddleButton
+                onTapped: modelData.secondaryActivate()
             }
 
             TapHandler {
                 acceptedButtons: Qt.RightButton
-                onTapped: if (modelData.hasMenu) modelData.secondaryActivate()
+                onTapped: if (modelData.hasMenu) trayItem.showMenu()
             }
         }
     }

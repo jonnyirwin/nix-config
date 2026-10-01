@@ -38,9 +38,23 @@ let
   # Only parser/ is linked, not queries/: nvim-treesitter ships its own query
   # files and lazy.nvim installs those, so linking the grammars' copies too
   # would stack duplicate highlight captures.
+  #
+  # Every grammar is rebuilt with -fno-strict-aliasing. Grammars vendoring the
+  # pre-0.26.4 src/tree_sitter/array.h type-pun Array* through larger structs;
+  # GCC 16 at -O2 then keeps a stale pointer across realloc and corrupts the
+  # heap. tree-sitter-haskell 0.23.1 aborted nvim on opening any .hs file
+  # ("corrupted size vs. prev_size"). Upstream fix:
+  # tree-sitter/tree-sitter-haskell#157 (and siblings in other grammars).
+  # Drop this once nixpkgs ships grammars with the synced array.h.
+  noStrictAliasing = g: g.overrideAttrs (old: {
+    env = (old.env or { }) // {
+      NIX_CFLAGS_COMPILE = toString (old.env.NIX_CFLAGS_COMPILE or "") + " -fno-strict-aliasing";
+    };
+  });
+
   treesitterGrammars = pkgs.symlinkJoin {
     name = "nvim-treesitter-grammars";
-    paths = map pkgs.vimPlugins.nvim-treesitter.grammarToPlugin (
+    paths = map (g: pkgs.vimPlugins.nvim-treesitter.grammarToPlugin (noStrictAliasing g)) (
       # angular and ssh_config have no nixpkgs grammar; nvim-treesitter still
       # builds those two on demand via the tree-sitter CLI in extraPackages.
       with pkgs.tree-sitter-grammars; [

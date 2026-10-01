@@ -27,6 +27,21 @@ in
       }
     ];
 
+    # torchcodec (open-webui → sentence-transformers → torchaudio) fails its
+    # mp3 encoder tests against the ffmpeg CLI at 8 kHz. Encoding is unused
+    # here; skip that test until nixpkgs fixes it.
+    nixpkgs.overlays = [
+      (_final: prev: {
+        pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
+          (_pyfinal: pyprev: {
+            torchcodec = pyprev.torchcodec.overridePythonAttrs (old: {
+              disabledTests = (old.disabledTests or [ ]) ++ [ "test_audio_against_cli" ];
+            });
+          })
+        ];
+      })
+    ];
+
     services.open-webui = {
       enable = true;
       host = "127.0.0.1";

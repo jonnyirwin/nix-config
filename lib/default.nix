@@ -115,8 +115,8 @@ rec {
   # To see what a nixpkgs revision offers:
   #   nix repl nixpkgs
   #   :a legacyPackages.x86_64-linux.haskell.packages
-  #   # tab-complete the ghcXYZ attrs (ghc967 = GHC 9.6.7)
-  ghcVersion = "ghc967";
+  #   # tab-complete the ghcXYZ attrs (ghc9103 = GHC 9.10.3)
+  ghcVersion = "ghc9103";
 
   # The matching package set: GHC, HLS, ghcid and the formatters built
   # together. Callers hold `pkgs`, this file does not, so it is passed in:

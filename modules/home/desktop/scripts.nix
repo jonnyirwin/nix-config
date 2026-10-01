@@ -396,14 +396,27 @@ let
     # meant the same picture twice in a row often enough to be irritating, and
     # no way to go back to the one you just skipped past.
     #
-    #   wallpaper next     the binding, and the daily timer
+    #   wallpaper next     the binding
     #   wallpaper prev     the one you just went past
-    #   wallpaper current  re-apply without advancing, for sway's startup
+    #   wallpaper current  re-apply without advancing
+    #   wallpaper latest   the newest picture, for the daily timer
+    #   wallpaper startup  sway's startup: `latest` at login, `current` on a
+    #                      config reload (swaybg is already running then)
     wallpaper = {
       runtimeInputs = with pkgs; [ findutils coreutils procps systemd imagemagick sway jq ];
       text = ''
         mode="''${1:-next}"
         dir="''${2:-${wallpaperDir}}"
+
+        # At login no swaybg is running yet; on a reload it still is, and
+        # jumping to the newest would undo whatever Mod+w last picked.
+        if [ "$mode" = startup ]; then
+          if systemctl --user is-active --quiet wallpaper.service; then
+            mode=current
+          else
+            mode=latest
+          fi
+        fi
 
         # Which picture is showing outlives the session, so a reboot carries on
         # through the pool rather than starting from the top every time.
@@ -452,7 +465,19 @@ let
           fi
         done
 
-        if [ "$index" -lt 0 ]; then
+        if [ "$mode" = latest ]; then
+          # Newest by mtime, which the fetchers set to the picture's own date
+          # — download order says nothing, since Bing back-fills a week at once.
+          target=0
+          newest=0
+          for i in "''${!files[@]}"; do
+            t=$(stat -c %Y "''${files[$i]}")
+            if [ "$t" -gt "$newest" ]; then
+              newest=$t
+              target=$i
+            fi
+          done
+        elif [ "$index" -lt 0 ]; then
           # Nothing showing yet, or the file that was went away.
           case "$mode" in
             prev) target=$((count - 1)) ;;
@@ -463,7 +488,7 @@ let
             current) target=$index ;;
             next)    target=$(( (index + 1) % count )) ;;
             prev)    target=$(( (index - 1 + count) % count )) ;;
-            *)       echo "usage: wallpaper [next|prev|current] [dir]" >&2; exit 2 ;;
+            *)       echo "usage: wallpaper [next|prev|current|latest|startup] [dir]" >&2; exit 2 ;;
           esac
         fi
 
@@ -572,7 +597,13 @@ let
 
               # A partial download would otherwise sit there forever looking
               # like a file we already have.
-              curl -fsSL "https://www.bing.com''${urlbase}_UHD.jpg" -o "$dest" || rm -f "$dest"
+              if curl -fsSL "https://www.bing.com''${urlbase}_UHD.jpg" -o "$dest"; then
+                # Dated by the picture, not the download, so `wallpaper
+                # latest` finds the newest day even in a week-long catch-up.
+                touch -d "$date" "$dest"
+              else
+                rm -f "$dest"
+              fi
             done
 
         # Same month of history as the APOD directory, for the same reason.
@@ -605,6 +636,8 @@ let
 
         url=$(printf '%s' "$json" | jq -r '.hdurl // .url')
         curl -fsSL "$url" -o "$dest"
+        # Dated by the picture, for `wallpaper latest`.
+        touch -d "$apod_date" "$dest"
 
         # APOD is an astronomy feed, not a wallpaper feed. Plenty of days are
         # diagrams or thousand-pixel crops that a panel this size can only

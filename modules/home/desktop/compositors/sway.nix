@@ -219,9 +219,9 @@ in
           # Not `always` — a reload should not yank you back to 1.
           { command = "${lib.getExe' pkgs.sway "swaymsg"} workspace number 1"; }
 
-          # `current`, not `next`: a config reload should put the wallpaper
-          # back, not step past it.
-          { command = "${lib.getExe s.wallpaper} current"; always = true; }
+          # The newest picture at login; a config reload puts back whatever
+          # is showing rather than stepping past it.
+          { command = "${lib.getExe s.wallpaper} startup"; always = true; }
           { command = lib.getExe s.clipboard-sync; }
           { command = "${lib.getExe' pkgs.wl-clipboard "wl-paste"} --watch ${lib.getExe pkgs.cliphist} store"; }
 

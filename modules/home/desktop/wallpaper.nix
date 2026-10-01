@@ -57,14 +57,16 @@ in
     # left to fetch, so the timer would fire daily to do nothing at all.
     systemd.user.services = lib.mkIf (enabled != [ ]) {
       wallpaper-fetch = {
-        Unit.Description = "Fetch the day's wallpapers and advance the rotation";
+        Unit.Description = "Fetch the day's wallpapers and show the newest";
         Service = {
           Type = "oneshot";
           # One ExecStart line per source rather than one script: a oneshot
           # runs them in order, and either source being down for the day
           # should not stop the other from arriving.
           ExecStart = map (name: lib.getExe s."${name}-wallpaper") enabled;
-          ExecStartPost = "${lib.getExe s.wallpaper} next";
+          # Show what just arrived; on a day nothing new did, this re-applies
+          # the newest, which is what is already showing.
+          ExecStartPost = "${lib.getExe s.wallpaper} latest";
         };
       };
     };

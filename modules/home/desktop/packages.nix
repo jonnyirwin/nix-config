@@ -63,6 +63,11 @@ in
       # ---- Notes ----
       obsidian # markdown knowledge base (unfree; allowUnfree is set globally)
 
+      # ---- Chat ----
+      # Vesktop over the official `discord`: same web client, but its screen
+      # share goes through the xdg portal, so it actually works under Sway.
+      vesktop # Discord client
+
       # ---- Media ----
       mpv
       spotify # official client (unfree; allowUnfree is set globally)

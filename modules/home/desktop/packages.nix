@@ -68,6 +68,9 @@ in
       # share goes through the xdg portal, so it actually works under Sway.
       vesktop # Discord client
 
+      # ---- Games ----
+      prismlauncher # Minecraft launcher (MS account login, manages Java per instance)
+
       # ---- Media ----
       mpv
       spotify # official client (unfree; allowUnfree is set globally)

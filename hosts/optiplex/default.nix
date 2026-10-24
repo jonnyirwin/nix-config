@@ -88,7 +88,7 @@
 
       # A chat UI over those models at http://localhost:8080 that searches the
       # web first, so answers come from sources rather than recall.
-      open-webui.enable = true;
+      open-webui.enable = false;
     };
 
     secrets.enable = true;

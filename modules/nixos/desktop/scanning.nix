@@ -44,7 +44,7 @@ in
     environment.systemPackages = with pkgs; [
       # Saved profiles, scan-more-pages into one document, page reorder before
       # saving, OCR and auto-deskew built in. The everyday driver.
-      naps2
+      # naps2 - disabled 2026-10-24 as was causing nrs to fail
 
       # Heavier post-processing than NAPS2 — unpaper cleanup, deskew, per-page
       # editing — behind an older GTK UI. Worth reaching for on poor-quality

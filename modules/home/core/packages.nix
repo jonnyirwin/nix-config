@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ inputs, pkgs, ... }:
 
 # Tools wanted in every shell. Note what is deliberately NOT here:
 #   * LSPs, formatters, linters  → modules/home/editor/neovim.nix (extraPackages,
@@ -31,6 +31,7 @@ in
     # ---- Development utilities ----
     just
     codex
+    inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-cli
     curl
     wget
     poppler-utils # pdftotext, pdfinfo

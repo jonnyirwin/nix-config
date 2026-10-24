@@ -30,6 +30,7 @@ in
 
     # ---- Development utilities ----
     just
+    codex
     curl
     wget
     poppler-utils # pdftotext, pdfinfo

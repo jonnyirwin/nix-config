@@ -18,7 +18,7 @@
 let
   # pkgs.ruby is MRI Ruby (the standard implementation).
   # pkgs.ruby_3_3, pkgs.ruby_3_2, etc. are pinned versions.
-  rubyPkg = pkgs.ruby_3_3;
+  rubyPkg = pkgs.ruby;
 in
 pkgs.mkShell {
   name = "ruby-dev";

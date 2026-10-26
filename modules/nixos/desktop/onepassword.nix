@@ -1,4 +1,4 @@
-{ lib, config, ... }:
+{ lib, config, pkgs, ... }:
 
 let
   cfg = config.jonny.desktop;
@@ -14,6 +14,16 @@ in
     programs._1password-gui = {
       enable = true;
       polkitPolicyOwners = [ "jonny" ];
+
+      # Nixpkgs patches the main app's RPATH, but not this Chromium helper.
+      # Without GLib in its RPATH, crashpad_handler fails before 1Password can
+      # finish starting ("libglib-2.0.so.0: cannot open shared object file").
+      package = pkgs._1password-gui.overrideAttrs (old: {
+        postFixup = (old.postFixup or "") + ''
+          patchelf --add-rpath "${lib.makeLibraryPath [ pkgs.glib ]}" \
+            "$out/share/1password/chrome_crashpad_handler"
+        '';
+      });
     };
   };
 }

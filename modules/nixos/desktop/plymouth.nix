@@ -4,11 +4,12 @@
 # a graphical LUKS passphrase prompt in place of the bare console one.
 #
 # The graphical prompt is not Plymouth on its own: it needs a systemd-driven
-# initrd (boot.initrd.systemd.enable), because that is what runs the
-# systemd-cryptsetup password agent Plymouth draws. disko emits
+# initrd, because that is what runs the systemd-cryptsetup password agent
+# Plymouth draws. disko emits
 # boot.initrd.luks.devices.cryptroot from hosts/optiplex/disks/nvme.nix, and
 # NixOS translates that into the systemd-cryptsetup unit automatically — so
-# enabling systemd-initrd is the whole switch, no crypttab wiring by hand.
+# disko's LUKS configuration supplies the systemd-cryptsetup unit, no crypttab
+# wiring by hand.
 #
 # Themed via catppuccin/nix, matching the SDDM greeter (modules/nixos/desktop/
 # sddm.nix owns the shared catppuccin.{flavor,accent}); the theme stays inert
@@ -37,15 +38,10 @@ in
     boot = {
       plymouth.enable = true;
 
-      # Graphical LUKS prompt (see the header) — also the modern, better-
-      # supported initrd path generally.
-      initrd.systemd.enable = true;
-
       # A clean splash instead of a wall of kernel/udev logs. The passphrase
       # prompt still interrupts the splash when the disk needs unlocking.
       kernelParams = [ "quiet" "udev.log_level=3" ] ++ rotateParam;
       consoleLogLevel = 0;
-      initrd.verbose = false;
     };
 
     catppuccin.plymouth.enable = true;

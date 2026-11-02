@@ -49,7 +49,7 @@ in
       # Heavier post-processing than NAPS2 — unpaper cleanup, deskew, per-page
       # editing — behind an older GTK UI. Worth reaching for on poor-quality
       # originals, not for routine scans.
-      gscan2pdf
+      # gscan2pdf - disabled 2026-11-02: pulls sane-frontends -> gtk2, now marked broken in nixpkgs
 
       # Adds a searchable text layer to an already-scanned PDF, which is the
       # one job neither GUI does well from the command line. tesseract is the

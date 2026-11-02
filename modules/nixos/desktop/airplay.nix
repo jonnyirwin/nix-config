@@ -18,9 +18,12 @@ in
     # browse, but a receiver has to announce itself, and UxPlay registers its
     # AirPlay services through Avahi's client API, which is what userServices
     # permits. Without this the iPhone's Screen Mirroring list stays empty.
-    services.avahi.publish = {
-      enable = true;
-      userServices = true;
+    # publish-addresses mirrors what the old `publish.userServices` implied:
+    # the announced services point at this host's A/AAAA records.
+    services.avahi.settings.publish = {
+      disable-publishing = false;
+      disable-user-service-publishing = false;
+      publish-addresses = true;
     };
 
     # UxPlay picks random ports unless told otherwise; `-p` pins it to exactly

@@ -49,6 +49,10 @@ in
       # backend, far faster on CSG-heavy models than the 2021.01 release.
       openscad-unstable # programmatic CAD
       inkscape # vector graphics
+      scribus # desktop publishing
+
+      # ---- Office ----
+      libreoffice # office suite (the maintained OpenOffice fork)
 
       # ---- Embedded ----
       # PlatformIO still fetches its own toolchains into ~/.platformio at first

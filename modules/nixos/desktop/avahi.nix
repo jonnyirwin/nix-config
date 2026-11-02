@@ -7,8 +7,8 @@ in
   # Shared by ./printing.nix and ./scanning.nix rather than living in either:
   # a network all-in-one is one device announcing several services over the
   # same mDNS, and whichever of the two modules happened to own the daemon
-  # would silently be a dependency of the other.
-  config = lib.mkIf (cfg.enable && (cfg.printing.enable || cfg.scanning.enable)) {
+  # would silently be a dependency of the other. ./airplay.nix needs it too.
+  config = lib.mkIf (cfg.enable && (cfg.printing.enable || cfg.scanning.enable || cfg.airplay.enable)) {
     services.avahi = {
       enable = true;
 

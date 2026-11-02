@@ -53,6 +53,7 @@
       steam.enable = true;
       printing.enable = true;
       scanning.enable = true;
+      airplay.enable = true;
     };
 
     # The host's one theme declaration. Change either line to re-theme

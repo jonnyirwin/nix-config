@@ -6,6 +6,7 @@ in
 {
   imports = [
     # ---- Compositor-agnostic ----
+    ./airplay.nix
     ./audio.nix
     ./avahi.nix
     ./bluetooth.nix

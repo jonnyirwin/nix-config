@@ -1,7 +1,12 @@
 # Home Manager config specific to optiplex. Shared user config lives in
 # modules/home; this file should stay small enough to read at a glance.
-_:
+{ pkgs, ... }:
 {
+  home.packages = [
+    pkgs.openttd
+    pkgs.endless-sky
+  ];
+
   jonny = {
     # desktop.enable, desktop.compositor and the whole of jonny.theme are
     # inherited from hosts/optiplex/default.nix via osConfig — declared once at
